@@ -127,7 +127,7 @@ async def lyrics(ctx, *, query: str):
 
             embed.description = lyrics
 
-            embed.set_author(name=f'Invoked by: {ctx.author}')
+            embed.set_footer(text=f'Invoked by: {ctx.author}')
 
             return embed # await ctx.send(embed=embed)
         except:
@@ -211,7 +211,7 @@ async def lyrics(ctx, *, query: str):
                 while True:
                     reaction, user = await bot.wait_for('reaction_add', check=lambda r, u: str(r.emoji) == '\U000023f9' and r.message == msg)
 
-                    if not await bot.is_owner(user) or user == ctx.author or user.guild_permissions.manage_messages:
+                    if not await bot.is_owner(user) and not user == ctx.author and not user.guild_permissions.manage_messages:
                         continue
 
                     nonlocal stop_process
