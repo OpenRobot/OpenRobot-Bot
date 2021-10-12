@@ -118,7 +118,7 @@ async def lyrics(ctx, *, query: str):
             if title and not getattr(title, 'lower', lambda: title)() == 'none':
                 embed.title = title
             else:
-                embed.title = f'{query} Search Result:'
+                embed.title = f'{q} Search Result:'
 
             if artist and not getattr(artist, 'lower', lambda: artist)() == 'none':
                 embed.set_author(name=f'Artist: {artist}')
