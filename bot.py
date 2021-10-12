@@ -176,7 +176,7 @@ async def lyrics(ctx, *, query: str):
 
             await asyncio.sleep(3)
 
-            for act in bot.get_user(ctx.author.id).activities:
+            for act in ctx.guild.get_member(ctx.author.id).activities:
                 if isinstance(act, discord.Spotify):
                     activity = act
                     break
