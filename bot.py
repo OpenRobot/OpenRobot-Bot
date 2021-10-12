@@ -9,12 +9,13 @@ import json
 import inspect
 import os
 import textwrap
+import mystbin
 from discord.ext import commands
 from urllib.parse import quote_plus
 from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator
 from io import BytesIO, StringIO
 from PIL import Image, ImageDraw
-import mystbin
+from openrobot.api_wrapper import AsyncClient
 
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).
@@ -35,6 +36,8 @@ bot = commands.Bot(
 bot.color = None
 bot.config = config
 bot.mystbin = mystbin.Client()
+api = AsyncClient(config.API_TOKEN, ignore_warning=True)
+bot.api = api
 
 def override(func): # Plainly just for `source` command.
     func.__is_overridden__ = True
@@ -83,43 +86,157 @@ async def lyrics(ctx, *, query: str):
 
     Flags:
     - `--raw`: Returns the raw response sent by our (OpenRobot) API.
+    - `--from-spotify`: Gets the lyrics from spotify. This gets the lyrics from your spotify activity and edits them automatically when a new song plays.
     """
 
-    try:
-        async with aiohttp.ClientSession() as sess:
-            async with sess.get(f'https://api.openrobot.xyz/api/lyrics/{quote_plus(query)}', headers={'Authorization': config.API_TOKEN}) as resp:
-                js = await resp.json()
+    if '--raw' in query.split(' ') and '--from-spotify' in query.split(' '):
+        return await ctx.send("You cannot define both `--raw` and `--from-spotify` flags.")
+    if query == '--from-spotify':
+        from_spotify = True
+    else:
+        from_spotify = False
 
-        if '--raw' in query.split(' '):
-            s = StringIO()
-            s.write(json.dumps(js, indent=4))
-            s.seek(0)
+    async def getLyrics(q):
+        try:
+            lyric = await api.lyrics(q)
 
-            return await ctx.send(file=discord.File(s, 'response.json'))
+            if '--raw' in query.split(' '):
+                s = StringIO()
+                s.write(json.dumps(lyric.raw, indent=4))
+                s.seek(0)
 
-        title = js['title']
-        artist = js['artist']
-        lyrics = js['lyrics']
+                return await ctx.send(file=discord.File(s, 'response.json'))
 
-        if not lyrics:
-            return await ctx.send(f"Song with query `{query}` not found.")
+            title = lyric.title
+            artist = lyric.artist
+            lyrics = lyric.lyrics
 
+            if not lyrics:
+                return None # return await ctx.send(f"Song with query `{query}` not found.")
+
+            embed = discord.Embed(color=bot.color)
+            if title and not getattr(title, 'lower', lambda: title)() == 'none':
+                embed.title = title
+            else:
+                embed.title = f'{query} Search Result:'
+
+            if artist and not getattr(artist, 'lower', lambda: artist)() == 'none':
+                embed.set_author(name=f'Artist: {artist}')
+            else:
+                pass
+
+            embed.description = lyrics
+
+            embed.set_author(name=f'Invoked by: {ctx.author}')
+
+            return embed # await ctx.send(embed=embed)
+        except:
+            return None # return await ctx.send(f"Song with query `{query}` not found.") 
+
+    def generateErrorEmbed(error):
         embed = discord.Embed(color=bot.color)
-        if title:
-            embed.title = title
-        else:
-            embed.title = f'{query} Search Result:'
+        
+        embed.description = error
 
-        if artist:
-            embed.set_author(name=f'Artist: {artist}')
-        else:
-            pass
+        embed.set_author(name=f'Invoked by: {ctx.author}')
 
-        embed.description = lyrics
+        return embed
 
-        await ctx.send(embed=embed)
-    except:
-        return await ctx.send(f"Song with query `{query}` not found.")
+    if from_spotify:
+        activity = None
+
+        for act in ctx.author.activities:
+            if isinstance(act, discord.Spotify):
+                activity = act
+                break
+        
+        if not activity:
+            return await ctx.send(embed=generateErrorEmbed("You are not playing any spotify music!"))
+
+        async def msgIsNew(msg):
+            async for message in msg.channel.history(limit=5):
+                if msg == message:
+                    return True
+            
+            return False
+
+        msg = None
+
+        stop_process = False
+
+        while True:
+            if stop_process:
+                return
+
+            if msg is None:
+                if not activity:
+                    msg = await ctx.send(embed=generateErrorEmbed("You are not playing any spotify music!"))
+                else:
+                    l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+                    if not l:
+                        l = await getLyrics(activity.title)
+
+                    if not l:
+                        msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
+
+                    msg = await ctx.send(embed=l)
+
+                await msg.add_reaction('\U000023f9')
+            elif msgIsNew(msg):
+                if not activity:
+                    msg = await msg.edit(embed=generateErrorEmbed("You are not playing any spotify music!"))
+                else:
+                    l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+                    if not l:
+                        l = await getLyrics(activity.title)
+
+                    if not l:
+                        msg = await msg.edit(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
+
+                    msg = await msg.edit(embed=l)
+            else:
+                if not activity:
+                    msg = await ctx.send(embed=generateErrorEmbed("You are not playing any spotify music!"))
+                else:
+                    l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+                    if not l:
+                        l = await getLyrics(activity.title)
+
+                    if not l:
+                        msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
+
+                    msg = await ctx.send(embed=l)
+
+            async def do_stop():
+                while True:
+                    reaction, user = await bot.wait_for('reaction_add', check=lambda r, u: str(r.emoji) == '\U000023f9' and r.message == msg)
+
+                    if not await bot.is_owner(user) or user == ctx.author or user.guild_permissions.manage_messages:
+                        continue
+
+                    nonlocal stop_process
+                    stop_process = True
+                    await msg.delete()
+
+            bot.loop.create_task(do_stop())
+
+            if stop_process:
+                return
+
+            before, activity = await bot.wait_for('presence_update', check=lambda b, a: b == ctx.author and a == ctx.author and (isinstance(a, discord.Spotify) if a else True))
+
+            if stop_process:
+                return
+    else:
+        l = await getLyrics(query)
+
+        if isinstance(l, discord.Message):
+            return
+
+        if not l:
+            msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
+
+        msg = await ctx.send(embed=l)
 
 async def publishCdn(fp : BytesIO, filename : str = "uwu.png", from_aiohttp=True, file_type = None):
     fileType = file_type or f"{filename.split('.')[-1:]}"

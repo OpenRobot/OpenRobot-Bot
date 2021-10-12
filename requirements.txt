@@ -6,3 +6,4 @@ thefuzz[speedup]
 git+https://github.com/Rapptz/discord-ext-menus
 Pillow
 mystbin.py
+git+https://github.com/OpenRobot-Packages/API-Wrapper
