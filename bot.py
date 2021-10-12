@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import config
 import re
@@ -173,6 +174,8 @@ async def lyrics(ctx, *, query: str):
             if stop_process:
                 return
 
+            await asyncio.sleep(3)
+
             for act in ctx.author.activities:
                 if isinstance(act, discord.Spotify):
                     activity = act
@@ -199,13 +202,13 @@ async def lyrics(ctx, *, query: str):
                     l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
 
                     if not l:
+                        l = await getLyrics(activity.title)
+
+                    if not l:
                         for x in activity.artists:
                             l = await getLyrics(activity.title + ' ' + x)
                             if l:
                                 break
-
-                    if not l:
-                        l = await getLyrics(activity.title)
 
                     if not l:
                         msg = await msg.edit(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
@@ -240,7 +243,7 @@ async def lyrics(ctx, *, query: str):
             if stop_process:
                 return
 
-            _, __ = await bot.wait_for('presence_update', check=lambda b, a: b == ctx.author and a == ctx.author and any([isinstance(new_act, discord.Spotify) for new_act in ctx.author.activities]))
+            _, __ = await bot.wait_for('presence_update', check=lambda b, a: b == ctx.author and a == ctx.author)
 
             if stop_process:
                 return
