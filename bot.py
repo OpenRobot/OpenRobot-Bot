@@ -15,7 +15,7 @@ from urllib.parse import quote_plus
 from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator
 from io import BytesIO, StringIO
 from PIL import Image, ImageDraw
-from openrobot.api_wrapper import AsyncClient
+from openrobot.api_wrapper import AsyncClient, error
 
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).
@@ -356,21 +356,19 @@ async def ocr(ctx, *, image = None):
         return await ctx.send('No image provided.')
 
     try:
-        async with aiohttp.ClientSession() as sess:
-            async with sess.post('https://api.openrobot.xyz/api/ocr', headers={'Authorization': config.API_TOKEN}, params={'url': url}) as resp:
-                js = await resp.json()
+        ocr = await api.ocr(url=url)
 
         try:
             if '--raw' in image.split(' '):
                 s = StringIO()
-                s.write(json.dumps(js, indent=4))
+                s.write(json.dumps(ocr.raw, indent=4))
                 s.seek(0)
 
                 return await ctx.send(file=discord.File(s, 'response.json'))
         except:
             pass
         
-        text = js['text']
+        text = ocr.text
 
         if len(discord.utils.escape_markdown(text)) > 4000:
             url = await bot.mystbin.post(text, syntax="text")
@@ -434,35 +432,30 @@ async def translate(ctx, *, flags: str):
             from_lang = "auto"
 
         try:
-            async with aiohttp.ClientSession() as sess:
-                async with sess.get('https://api.openrobot.xyz/api/translate', headers={'Authorization': config.API_TOKEN}, params={'text': text, 'to_lang': to_lang, 'from_lang': from_lang}) as resp:
-                    js = await resp.json()
+            try:
+                translate = await api.translate(text, to_lang, from_lang)
+            except error.BadRequest as e:
+                if e.message == 'Invalid language in paramater to_lang.':
+                    return await ctx.send(f'{to_lang} is not a valid language (`--to` flag)')
+                elif e.message == 'Invalid language in paramater from_lang.':
+                    return await ctx.send(f'{from_lang} is not a valid language (`--from` flag)')
 
             if raw:
                 s = StringIO()
-                s.write(json.dumps(js, indent=4))
+                s.write(json.dumps(translate.raw, indent=4))
                 s.seek(0)
 
                 return await ctx.send(file=discord.File(s, 'response.json'))
 
-            if isinstance(js, dict):
-                if js.get('error'):
-                    if js['message'] == 'Invalid language in paramater to_lang.':
-                        return await ctx.send(f'{to_lang} is not a valid language (`--to` flag)')
-                    elif js['message'] == 'Invalid language in paramater from_lang.':
-                        return await ctx.send(f'{from_lang} is not a valid language (`--from` flag)')
-
-            trans = js[0]
-
             embed = discord.Embed(color=bot.color)
 
             embed.description = f"""
-**Translation Result:** {discord.utils.escape_markdown(trans['text'])}
-**To Language:** {trans['to']}
-**From Language:** {trans['source']}
+**Translation Result:** {discord.utils.escape_markdown(translate.text)}
+**To Language:** {translate.to}
+**From Language:** {translate.source}
             """
 
-            embed.set_author(name=f'Translation Result ({trans["source"]} -> {trans["to"]})')
+            embed.set_author(name=f'Translation Result ({translate.source} -> {translate.to})')
 
             embed.timestamp = discord.utils.utcnow()
 
@@ -480,9 +473,7 @@ async def languages(ctx, *flags):
     """
 
     try:
-        async with aiohttp.ClientSession() as sess:
-            async with sess.get('https://api.openrobot.xyz/api/translate/languages') as resp:
-                js = await resp.json()
+        js = await api.translate.languages()
 
         if '--raw' in flags:
             s = StringIO()
