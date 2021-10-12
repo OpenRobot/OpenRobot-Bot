@@ -22,8 +22,8 @@ class Error(Cog):
         if module.startswith('discord.'):
             await ctx.send(error)
         else:
-            await ctx.send('Error:\n' + module + type(error).__qualname__ + f': {error}')
-            
+            await ctx.send('Error:\n' + error.__class__.__name__ + f': {error}')
+
         raise error
 
 def setup(bot):
