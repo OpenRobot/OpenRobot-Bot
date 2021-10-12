@@ -87,7 +87,7 @@ async def lyrics(ctx, *, query: str):
 
     Flags:
     - `--raw`: Returns the raw response sent by our (OpenRobot) API.
-    - `--from-spotify`: Gets the lyrics from spotify. This gets the lyrics from your spotify activity and edits them automatically when a new song plays.
+    - `--from-spotify`: Gets the lyrics from spotify. This gets the lyrics from your spotify activity and edits them automatically when a new song plays. If it does not sync, try pausing/playing, or do anything regarding to the playback of your Spotify song.
     """
 
     if '--raw' in query.split(' ') and '--from-spotify' in query.split(' '):
@@ -173,6 +173,8 @@ async def lyrics(ctx, *, query: str):
         while True:
             if stop_process:
                 return
+
+            await asyncio.sleep(3)
 
             for act in ctx.guild.get_member(ctx.author.id).activities:
                 if isinstance(act, discord.Spotify):
