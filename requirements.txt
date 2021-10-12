@@ -1,0 +1,8 @@
+asyncpg >= 0.24.0
+git+https://github.com/Gorialis/jishaku
+psutil >= 5.8.0
+git+https://github.com/Rapptz/discord.py
+thefuzz[speedup]
+git+https://github.com/Rapptz/discord-ext-menus
+Pillow
+mystbin.py
