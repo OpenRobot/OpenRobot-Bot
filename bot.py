@@ -163,7 +163,7 @@ async def lyrics(ctx, *, query: str):
             async for message in msg.channel.history(limit=5):
                 if msg == message:
                     return True
-            
+
             return False
 
         msg = None
@@ -202,7 +202,7 @@ async def lyrics(ctx, *, query: str):
                     msg = await ctx.send(embed=l)
 
                 await msg.add_reaction('\U000023f9')
-            elif msgIsNew(msg):
+            elif await msgIsNew(msg):
                 if not activity:
                     msg = await msg.edit(embed=generateErrorEmbed("You are not playing any spotify music!"))
                 else:
