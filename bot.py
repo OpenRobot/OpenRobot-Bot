@@ -216,7 +216,7 @@ async def lyrics(ctx, *, query: str):
 
             async def do_stop():
                 while True:
-                    reaction, user = await bot.wait_for('reaction_add', check=lambda r, u: str(r.emoji) == '\U000023f9' and r.message == msg)
+                    reaction, user = await bot.wait_for('reaction_add', check=lambda r, u: str(r.emoji) == '\U000023f9' and r.message == msg and not u.bot)
 
                     if not await bot.is_owner(user) and not user == ctx.author and not user.guild_permissions.manage_messages:
                         continue
