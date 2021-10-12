@@ -174,8 +174,6 @@ async def lyrics(ctx, *, query: str):
             if stop_process:
                 return
 
-            await asyncio.sleep(3)
-
             for act in ctx.guild.get_member(ctx.author.id).activities:
                 if isinstance(act, discord.Spotify):
                     activity = act
