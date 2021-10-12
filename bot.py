@@ -185,9 +185,16 @@ async def lyrics(ctx, *, query: str):
                 if not activity:
                     msg = await ctx.send(embed=generateErrorEmbed("You are not playing any spotify music!"))
                 else:
-                    l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+                    l = await getLyrics(activity.title)
+
                     if not l:
-                        l = await getLyrics(activity.title)
+                        l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+
+                    if not l:
+                        for x in activity.artists:
+                            l = await getLyrics(activity.title + ' ' + x)
+                            if l:
+                                break
 
                     if not l:
                         msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
@@ -199,10 +206,10 @@ async def lyrics(ctx, *, query: str):
                 if not activity:
                     msg = await msg.edit(embed=generateErrorEmbed("You are not playing any spotify music!"))
                 else:
-                    l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+                    l = await getLyrics(activity.title)
 
                     if not l:
-                        l = await getLyrics(activity.title)
+                        l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
 
                     if not l:
                         for x in activity.artists:
@@ -215,12 +222,20 @@ async def lyrics(ctx, *, query: str):
 
                     msg = await msg.edit(embed=l)
             else:
+                await msg.delete()
                 if not activity:
                     msg = await ctx.send(embed=generateErrorEmbed("You are not playing any spotify music!"))
                 else:
-                    l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+                    l = await getLyrics(activity.title)
+
                     if not l:
-                        l = await getLyrics(activity.title)
+                        l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+
+                    if not l:
+                        for x in activity.artists:
+                            l = await getLyrics(activity.title + ' ' + x)
+                            if l:
+                                break
 
                     if not l:
                         msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
