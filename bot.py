@@ -173,6 +173,11 @@ async def lyrics(ctx, *, query: str):
             if stop_process:
                 return
 
+            for act in ctx.author.activities:
+                if isinstance(act, discord.Spotify):
+                    activity = act
+                    break
+
             if msg is None:
                 if not activity:
                     msg = await ctx.send(embed=generateErrorEmbed("You are not playing any spotify music!"))
