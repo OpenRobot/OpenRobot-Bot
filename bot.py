@@ -187,6 +187,13 @@ async def lyrics(ctx, *, query: str):
                     msg = await msg.edit(embed=generateErrorEmbed("You are not playing any spotify music!"))
                 else:
                     l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+
+                    if not l:
+                        for x in activity.artists:
+                            l = await getLyrics(activity.title + ' ' + x)
+                            if l:
+                                break
+
                     if not l:
                         l = await getLyrics(activity.title)
 
