@@ -143,6 +143,11 @@ async def lyrics(ctx, *, query: str):
         return embed
 
     if from_spotify:
+        for act in ctx.author.activities:
+            if isinstance(act, discord.Spotify):
+                activity = act
+                break
+                
         activity = None
 
         for act in ctx.author.activities:
@@ -231,11 +236,6 @@ async def lyrics(ctx, *, query: str):
                 return
 
             _, __ = await bot.wait_for('presence_update', check=lambda b, a: b == ctx.author and a == ctx.author and any([isinstance(new_act, discord.Spotify) for new_act in ctx.author.activities]))
-
-            for act in ctx.author.activities:
-                if isinstance(act, discord.Spotify):
-                    activity = act
-                    break
 
             if stop_process:
                 return
