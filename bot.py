@@ -230,7 +230,7 @@ async def lyrics(ctx, *, query: str):
             if stop_process:
                 return
 
-            before, activity = await bot.wait_for('presence_update', check=lambda b, a: b == ctx.author and a == ctx.author and (isinstance(a, discord.Spotify) if a else True))
+            before, activity = await bot.wait_for('presence_update', check=lambda b, a: b == ctx.author and a == ctx.author and any([isinstance(new_act, discord.Spotify) for new_act in ctx.author.activities]))
 
             if stop_process:
                 return
