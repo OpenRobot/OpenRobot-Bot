@@ -17,6 +17,7 @@ from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlag
 from io import BytesIO, StringIO
 from PIL import Image, ImageDraw
 from openrobot.api_wrapper import AsyncClient, error
+import aioredis
 
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).
@@ -64,19 +65,34 @@ async def ping(ctx):
     content = f"Pong! My ping is `{round(bot.latency * 1000, 2)}ms`!"
 
     if bot.pool is not None:
-        start = time.perf_counter()
+        try:
+            start = time.perf_counter()
 
-        while True:
-            try:
-                await bot.pool.execute("SELECT 1")
-            except asyncpg.exceptions._base.InterfaceError:
-                pass
-            else:
-                break
+            while True:
+                try:
+                    await bot.pool.execute("SELECT 1")
+                except asyncpg.exceptions._base.InterfaceError:
+                    pass
+                else:
+                    break
 
-        result = time.perf_counter() - start
+            result = time.perf_counter() - start
 
-        content += f"\nDB Latency: `{round(result * 1000, 2)}ms`"
+            content += f"\nDB Latency (PostgreSQL): `{round(result * 1000, 2)}ms`"
+        except:
+            pass
+    
+    if bot.redis is not None:
+        try:
+            start = time.perf_counter()
+
+            await bot.redis.ping()
+
+            result = time.perf_counter() - start
+
+            content += f"\nDB Latency (Redis Cache): `{round(result * 1000, 2)}ms`"
+        except:
+            pass
 
     return await ctx.reply(content, mention_author=False)
 
@@ -685,8 +701,10 @@ def start(**kwargs):
     async def parse_flags(**kwargs):
         if kwargs.get('db') is False:
             bot.pool = None
+            bot.redis = None
         else:
             bot.pool = await asyncpg.create_pool(config.DATABASE)
+            bot.redis = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS)
 
         if kwargs.get('cogs') is not None and 'cogs' not in kwargs:
             l = list(filter(lambda i: i[0].startswith('without-') and i[1], kwargs.items()))
