@@ -68,7 +68,7 @@ async def ping(ctx):
         try:
             start = time.perf_counter()
 
-            while True:
+            for _ in range(5):
                 try:
                     await bot.pool.execute("SELECT 1")
                 except asyncpg.exceptions._base.InterfaceError:
