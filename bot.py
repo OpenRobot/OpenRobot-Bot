@@ -628,7 +628,7 @@ async def source(ctx, *, command: str = None):
         location = module.replace(os.getcwd() + '/', '').replace(os.getcwd(), '')
 
         if location.endswith('.py'):
-            location[:-3]
+            location = location[:-3]
 
         location = location.replace('.', '/') + '.py'
 
