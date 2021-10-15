@@ -181,8 +181,6 @@ class API(Cog):
             async def update(self, button: discord.ui.Button, interaction: discord.Interaction):
                 updated = False
 
-                await interaction.response.defer()
-
                 for _ in range(3):
                     try:
                         self.data = list(await self.ctx.bot.pool.fetch("SELECT * FROM tokens"))
@@ -201,12 +199,7 @@ class API(Cog):
                     for i in range(len(self.data)):
                         self.data[i]['endpoints_accessed'] = json.loads(self.data[i]['endpoints_accessed'])
 
-                    select_obj = discord.utils.find(lambda c: isinstance(c, Select), self.children)
-
-                    if select_obj:
-                        interaction.followup()
-
-                        await interaction.message.edit(view=self)
+                    await interaction.message.edit(view=self)
 
                     interaction.followup()
                     return await interaction.response.send_message('Updated data.', ephemeral=True)
