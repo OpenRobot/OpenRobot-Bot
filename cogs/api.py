@@ -60,8 +60,7 @@ class API(Cog):
                     options=[
                         SelectOption(
                             name='General',
-                            endpoint=None,
-                            default=True
+                            endpoint=None
                         ),
                         SelectOption(
                             name='Lyrics',
@@ -96,7 +95,7 @@ class API(Cog):
             def get_general_embed(self):
                 data = self.view.data
 
-                embed = discord.Embed().set_author(name = 'General', icon_url=self.view.ctx.author.avatar.url).set_footer(text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.')
+                embed = discord.Embed(color=self.view.ctx.bot.color).set_author(name = 'General', icon_url=self.view.ctx.author.avatar.url).set_footer(text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.')
                 embed.timestamp = utcnow = discord.utils.utcnow()
 
                 count = 0
@@ -121,7 +120,7 @@ class API(Cog):
             def generate_embed(self, selection: SelectOption):
                 data = self.view.data
 
-                embed = discord.Embed().set_author(name = selection.label, icon_url=self.view.ctx.author.avatar.url).set_footer(text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.')
+                embed = discord.Embed(color=self.view.ctx.bot.color).set_author(name = selection.label, icon_url=self.view.ctx.author.avatar.url).set_footer(text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.')
                 embed.timestamp = utcnow = discord.utils.utcnow()
 
                 if selection.name == 'General':
@@ -186,7 +185,7 @@ class API(Cog):
 
                 for _ in range(3):
                     try:
-                        self.data = list(await self.ctx.bot.fetch("SELECT * FROM tokens"))
+                        self.data = list(await self.ctx.bot.pool.fetch("SELECT * FROM tokens"))
 
                         for i in range(len(self.data)):
                             self.data[i] = dict(self.data[i])
