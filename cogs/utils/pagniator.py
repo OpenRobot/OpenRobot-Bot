@@ -175,7 +175,7 @@ class APIInfoPaginator(menus.ListPageSource):
             embed.description += f"""
 __**{c})**__
  \u200b \u200b \u200b- **IP:** `{page['ip']}`
- \u200b \u200b \u200b- **Endpoint/Path:** `{page['ip']}`
+ \u200b \u200b \u200b- **Endpoint/Path:** `{page['endpoint']}`
  \u200b \u200b \u200b- **Requested At:** {discord.utils.format_dt(datetime.datetime.fromtimestamp(page['timestamp'], datetime.timezone.utc))}
             """
             c += 1
