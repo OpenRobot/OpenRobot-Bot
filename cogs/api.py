@@ -204,7 +204,7 @@ class API(Cog):
                     select_obj = discord.utils.find(lambda c: isinstance(c, Select), self.children)
 
                     if select_obj:
-                        await interaction.response.defer()
+                        interaction.followup()
 
                         await interaction.message.edit(view=self)
 
