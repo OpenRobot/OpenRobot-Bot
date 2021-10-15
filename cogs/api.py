@@ -129,7 +129,7 @@ class API(Cog):
                 else:
                     endpoint_data = []
 
-                    for xx in endpoint_data:
+                    for xx in data:
                         for x in xx['endpoints_accessed']:
                             if x['endpoint'].startswith(selection.endpoint):
                                 endpoint_data.append(endpoint_data)
