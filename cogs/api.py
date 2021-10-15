@@ -102,13 +102,13 @@ class API(Cog):
                 count = 0
 
                 for i in data:
-                    count += len(self._endpoints_accessed(i['endpoints_accessed']))
+                    count += len(list(self._endpoints_accessed(i['endpoints_accessed'])))
 
-                last_used = sorted(self._endpoints_accessed([d['endpoints_accessed'] for d in data]), key=lambda i: i['timestamp'])[0]
+                last_used = sorted(list(self._endpoints_accessed([d['endpoints_accessed'] for d in data])), key=lambda i: i['timestamp'])[0]
 
                 embed.description = f"""
-- **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), self._endpoints_accessed([d['endpoints_accessed'] for d in data]))))}`
-- **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), self._endpoints_accessed([d['endpoints_accessed'] for d in data]))))}`
+- **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), list(self._endpoints_accessed([d['endpoints_accessed'] for d in data])))))}`
+- **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), list(self._endpoints_accessed([d['endpoints_accessed'] for d in data])))))}`
 - **Total number of reqeusts in total:** `{count}`
 
 - **Last used:**
