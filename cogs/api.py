@@ -200,8 +200,7 @@ class API(Cog):
                         self.data[i]['endpoints_accessed'] = json.loads(self.data[i]['endpoints_accessed'])
 
                     await interaction.message.edit(view=self)
-
-                    interaction.followup()
+                    
                     return await interaction.response.send_message('Updated data.', ephemeral=True)
 
         while True:
