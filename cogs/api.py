@@ -205,7 +205,7 @@ class API(Cog):
             db[i] = dict(db[i])
             db[i]['endpoints_accessed'] = json.loads(db[i]['endpoints_accessed'])
 
-        view = View(ctx, dict(db))
+        view = View(ctx, db)
 
         select_obj = discord.utils.find(lambda c: isinstance(c, Select), view.children)
 
