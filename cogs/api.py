@@ -202,7 +202,7 @@ class API(Cog):
                 break
 
         for x in db:
-            x['endpoints_accessed'] = json.loads(db['endpoints_accessed'])
+            x['endpoints_accessed'] = json.loads(x['endpoints_accessed'])
 
         view = View(ctx, dict(db))
 
