@@ -132,7 +132,7 @@ class API(Cog):
                     for xx in data:
                         for x in xx['endpoints_accessed']:
                             if x['endpoint'].startswith(selection.endpoint):
-                                endpoint_data.append(endpoint_data)
+                                endpoint_data.append(data)
 
                     print(endpoint_data)
 
