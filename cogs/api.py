@@ -134,14 +134,11 @@ class API(Cog):
                             if x['endpoint'].startswith(selection.endpoint):
                                 endpoint_data.append(data)
 
-                    print(endpoint_data)
-
                     count = 0
 
                     for i in endpoint_data:
+                        print(i)
                         count += len(list(self._endpoints_accessed(i['endpoints_accessed'])))
-
-                    print([d['endpoints_accessed'] for d in endpoint_data])
 
                     last_used = sorted(list(self._endpoints_accessed([d['endpoints_accessed'] for d in endpoint_data])), key=lambda i: i['timestamp'])[0]
 
