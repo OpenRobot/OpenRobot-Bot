@@ -201,7 +201,8 @@ class API(Cog):
             else:
                 break
 
-        db['endpoints_accessed'] = json.loads(db['endpoints_accessed'])
+        for x in db:
+            x['endpoints_accessed'] = json.loads(db['endpoints_accessed'])
 
         view = View(ctx, dict(db))
 
