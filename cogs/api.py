@@ -127,7 +127,12 @@ class API(Cog):
                 if selection.name == 'General':
                     embed = self.get_general_embed()
                 else:
-                    endpoint_data = list(filter(lambda i: all([x['endpoint'].startswith(selection.endpoint) for xx in data for x in xx['endpoints_accessed']]), data))
+                    endpoint_data = []
+
+                    for xx in endpoint_data:
+                        for x in xx['endpoints_accessed']:
+                            if x['endpoint'].startswith(selection.endpoint):
+                                endpoint_data.append(endpoint_data)
 
                     count = 0
 
