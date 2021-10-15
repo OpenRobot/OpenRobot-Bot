@@ -86,7 +86,7 @@ class API(Cog):
                     ]
                 )
 
-            def _endpoints_accessed(iterable):
+            def _endpoints_accessed(self, iterable):
                 for x in iterable:
                     if isinstance(x, list):
                         yield from self._endpoints_accessed(x)
