@@ -267,6 +267,8 @@ async def lyrics(ctx, *, query: str):
 
                     msg = await ctx.send(embed=l)
 
+                    await msg.add_reaction('\U000023f9')
+
             async def do_stop():
                 while True:
                     reaction, user = await bot.wait_for('reaction_add', check=lambda r, u: str(r.emoji) == '\U000023f9' and r.message == msg and not u.bot)
