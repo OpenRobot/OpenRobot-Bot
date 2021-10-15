@@ -118,7 +118,7 @@ class API(Cog):
                 
                 return embed
 
-            def generate_embed(self, selection: SelectOption):
+            async def generate_embed(self, selection: SelectOption):
                 data = self.view.data
 
                 embed = discord.Embed().set_author(name = selection.label, icon_url=self.view.ctx.author.avatar.url).set_footer(text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.')
@@ -133,6 +133,8 @@ class API(Cog):
                         for x in xx['endpoints_accessed']:
                             if x['endpoint'].startswith(selection.endpoint):
                                 endpoint_data.append(endpoint_data)
+
+                    await self.view.ctx.send(endpoint_data)
 
                     count = 0
 
@@ -161,7 +163,7 @@ class API(Cog):
 
                 await interaction.response.defer()
 
-                await interaction.message.edit(embed=self.generate_embed(selected), view=self.view)
+                await interaction.message.edit(embed=await self.generate_embed(selected), view=self.view)
 
         class View(discord.ui.View):
             def __init__(self, ctx: commands.Context, data, *, timeout = 90):
