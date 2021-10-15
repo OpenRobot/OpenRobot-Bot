@@ -86,6 +86,13 @@ class API(Cog):
                     ]
                 )
 
+            def _endpoints_accessed(iterable):
+                for x in iterable:
+                    if isinstance(x, list):
+                        yield from self._endpoints_accessed(x)
+                    else:
+                        yield x
+
             def get_general_embed(self):
                 data = self.view.data
 
@@ -95,13 +102,13 @@ class API(Cog):
                 count = 0
 
                 for i in data:
-                    count += len(i['endpoints_accessed'])
+                    count += len(list(self._endpoints_accessed(i['endpoints_accessed'])))
 
-                last_used = sorted([d['endpoints_accessed'] for d in data], key=lambda i: i['timestamp'])[0]
+                last_used = sorted([d['endpoints_accessed'] for d in list(self._endpoints_accessed(data))], key=lambda i: i['timestamp'])[0]
 
                 embed.description = f"""
-- **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), [x['endpoints_accessed'] for x in data])))}`
-- **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), [x['endpoints_accessed'] for x in data])))}`
+- **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), [x['endpoints_accessed'] for x in list(self._endpoints_accessed(data))])))}`
+- **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), [x['endpoints_accessed'] for x in list(self._endpoints_accessed(data))])))}`
 - **Total number of reqeusts in total:** `{count}`
 
 - **Last used:**
