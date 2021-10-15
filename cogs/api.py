@@ -204,11 +204,9 @@ class API(Cog):
                     select_obj = discord.utils.find(lambda c: isinstance(c, Select), self.children)
 
                     if select_obj:
-                        selected: SelectOption = discord.utils.find(lambda v: self.values[0] == v.label, select_obj.options)
-
                         await interaction.response.defer()
 
-                        await interaction.message.edit(embed=select_obj.generate_embed(selected), view=self)
+                        await interaction.message.edit(view=self)
 
                     interaction.followup()
                     return await interaction.response.send_message('Updated data.', ephemeral=True)
