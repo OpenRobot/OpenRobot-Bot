@@ -132,18 +132,19 @@ class API(Cog):
                     count = 0
 
                     for i in endpoint_data:
-                        count += len(i['endpoints_accessed'])
+                        count += len(list(self._endpoints_accessed(i['endpoints_accessed'])))
 
-                    last_used = sorted([d['endpoints_accessed'] for d in endpoint_data], key=lambda i: i['timestamp'])[0]
+                    last_used = sorted(list(self._endpoints_accessed([d['endpoints_accessed'] for d in endpoint_data])), key=lambda i: i['timestamp'])[0]
 
                     embed.description = f"""
-- **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), [x['endpoints_accessed'] for x in endpoint_data])))}`
-- **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), [x['endpoints_accessed'] for x in endpoint_data])))}`
+- **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), list(self._endpoints_accessed([d['endpoints_accessed'] for d in data])))))}`
+- **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), list(self._endpoints_accessed([d['endpoints_accessed'] for d in data])))))}`
 - **Total number of reqeusts in total:** `{count}`
 
 - **Last used:**
  \u200b \u200b \u200b- **At:** {discord.utils.format_dt(datetime.datetime.fromtimestamp(last_used['timestamp'], tz=datetime.timezone.utc))}
- \u200b \u200b \u200b- **Endpoint:** `{last_used['endpoint']}`
+
+- **Docs URL:** <{selection.docs_url}>
                     """
 
                 return embed
