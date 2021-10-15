@@ -3,6 +3,8 @@ import discord
 import aiohttp
 import asyncpg
 import json
+import typing
+import datetime
 from secrets import token_urlsafe as generate_token
 from discord.ext import commands
 from cogs.utils import Cog, LegacyFlagItems, LegacyFlagConverter, FlagConverter, APIInfoPaginator, MenuPages, IPBanListPaginator
@@ -20,21 +22,6 @@ class API(Cog):
     async def cog_check(self, ctx) -> bool:
         if ctx.bot.pool is None:
             return False
-        else:
-            async with aiohttp.ClientSession() as sess:
-                async with sess.get('https://api.openrobot.xyz/_internal/available') as resp:
-                    try:
-                        js = await resp.json()
-                    except:
-                        return False
-                    else:
-                        try:
-                            if js['is_available'] is True and 200 <= resp.status < 300:
-                                return True
-                            else:
-                                return False
-                        except:
-                            return False
 
         return True
 
@@ -50,6 +37,182 @@ class API(Cog):
 
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
+
+    @api.command(aliases=['statistics'])
+    async def stats(self, ctx):
+        class SelectOption(discord.SelectOption):
+            def __init__(self, *, name: str, endpoint: str, docs_url: str = None, emoji: typing.Optional[typing.Union[str, discord.Emoji, discord.PartialEmoji]] = None, default: bool = False) -> None:
+                if endpoint:
+                    x = f' - {endpoint}'
+                else:
+                    x = ''
+
+                super().__init__(label=name.title() + x, description=f'Shows {name.title()}{" (All)" if name.lower() == "general" else ""} Stats for the API.', emoji=emoji, default=default)
+
+                self.docs_url = docs_url
+                self.name = name
+                self.endpoint = endpoint
+
+        class Select(discord.ui.Select):
+            def __init__(self):
+                super().__init__(
+                    placeholder='Select an endpoint to view stats for that endpoint.',
+                    options=[
+                        SelectOption(
+                            name='General',
+                            endpoint=None,
+                            default=True
+                        ),
+                        SelectOption(
+                            name='Lyrics',
+                            endpoint='/api/lyrics',
+                            docs_url='https://api.openrobot.xyz/api/docs#tag/Lyrics'
+                        ),
+                        SelectOption(
+                            name='Celebrity',
+                            endpoint='/api/celebrity',
+                            docs_url='https://api.openrobot.xyz/api/docs#tag/Celebrity'
+                        ),
+                        SelectOption(
+                            name='OCR',
+                            endpoint='/api/ocr',
+                            docs_url='https://api.openrobot.xyz/api/docs#tag/OCR-(Optical-Character-Recognition)'
+                        ),
+                        SelectOption(
+                            name='Translate',
+                            endpoint='/api/translate',
+                            docs_url='https://api.openrobot.xyz/api/docs#operation/do_translate_api_translate_get'
+                        )
+                    ]
+                )
+
+            def get_general_embed(self):
+                data = self.view.data
+
+                embed = discord.Embed().set_author(name = 'General', icon_url=self.view.ctx.author.avatar.url).set_footer(text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.')
+                embed.timestamp = utcnow = discord.utils.utcnow()
+
+                count = 0
+
+                for i in data:
+                    count += len(i['endpoints_accessed'])
+
+                last_used = sorted([d['endpoints_accessed'] for d in data], key=lambda i: i['timestamp'])[0]
+
+                embed.description = f"""
+- **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), [x['endpoints_accessed'] for x in data])))}`
+- **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), [x['endpoints_accessed'] for x in data])))}`
+- **Total number of reqeusts in total:** `{count}`
+
+- **Last used:**
+ \u200b \u200b \u200b- **At:** {discord.utils.format_dt(datetime.datetime.fromtimestamp(last_used['timestamp'], tz=datetime.timezone.utc))}
+ \u200b \u200b \u200b- **Endpoint:** `{last_used['endpoint']}`
+                """
+                
+                return embed
+
+            def generate_embed(self, selection: SelectOption):
+                data = self.view.data
+
+                embed = discord.Embed().set_author(name = selection.label, icon_url=self.view.ctx.author.avatar.url).set_footer(text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.')
+                embed.timestamp = utcnow = discord.utils.utcnow()
+
+                if selection.name == 'General':
+                    embed = self.get_general_embed()
+                else:
+                    endpoint_data = list(filter(lambda i: all([x['endpoint'].startswith(selection.endpoint) for xx in data for x in xx['endpoints_accessed']]), data))
+
+                    count = 0
+
+                    for i in endpoint_data:
+                        count += len(i['endpoints_accessed'])
+
+                    last_used = sorted([d['endpoints_accessed'] for d in endpoint_data], key=lambda i: i['timestamp'])[0]
+
+                    embed.description = f"""
+- **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), [x['endpoints_accessed'] for x in endpoint_data])))}`
+- **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), [x['endpoints_accessed'] for x in endpoint_data])))}`
+- **Total number of reqeusts in total:** `{count}`
+
+- **Last used:**
+ \u200b \u200b \u200b- **At:** {discord.utils.format_dt(datetime.datetime.fromtimestamp(last_used['timestamp'], tz=datetime.timezone.utc))}
+ \u200b \u200b \u200b- **Endpoint:** `{last_used['endpoint']}`
+                    """
+
+                return embed
+
+            async def callback(self, interaction: discord.Interaction):
+                selected: SelectOption = discord.utils.find(lambda v: self.values[0] == v.label, self.options)
+
+                await interaction.response.defer()
+
+                await interaction.message.edit(embed=self.generate_embed(selected), view=self.view)
+
+        class View(discord.ui.View):
+            def __init__(self, ctx: commands.Context, data, *, timeout = 90):
+                super().__init__(timeout=timeout)
+                self.ctx = ctx
+                self.data = data
+
+                self.add_item(Select())
+
+            async def interaction_check(self, interaction):
+                """Only allow the author that invoke the command to be able to use the interaction"""
+                if not interaction.user == self.ctx.author or await self.ctx.bot.is_owner(interaction.user):
+                    await interaction.response.send_message(f'This is not your interaction! Only {self.ctx.author.mention} can respond to this interaction!', ephemeral=True)
+                    return False
+                else:
+                    return True
+
+            @discord.ui.button(label='Update Statistics', style=discord.ButtonStyle.blurple, emoji='<:update:898506874398339102>')
+            async def update(self, button: discord.ui.Button, interaction: discord.Interaction):
+                updated = False
+
+                await interaction.response.defer()
+
+                for _ in range(3):
+                    try:
+                        self.data = dict(await self.ctx.bot.fetch("SELECT * FROM tokens"))
+                    except asyncpg.exceptions._base.InterfaceError:
+                        pass
+                    else:
+                        updated = True
+                        break
+
+                if not updated:
+                    return await interaction.response.send_message('Unable to update data. Try again in a few moments.', ephemeral=True)
+                else:
+                    self.data['endpoints_accessed'] = json.loads(self.data['endpoints_accessed'])
+
+                    select_obj = discord.utils.find(lambda c: isinstance(c, Select), self.children)
+
+                    if select_obj:
+                        interaction.followup()
+                        await select_obj.callback(interaction)
+
+                    await interaction.response.defer()
+                    return await interaction.response.send_message('Updated data.', ephemeral=True)
+
+        while True:
+            try:
+                db = await self.bot.pool.fetch("SELECT * FROM tokens")
+            except:
+                pass
+            else:
+                break
+
+        db['endpoints_accessed'] = json.loads(db['endpoints_accessed'])
+
+        view = View(ctx, dict(db))
+
+        select_obj = discord.utils.find(lambda c: isinstance(c, Select), view.children)
+
+        if select_obj:
+            embed = select_obj.get_general_embed()
+        else:
+            embed = None
+
+        return await ctx.send(embed=embed, view=view)
 
     @api.command('apply')
     async def api_apply(self, ctx, *, reason: str):
