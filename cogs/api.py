@@ -134,6 +134,8 @@ class API(Cog):
                     for i in endpoint_data:
                         count += len(list(self._endpoints_accessed(i['endpoints_accessed'])))
 
+                    print([d['endpoints_accessed'] for d in endpoint_data])
+
                     last_used = sorted(list(self._endpoints_accessed([d['endpoints_accessed'] for d in endpoint_data])), key=lambda i: i['timestamp'])[0]
 
                     embed.description = f"""
@@ -180,7 +182,10 @@ class API(Cog):
 
                 for _ in range(3):
                     try:
-                        self.data = dict(await self.ctx.bot.fetch("SELECT * FROM tokens"))
+                        self.data = list(await self.ctx.bot.fetch("SELECT * FROM tokens"))
+
+                        for i in range(len(self.data)):
+                            self.data[i] = dict(self.data[i])
                     except asyncpg.exceptions._base.InterfaceError:
                         pass
                     else:
@@ -190,15 +195,19 @@ class API(Cog):
                 if not updated:
                     return await interaction.response.send_message('Unable to update data. Try again in a few moments.', ephemeral=True)
                 else:
-                    self.data['endpoints_accessed'] = json.loads(self.data['endpoints_accessed'])
+                    for i in range(len(self.data)):
+                        self.data[i]['endpoints_accessed'] = json.loads(self.data[i]['endpoints_accessed'])
 
                     select_obj = discord.utils.find(lambda c: isinstance(c, Select), self.children)
 
                     if select_obj:
-                        interaction.followup()
-                        await select_obj.callback(interaction)
+                        selected: SelectOption = discord.utils.find(lambda v: self.values[0] == v.label, self.options)
 
-                    await interaction.response.defer()
+                        await interaction.response.defer()
+
+                        await interaction.message.edit(embed=self.generate_embed(selected), view=self.view)
+
+                    interaction.followup()
                     return await interaction.response.send_message('Updated data.', ephemeral=True)
 
         while True:
