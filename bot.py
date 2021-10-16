@@ -394,7 +394,8 @@ async def celebrity(ctx, *, image = None):
                     await bot.loop.run_in_executor(None, crop_image, i)
                 ), name=i['Name'], raw=js
             ))
-    except:
+    except Exception as e:
+        raise e
         try:
             return await ctx.send("Celebrity cannot be found in the image provided.", file=discord.File(img_bytes, 'image_celebrity.png'))
         except:

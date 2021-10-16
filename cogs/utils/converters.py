@@ -8,6 +8,10 @@ class ImageConverter(Converter):
             x = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', argument)
             if x:
                 return x[0]
+        elif ctx.message.reference:
+            x = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', ctx.message.reference.resolved.content)
+            if x:
+                return x[0]
 
         if ctx.message.attachments:
             return ctx.message.attachments[0].url
