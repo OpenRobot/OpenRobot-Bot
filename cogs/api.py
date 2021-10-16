@@ -135,11 +135,7 @@ class API(Cog):
 
                     count = 0
 
-                    x = await self.view.ctx.bot.mystbin.post(json.dumps(endpoint_data, indent=4))
-
-                    embed.description = str(x)
-
-                    return embed
+                    print(endpoint_data)
 
                     for x in endpoint_data:
                         for i in x:
