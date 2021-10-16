@@ -207,7 +207,9 @@ class CelebrityPaginator(menus.ListPageSource):
             if not url.startswith(('https://', 'http://')):
                 url = 'https://' + url
 
-            urls += f' \u200b \u200b \u200b- {url}'
+            urls += f' \u200b \u200b \u200b- {url}\n'
+
+        urls = urls[:-1]
 
         newline = '\n'
 
@@ -216,7 +218,7 @@ Seems like this is `{page.name}`. I am `{round(page.item['Confidence'], 1)}%` su
 
 - **Name:** `{page.name}`
 - **Gender:** `{page.item['Gender']}`
-- **Is Smiling:** `{page.item['Face']['Smile']['Value']}`{f'{newline}- **URLs Related to {page.name}:** {newline}{urls}{newline}' if urls else ''}
+- **Is Smiling:** `{page.item['Face']['Smile']['Value']}`{f'{newline}- **URLs Related to {page.name}:** {newline}{urls}' if urls else ''}
 - **Emotion:** `{emotion[0]['Type'].lower().capitalize()}` - `Confidence: {int(emotion[0]['Confidence'])}%`
 - **Pose:**
  \u200b \u200b \u200b- **Roll:** `{page.item['Face']['Pose']['Roll']}`
