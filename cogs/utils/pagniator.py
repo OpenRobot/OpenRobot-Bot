@@ -193,8 +193,11 @@ class CelebrityPaginator(menus.ListPageSource):
         embed = discord.Embed()
         embed.color = menu.ctx.bot.color
 
-        embed.set_image(url=page.url)
-        embed.set_thumbnail(url=page.cropped_url)
+        if page.url:
+            embed.set_image(url=page.url)
+
+        if page.cropped_url:
+            embed.set_thumbnail(url=page.cropped_url)
 
         emotion = sorted(page.item['Face']['Emotions'], key=lambda i: i['Confidence'], reverse=True)
 
