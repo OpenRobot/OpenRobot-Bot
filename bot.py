@@ -391,10 +391,8 @@ async def celebrity(ctx, *, image = None):
 
         for i in js['detectedFaces']:
             l.append(CelebrityProperties(
-                url=url, cropped_url=await publishCdn(
-                    await bot.loop.run_in_executor(None, crop_image, i), file_type='png'
-                ), name=i['Name'], raw=js, item=i
-            ))
+                url=url, cropped_url=None, name=i['Name'], raw=js, item=i
+            )) # await publishCdn(await bot.loop.run_in_executor(None, crop_image, i), file_type='png')
     except Exception as e:
         raise e
         try:
