@@ -117,7 +117,7 @@ class API(Cog):
                 
                 return embed
 
-            def generate_embed(self, selection: SelectOption):
+            async def generate_embed(self, selection: SelectOption):
                 data = self.view.data
 
                 embed = discord.Embed(color=self.view.ctx.bot.color).set_author(name = selection.label, icon_url=self.view.ctx.author.avatar.url).set_footer(text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.')
@@ -134,6 +134,12 @@ class API(Cog):
                                 endpoint_data.append(data)
 
                     count = 0
+
+                    x = await self.view.ctx.bot.mystbin.post(json.dumps(endpoint_data, indent=4))
+
+                    embed.description = str(x)
+
+                    return embed
 
                     for x in endpoint_data:
                         for i in x:
@@ -159,7 +165,7 @@ class API(Cog):
 
                 await interaction.response.defer()
 
-                await interaction.message.edit(embed=self.generate_embed(selected), view=self.view)
+                await interaction.message.edit(embed=await self.generate_embed(selected), view=self.view)
 
         class View(discord.ui.View):
             def __init__(self, ctx: commands.Context, data, *, timeout = 90):
