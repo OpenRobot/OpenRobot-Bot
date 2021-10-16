@@ -134,6 +134,8 @@ class API(Cog):
                                 print(x['endpoint'] + ' - ' + selection.endpoint)
                                 endpoint_data.append(data)
 
+                    print(endpoint_data)
+
                     count = 0
 
                     #embed.description = str(await self.view.ctx.bot.mystbin.post(json.dumps(list(self._endpoints_accessed([d['endpoints_accessed'] for x in endpoint_data for d in x])), indent=4)))
