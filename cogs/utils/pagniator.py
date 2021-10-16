@@ -226,7 +226,7 @@ Seems like this is `{page.name}`. I am `{round(page.item['Confidence'], 1)}%` su
  \u200b \u200b \u200b- **Pitch:** `{page.item['Face']['Pose']['Pitch']}`{f'{newline}- **URLs Related to {page.name}:** {newline}{urls}' if urls else ''}
 - **Picture Quality:**
  \u200b \u200b \u200b- **Brightness:** `{round(page.item['Face']['Quality']['Brightness'], 1)}%`
- \u200b \u200b \u200b- **Sharpness:** `{round(page.item['Face']['Quality']['Brightness'], 1)}%`
+ \u200b \u200b \u200b- **Sharpness:** `{round(page.item['Face']['Quality']['Sharpness'], 1)}%`
         """
 
         embed.set_footer(text=f'Page {menu.current_page + 1}/{self.get_max_pages()}')
