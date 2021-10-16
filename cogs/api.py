@@ -131,13 +131,14 @@ class API(Cog):
                     for xx in data:
                         for x in xx['endpoints_accessed']:
                             if x['endpoint'].startswith(selection.endpoint):
+                                print(selection.endpoint)
                                 endpoint_data.append(data)
 
                     count = 0
 
-                    embed.description = str(await self.view.ctx.bot.mystbin.post(json.dumps(list(self._endpoints_accessed([d['endpoints_accessed'] for x in endpoint_data for d in x])), indent=4)))
+                    #embed.description = str(await self.view.ctx.bot.mystbin.post(json.dumps(list(self._endpoints_accessed([d['endpoints_accessed'] for x in endpoint_data for d in x])), indent=4)))
 
-                    return embed
+                    #return embed
 
                     for x in endpoint_data:
                         for i in x:
