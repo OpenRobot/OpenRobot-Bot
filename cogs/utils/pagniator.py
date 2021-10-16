@@ -206,12 +206,14 @@ class CelebrityPaginator(menus.ListPageSource):
 
             urls += f' \u200b \u200b \u200b- {url}'
 
+        newline = '\n'
+
         embed.description = f"""
 Seems like this is `{page.name}`. I am `{round(page.item['Confidence'], 1)}%` sure.
 
 - **Name:** `{page.name}`
 - **Gender:** `{page.item['Gender']}`
-- **Is Smiling:** `{page.item['Smile']['Value']}`{f'\n- **URLs Related to {page.name}:**\n{urls}\n' if urls else ''}
+- **Is Smiling:** `{page.item['Smile']['Value']}`{f'{newline}- **URLs Related to {page.name}:** {newline}{urls}{newline}' if urls else ''}
 - **Emotion:** `{emotion[0]['Type'].lower().capitalize()}` - `Confidence: {int(emotion[0]['Confidence'])}%`
 - **Pose:**
  \u200b \u200b \u200b- **Roll:** `{page.item['Face']['Pose']['Roll']}`
