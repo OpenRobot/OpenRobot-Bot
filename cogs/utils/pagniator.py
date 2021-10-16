@@ -196,17 +196,17 @@ class CelebrityPaginator(menus.ListPageSource):
         embed.set_image(url=page.url)
         embed.set_thumbnail(url=page.cropped_url)
 
-        emotion = sorted(page.raw['Face']['Emotions'], key=lambda i: i['Confidence'])
+        emotion = sorted(page.item['Face']['Emotions'], key=lambda i: i['Confidence'])
 
         embed.description = f"""
-Seems like this is `{page.name}`. I am `{round(page.raw['Confidence'], 1)}%` sure.
+Seems like this is `{page.name}`. I am `{round(page.item['Confidence'], 1)}%` sure.
 
 - **Name:** {page.name}
 - **Emotion:** {emotion}
 - **Pose:**
- \u200b \u200b \u200b- **Roll:** {page.raw['Face']['Pose']['Roll']}
- \u200b \u200b \u200b- **Yaw:** {page.raw['Face']['Pose']['Yaw']}
- \u200b \u200b \u200b- **Pitch:** {page.raw['Face']['Pose']['Pitch']}
+ \u200b \u200b \u200b- **Roll:** {page.item['Face']['Pose']['Roll']}
+ \u200b \u200b \u200b- **Yaw:** {page.item['Face']['Pose']['Yaw']}
+ \u200b \u200b \u200b- **Pitch:** {page.item['Face']['Pose']['Pitch']}
         """
 
         embed.set_footer(text=f'Page {menu.current_page + 1}/{self.get_max_pages()}')
