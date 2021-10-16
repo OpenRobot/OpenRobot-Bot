@@ -389,6 +389,8 @@ async def celebrity(ctx, *, image = None):
 
             return output_buffer
 
+        await ctx.send(await bot.mystbin.post(json.dumps(js, indent=4)))
+
         l = []
 
         for i in js['detectedFaces']:
