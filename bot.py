@@ -349,12 +349,15 @@ async def celebrity(ctx, *, image = None):
             async with sess.get('https://api.openrobot.xyz/api/celebrity', params={'url': url}, headers={'Authorization': config.API_TOKEN}) as resp:
                 js = await resp.json()
 
-        if '--raw' in image.split(' '):
-            s = StringIO()
-            s.write(json.dumps(js, indent=4))
-            s.seek(0)
+        try:
+            if '--raw' in image.split(' '):
+                s = StringIO()
+                s.write(json.dumps(js, indent=4))
+                s.seek(0)
 
-            return await ctx.send(file=discord.File(s, 'response.json'))
+                return await ctx.send(file=discord.File(s, 'response.json'))
+        except:
+            pass
 
         if not js['detectedFaces']:
             try:
