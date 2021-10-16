@@ -140,7 +140,7 @@ class API(Cog):
 
                     #return embed
 
-                    for x in endpoint_data:
+                    for i in endpoint_data:
                         count += len(list(self._endpoints_accessed(i['endpoints_accessed'])))
 
                     last_used = sorted(list(self._endpoints_accessed([d['endpoints_accessed'] for d in endpoint_data])), key=lambda i: i['timestamp'])[0]
