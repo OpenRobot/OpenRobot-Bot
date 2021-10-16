@@ -380,11 +380,7 @@ async def celebrity(ctx, *, image = None):
             output_buffer = BytesIO()
 
             with Image.open(img_bytes) as img:
-                img.crop((left, top, right, bottom))
-                #draw = ImageDraw.Draw(img)
-                #draw.rectangle(((left, top), (right, bottom)), outline='red')
-
-                img.save(output_buffer, "png")
+                img.crop((left, top, right, bottom)).save(output_buffer, "png")
                 output_buffer.seek(0)
 
             return output_buffer
@@ -396,7 +392,7 @@ async def celebrity(ctx, *, image = None):
         for i in js['detectedFaces']:
             l.append(CelebrityProperties(
                 url=url, cropped_url=await publishCdn(
-                    await bot.loop.run_in_executor(None, crop_image, i)
+                    await bot.loop.run_in_executor(None, crop_image, i), file_type='png'
                 ), name=i['Name'], raw=js, item=i
             ))
     except Exception as e:
