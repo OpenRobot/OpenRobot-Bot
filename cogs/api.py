@@ -165,6 +165,8 @@ class API(Cog):
 
                 selected: SelectOption = discord.utils.find(lambda v: self.values[0] == v.label, self.options)
 
+                selected.default = True
+
                 await interaction.response.defer()
 
                 await interaction.message.edit(embed=await self.generate_embed(selected), view=self.view)
