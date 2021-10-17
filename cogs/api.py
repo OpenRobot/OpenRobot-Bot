@@ -162,7 +162,7 @@ class API(Cog):
 
             async def callback(self, interaction: discord.Interaction):
                 self.options[0].default = False
-                
+
                 selected: SelectOption = discord.utils.find(lambda v: self.values[0] == v.label, self.options)
 
                 await interaction.response.defer()
@@ -174,7 +174,7 @@ class API(Cog):
                 super().__init__(timeout=timeout)
                 self.ctx = ctx
                 self.data = data
-                self.message = msg
+                self.message = message
 
                 self.add_item(Select())
 
