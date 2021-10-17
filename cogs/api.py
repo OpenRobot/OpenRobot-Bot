@@ -166,13 +166,14 @@ class API(Cog):
                 self.options[0].default = False # Set the general default to False
                 
                 if self.last_selected:
-                    self.last_selected.default = False # Set the last selected option's default to False
+                    last_selected: SelectOption = discord.utils.find(lambda v: self.last_selected == v.label, self.options)
+                    last_selected.default = False # Set the last selected option's default to False
 
                 selected: SelectOption = discord.utils.find(lambda v: self.values[0] == v.label, self.options)
 
                 selected.default = True # Set the current selected option's default to True
 
-                self.last_selected = selected # Set the new last selected option
+                self.last_selected = self.values[0] # Set the new last selected option
 
                 await interaction.response.defer()
 
@@ -225,12 +226,13 @@ class API(Cog):
 
                     select = discord.utils.find(lambda i: type(i) == Select, self.children)
 
-                    if not select.last_selected:
+                    last_selected: SelectOption = discord.utils.find(lambda v: select.last_selected == v.label, select.options)
+
+                    if not last_selected:
                         await interaction.message.edit(view=self)
                     else:
                         try:
-                            await self.ctx.send(1)
-                            await interaction.message.edit(embed=select.generate_embed(select.last_selected), view=self)
+                            await interaction.message.edit(embed=select.generate_embed(last_selected), view=self)
                         except Exception as e:
                             raise e
                             await interaction.message.edit(view=self)
