@@ -132,9 +132,9 @@ class API(Cog):
                         for x in xx['endpoints_accessed']:
                             if x['endpoint'].startswith(selection.endpoint):
                                 print(x['endpoint'] + ' - ' + selection.endpoint)
-                                endpoint_data.append(xx)
+                                endpoint_data.append(x)
 
-                    print(endpoint_data)
+                    endpoint_data = list(self._endpoints_accessed(endpoint_data)) # [{endpoint1}, {endpoint2}, {endpoint3}]
 
                     count = 0
 
@@ -142,14 +142,13 @@ class API(Cog):
 
                     #return embed
 
-                    for i in endpoint_data:
-                        count += len(list(self._endpoints_accessed(i['endpoints_accessed'])))
+                    count = len(endpoint_data)
 
-                    last_used = sorted(list(self._endpoints_accessed([d['endpoints_accessed'] for d in endpoint_data])), key=lambda i: i['timestamp'])[0]
+                    last_used = sorted(endpoint_data, key=lambda i: i['timestamp'])[0]
 
                     embed.description = f"""
-- **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), list(self._endpoints_accessed([d['endpoints_accessed'] for d in endpoint_data])))))}`
-- **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), list(self._endpoints_accessed([d['endpoints_accessed'] for d in endpoint_data])))))}`
+- **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), endpoint_data)))}`
+- **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), endpoint_data)))}`
 - **Total number of reqeusts in total:** `{count}`
 
 - **Last used:**
