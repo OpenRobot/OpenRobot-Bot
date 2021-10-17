@@ -60,7 +60,8 @@ class API(Cog):
                     options=[
                         SelectOption(
                             name='General',
-                            endpoint=None
+                            endpoint=None,
+                            default=True
                         ),
                         SelectOption(
                             name='Lyrics',
@@ -160,6 +161,8 @@ class API(Cog):
                 return embed
 
             async def callback(self, interaction: discord.Interaction):
+                self.options[0].default = False
+                
                 selected: SelectOption = discord.utils.find(lambda v: self.values[0] == v.label, self.options)
 
                 await interaction.response.defer()
@@ -167,12 +170,15 @@ class API(Cog):
                 await interaction.message.edit(embed=await self.generate_embed(selected), view=self.view)
 
         class View(discord.ui.View):
-            def __init__(self, ctx: commands.Context, data, *, timeout = 90):
+            def __init__(self, ctx: commands.Context, data, *, timeout = 90, message: discord.Message = None):
                 super().__init__(timeout=timeout)
                 self.ctx = ctx
                 self.data = data
+                self.message = msg
 
                 self.add_item(Select())
+
+                self.last_selected = None
 
             async def interaction_check(self, interaction):
                 """Only allow the author that invoke the command to be able to use the interaction"""
@@ -181,6 +187,12 @@ class API(Cog):
                     return False
                 else:
                     return True
+
+            async def on_timeout(self) -> None:
+                for child in self.children:
+                    child.disabled = True
+
+                await self.message.edit(view=self)
 
             @discord.ui.button(label='Update Statistics', style=discord.ButtonStyle.blurple, emoji='<:update:898506874398339102>')
             async def update(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -204,9 +216,22 @@ class API(Cog):
                     for i in range(len(self.data)):
                         self.data[i]['endpoints_accessed'] = json.loads(self.data[i]['endpoints_accessed'])
 
-                    await interaction.message.edit(view=self)
+                    if not self.last_selected:
+                        await interaction.message.edit(view=self)
+                    else:
+                        try:
+                            select = discord.utils.find(lambda i: type(i) == Select, self.children)
+
+                            await interaction.message.edit(embed=select.generate_embed(self.last_selected), view=self)
+                        except:
+                            await interaction.message.edit(view=self)
                     
                     return await interaction.response.send_message('Updated data.', ephemeral=True)
+
+            @discord.ui.button(label='Stop', emoji='\U000023f9', style=discord.ButtonStyle.danger)
+            async def stop_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+                await interaction.message.delete()
+                self.stop()
 
         while True:
             try:
@@ -229,7 +254,8 @@ class API(Cog):
         else:
             embed = None
 
-        return await ctx.send(embed=embed, view=view)
+        msg = view.message = await ctx.send(embed=embed, view=view)
+        return msg
 
     @api.command('apply')
     async def api_apply(self, ctx, *, reason: str):
