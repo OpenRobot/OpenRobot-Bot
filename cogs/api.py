@@ -86,6 +86,8 @@ class API(Cog):
                     ]
                 )
 
+                self.last_selected = None
+
             def _endpoints_accessed(self, iterable):
                 for x in iterable:
                     if isinstance(x, list):
@@ -161,11 +163,16 @@ class API(Cog):
                 return embed
 
             async def callback(self, interaction: discord.Interaction):
-                self.options[0].default = False
+                self.options[0].default = False # Set the general default to False
+                
+                if self.last_selected:
+                    self.last_selected.default = False # Set the last selected option's default to False
 
                 selected: SelectOption = discord.utils.find(lambda v: self.values[0] == v.label, self.options)
 
-                selected.default = True
+                selected.default = True # Set the current selected option's default to True
+
+                self.last_selected = selected # Set the new last selected option
 
                 await interaction.response.defer()
 
@@ -179,8 +186,6 @@ class API(Cog):
                 self.message = message
 
                 self.add_item(Select())
-
-                self.last_selected = None
 
             async def interaction_check(self, interaction):
                 """Only allow the author that invoke the command to be able to use the interaction"""
@@ -218,13 +223,13 @@ class API(Cog):
                     for i in range(len(self.data)):
                         self.data[i]['endpoints_accessed'] = json.loads(self.data[i]['endpoints_accessed'])
 
-                    if not self.last_selected:
+                    select = discord.utils.find(lambda i: type(i) == Select, self.children)
+
+                    if not select.last_selected:
                         await interaction.message.edit(view=self)
                     else:
                         try:
-                            select = discord.utils.find(lambda i: type(i) == Select, self.children)
-
-                            await interaction.message.edit(embed=select.generate_embed(self.last_selected), view=self)
+                            await interaction.message.edit(embed=select.generate_embed(select.last_selected), view=self)
                         except:
                             await interaction.message.edit(view=self)
                     
