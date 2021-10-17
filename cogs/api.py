@@ -229,7 +229,7 @@ class API(Cog):
                         await interaction.message.edit(view=self)
                     else:
                         try:
-                            print(1)
+                            await self.ctx.send(1)
                             await interaction.message.edit(embed=select.generate_embed(select.last_selected), view=self)
                         except Exception as e:
                             raise e
