@@ -224,7 +224,7 @@ class API(Cog):
                     for i in range(len(self.data)):
                         self.data[i]['endpoints_accessed'] = json.loads(self.data[i]['endpoints_accessed'])
 
-                    select = discord.utils.find(lambda i: type(i) == Select, self.children)
+                    select = discord.utils.find(lambda i: isinstance(i, Select), self.children)
 
                     last_selected: SelectOption = discord.utils.find(lambda v: select.last_selected == v.label, select.options)
 

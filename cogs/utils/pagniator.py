@@ -84,7 +84,7 @@ class ViewMenuPages(ui.View, menus.MenuPages):
 
     async def interaction_check(self, interaction):
         """Only allow the author that invoke the command to be able to use the interaction"""
-        if not interaction.user == self.ctx.author or await self.ctx.bot.is_owner(interaction.user):
+        if not (interaction.user == self.ctx.author or await self.ctx.bot.is_owner(interaction.user)):
             await interaction.response.send_message(f'This is not your interaction! Only {self.ctx.author.mention} can respond to this interaction!', ephemeral=True)
             return False
         else:
