@@ -230,7 +230,8 @@ class API(Cog):
                     else:
                         try:
                             await interaction.message.edit(embed=select.generate_embed(select.last_selected), view=self)
-                        except:
+                        except Exception as e:
+                            raise e
                             await interaction.message.edit(view=self)
                     
                     return await interaction.response.send_message('Updated data.', ephemeral=True)
