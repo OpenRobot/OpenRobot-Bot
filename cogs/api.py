@@ -223,7 +223,7 @@ class API(Cog):
                         break
 
                 try:
-                    self.lyrics_cached = [k.decode() for k in json.loads(await self.ctx.bot.redis.execute_command("KEYS *")) if not k.decode().startswith('backup')]
+                    self.lyrics_cached = [k.decode() for k in await self.ctx.bot.redis.execute_command("KEYS *") if not k.decode().startswith('backup')]
                 except:
                     pass
 
@@ -264,7 +264,12 @@ class API(Cog):
             db[i] = dict(db[i])
             db[i]['endpoints_accessed'] = json.loads(db[i]['endpoints_accessed'])
 
-        view = View(ctx, db)
+        try:
+            lyrics_cached = [k.decode() for k in await self.bot.redis.execute_command("KEYS *") if not k.decode().startswith('backup')]
+        except:
+            lyrics_cached = []
+
+        view = View(ctx, db, lyrics_cached)
 
         select_obj = discord.utils.find(lambda c: isinstance(c, Select), view.children)
 
@@ -272,11 +277,6 @@ class API(Cog):
             embed = select_obj.get_general_embed()
         else:
             embed = None
-
-        try:
-            view.lyrics_cached = [k.decode() for k in await self.ctx.bot.redis.execute_command("KEYS *") if not k.decode().startswith('backup')]
-        except:
-            pass
 
         msg = view.message = await ctx.send(embed=embed, view=view)
         return msg
