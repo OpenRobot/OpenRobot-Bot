@@ -149,10 +149,12 @@ class API(Cog):
 
                     last_used = sorted(endpoint_data, key=lambda i: i['timestamp'])[0]
 
+                    newline = '\n' # f-strings can't have backslashes, so we will do a little workaround
+
                     embed.description = f"""
 - **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), endpoint_data)))}`
 - **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), endpoint_data)))}`
-- **Total number of reqeusts in total:** `{count}`
+- **Total number of reqeusts in total:** `{count}`{f'{newline}- **Lyrics Cached:** `{len(self.view.lyrics_cached)}`' if selection.name == 'Lyrics' else ''}
 
 - **Last used:**
  \u200b \u200b \u200b- **At:** {discord.utils.format_dt(datetime.datetime.fromtimestamp(last_used['timestamp'], tz=datetime.timezone.utc))}
@@ -186,6 +188,8 @@ class API(Cog):
                 self.data = data
                 self.message = message
 
+                self.lyrics_cached = []
+
                 self.add_item(Select())
 
             async def interaction_check(self, interaction):
@@ -217,6 +221,11 @@ class API(Cog):
                     else:
                         updated = True
                         break
+
+                try:
+                    self.lyrics_cached = [k.decode() for k in json.loads(await self.ctx.bot.redis.execute_command("KEYS *")) if not k.decode().startswith('backup')]
+                except:
+                    pass
 
                 if not updated:
                     return await interaction.response.send_message('Unable to update data. Try again in a few moments.', ephemeral=True)
