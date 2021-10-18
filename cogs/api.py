@@ -274,7 +274,7 @@ class API(Cog):
             embed = None
 
         try:
-            view.lyrics_cached = [k.decode() for k in json.loads(await self.ctx.bot.redis.execute_command("KEYS *")) if not k.decode().startswith('backup')]
+            view.lyrics_cached = [k.decode() for k in await self.ctx.bot.redis.execute_command("KEYS *") if not k.decode().startswith('backup')]
         except:
             pass
 
