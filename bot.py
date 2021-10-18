@@ -389,12 +389,12 @@ async def celebrity(ctx: commands.Context, *, image = commands.Option(None, desc
 
         #await ctx.send(await bot.mystbin.post(json.dumps(js, indent=4)))
 
-        l = []
+        l = [CelebrityProperties(url=url, cropped_url=None, name=i['Name'], raw=js, item=i) for i in js['detectedFaces']]
 
-        for i in js['detectedFaces']:
-            l.append(CelebrityProperties(
-                url=url, cropped_url=None, name=i['Name'], raw=js, item=i
-            )) # await publishCdn(await bot.loop.run_in_executor(None, crop_image, i), file_type='png')
+        #for i in js['detectedFaces']:
+            #l.append(CelebrityProperties(
+                #url=url, cropped_url=None, name=i['Name'], raw=js, item=i
+            #)) # await publishCdn(await bot.loop.run_in_executor(None, crop_image, i), file_type='png')
     except Exception as e:
         raise e
         try:
