@@ -68,6 +68,9 @@ async def on_message(message: discord.Message):
 async def ping(ctx: commands.Context):
     """Gets the latency of the bot and the database."""
 
+    if ctx.interaction is not None:
+        await ctx.interaction.response.defer()
+
     content = f"Pong! My ping is `{round(bot.latency * 1000, 2)}ms`!"
 
     if bot.pool is not None:
@@ -118,6 +121,9 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
         from_spotify = True
     else:
         from_spotify = False
+
+    if ctx.interaction is not None:
+        await ctx.interaction.response.defer()
 
     async def getLyrics(q):
         try:
@@ -332,7 +338,7 @@ async def publishCdn(fp : BytesIO, filename : str = "uwu.png", from_aiohttp=True
 
 bot.publishCdn = publishCdn
 
-@bot.command()
+@bot.command(slash_command=False)
 async def celebrity(ctx: commands.Context, *, image = commands.Option(None, description='The image. This can be a URL or a image attached.')):
     """
     Finds a celebrity in a image. Note that this is not 100% accurate and is still on beta.
@@ -423,6 +429,9 @@ async def ocr(ctx: commands.Context, *, image = commands.Option(None, descriptio
     if not url:
         return await ctx.send('No image provided.')
 
+    if ctx.interaction is not None:
+        await ctx.interaction.response.defer()
+
     try:
         ocr = await api.ocr(url=url)
 
@@ -499,6 +508,9 @@ async def translate(ctx: commands.Context, *, flags: str):
         if from_lang is None:
             from_lang = "auto"
 
+        if ctx.interaction is not None:
+            await ctx.interaction.response.defer()
+
         try:
             try:
                 translate = await api.translate(text, to_lang, from_lang)
@@ -540,6 +552,9 @@ async def languages(ctx: commands.Context, *, flags: str = commands.Option('', d
     - `--raw`: Returns the raw response sent by our (OpenRobot) API.
     """
 
+    if ctx.interaction is not None:
+        await ctx.interaction.response.defer()
+
     try:
         js = await api.translate.languages()
 
@@ -580,6 +595,9 @@ async def source(ctx: commands.Context, *, command: str = commands.Option(None, 
     Flags:
     - `--code`: Sends the code instead of the GitHub URL.
     """
+
+    if ctx.interaction is not None:
+        await ctx.interaction.response.defer()
 
     if '--code' in command.split(' '):
         code = True
