@@ -14,7 +14,7 @@ import textwrap
 import mystbin
 from discord.ext import commands
 from urllib.parse import quote_plus
-from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator
+from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator, Context
 from io import BytesIO, StringIO
 from PIL import Image, ImageDraw
 from openrobot.api_wrapper import AsyncClient, error
@@ -26,6 +26,10 @@ I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API
 GitHub: <https://github.com/OpenRobot>
 Website: <https://openrobot.xyz/>
 """
+
+class Bot(commands.Bot):
+    async def get_context(self, message: discord.Message, *, cls: Context = Context) -> Context:
+        return await super().get_context(message, cls=cls)
 
 bot = commands.Bot(
     command_prefix=commands.when_mentioned_or(*config.PREFIXES),

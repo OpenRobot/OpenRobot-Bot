@@ -31,7 +31,7 @@ class API(Cog):
         elif isinstance(error, commands.CheckFailure):
             return await ctx.send('The API seems to be unavailable for some reason, and I may not run commands.')
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, slash_command=True)
     async def api(self, ctx: commands.Context):
         """The base API Group Command."""
 
