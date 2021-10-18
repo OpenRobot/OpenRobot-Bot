@@ -695,14 +695,15 @@ async def _confirm(ctx, *args, **kwargs):
 
 @bot.group()
 async def invite(ctx: commands.Context):
-    url_with_slash = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['bot', 'application.commands',])
-    url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['bot',])
-    await ctx.send(f'With slash commands: <{url_with_slash}>\nWithout slash commands: <{url}>')
+    if ctx.invoked_subcommand is None:
+        url_with_slash = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['bot', 'applications.commands',])
+        url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['bot',])
+        return await ctx.send(f'With slash commands: <{url_with_slash}>\nWithout slash commands: <{url}>')
 
-@invite.command()
-async def slash_command(ctx: commands.Context):
-    url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['application.commands',])
-    await ctx.send(f'<{url}>')
+@invite.command(aliases=['slash-command', 'slash-commands', 'slash_command', 'slash_commands', 'slashcommands', 'slashcommand'])
+async def slash(ctx: commands.Context):
+    url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['applications.commands',])
+    return await ctx.send(f'<{url}>')
 
 bot.confirm = _confirm
 
