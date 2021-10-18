@@ -126,7 +126,7 @@ class API(Cog):
                 embed = discord.Embed(color=self.view.ctx.bot.color).set_author(name = selection.label, icon_url=self.view.ctx.author.avatar.url).set_footer(text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.')
                 embed.timestamp = utcnow = discord.utils.utcnow()
 
-                if selection.name == 'General':
+                if selection.label == 'General':
                     embed = self.get_general_embed()
                 else:
                     endpoint_data = []
@@ -154,7 +154,7 @@ class API(Cog):
                     embed.description = f"""
 - **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), endpoint_data)))}`
 - **Total number of requests this month:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(day=1, hour=0, minute=0, second=0, microsecond=0).timestamp(), endpoint_data)))}`
-- **Total number of reqeusts in total:** `{count}`{f'{newline}- **Lyrics Cached:** `{len(self.view.lyrics_cached)}`' if selection.name == 'Lyrics' else ''}
+- **Total number of reqeusts in total:** `{count}`{f'{newline}- **Lyrics Cached:** `{len(self.view.lyrics_cached)}`' if selection.label == 'Lyrics - /api/lyrics' else ''}
 
 - **Last used:**
  \u200b \u200b \u200b- **At:** {discord.utils.format_dt(datetime.datetime.fromtimestamp(last_used['timestamp'], tz=datetime.timezone.utc))}
@@ -182,13 +182,13 @@ class API(Cog):
                 await interaction.message.edit(embed=self.generate_embed(selected), view=self.view)
 
         class View(discord.ui.View):
-            def __init__(self, ctx: commands.Context, data, *, timeout = 90, message: discord.Message = None):
+            def __init__(self, ctx: commands.Context, data, lyrics_cached = [], *, timeout = 90, message: discord.Message = None):
                 super().__init__(timeout=timeout)
                 self.ctx = ctx
                 self.data = data
                 self.message = message
 
-                self.lyrics_cached = []
+                self.lyrics_cached = lyrics_cached
 
                 self.add_item(Select())
 
@@ -272,6 +272,11 @@ class API(Cog):
             embed = select_obj.get_general_embed()
         else:
             embed = None
+
+        try:
+            view.lyrics_cached = [k.decode() for k in json.loads(await self.ctx.bot.redis.execute_command("KEYS *")) if not k.decode().startswith('backup')]
+        except:
+            pass
 
         msg = view.message = await ctx.send(embed=embed, view=view)
         return msg
