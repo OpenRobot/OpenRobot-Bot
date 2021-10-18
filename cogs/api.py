@@ -32,14 +32,14 @@ class API(Cog):
             return await ctx.send('The API seems to be unavailable for some reason, and I may not run commands.')
 
     @commands.group(invoke_without_command=True)
-    async def api(self, ctx):
+    async def api(self, ctx: commands.Context):
         """The base API Group Command."""
 
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
     @api.command(aliases=['statistics'])
-    async def stats(self, ctx):
+    async def stats(self, ctx: commands.Context):
         class SelectOption(discord.SelectOption):
             def __init__(self, *, name: str, endpoint: str, docs_url: str = None, emoji: typing.Optional[typing.Union[str, discord.Emoji, discord.PartialEmoji]] = None, default: bool = False) -> None:
                 if endpoint:
@@ -269,7 +269,7 @@ class API(Cog):
         return msg
 
     @api.command('apply')
-    async def api_apply(self, ctx, *, reason: str):
+    async def api_apply(self, ctx: commands.Context, *, reason: str = commands.Option(description='Enter the reason why you want to apply for the API.')):
         """
         Applies yourself for the OpenRobot API. Note that you can only apply once, and you cannot edit it afterwards.
         """
@@ -331,7 +331,7 @@ __**Info:**__
 
     @api.command('approve', aliases=['accept'])
     @commands.is_owner()
-    async def api_approve(self, ctx, *, arguments: str):
+    async def api_approve(self, ctx: commands.Context, *, arguments: str = commands.Option(description='Usage: [user] [--force]')):
         """
         Approve/Accept a User request to access the API. Owner-Only command.
         """
@@ -420,7 +420,7 @@ __**Info:**__
 
     @api.command('deny')
     @commands.is_owner()
-    async def api_deny(self, ctx, *, flags: APIDenyFlag):
+    async def api_deny(self, ctx: commands.Context, *, flags: APIDenyFlag = commands.Option(description='Usage: --user <@user> [--reason]')):
         """
         Denies a User request to access the API. Owner-Only command.
         """
@@ -464,7 +464,7 @@ __**Info:**__
 
     @api.command('deauth', aliases=['de-auth', 'de_auth', 'deauthenticate', 'deauthorize', 'deauthorise'])
     @commands.is_owner()
-    async def api_deauth(self, ctx, *, user: discord.User):
+    async def api_deauth(self, ctx: commands.Context, *, user: discord.User = commands.Option(description='The user you want to deauthorize.')):
         """
         Deauthenticate a user, making the token unuseable. Owner-Only command.
         """
@@ -494,7 +494,7 @@ __**Info:**__
 
     @api.command('reauth', aliases=['re-auth', 're_auth', 'authenticate', 'authorize', 'authorise'])
     @commands.is_owner()
-    async def api_reauth(self, ctx, *, user: discord.User):
+    async def api_reauth(self, ctx: commands.Context, *, user: discord.User = commands.Option(description='The user you want to reauthorize.')):
         """
         Reauthenticate a user. Owner-Only command.
         """
@@ -523,7 +523,7 @@ __**Info:**__
         await ctx.send(f'User {user} has been re-authorized.')
 
     @api.command('regenerate-token', aliases=['regenerate', 'regen-token', 'regen_token', 'regentoken', 'regeneratetoken', 'regenerate_token'])
-    async def api_regenerate_token(self, ctx, *, arguments: str = None):
+    async def api_regenerate_token(self, ctx: commands.Context, *, arguments: str = commands.Option(None, description='Flags: [--force]')):
         """
         Regenerates your OpenRobot API token.
 
@@ -578,7 +578,7 @@ __**Info:**__
                 break
 
     @api.command('token')
-    async def api_token(self, ctx):
+    async def api_token(self, ctx: commands.Context):
         """
         Sends your OpenRobot API token to your DM.
         """
@@ -601,7 +601,7 @@ __**Info:**__
         return await ctx.send("Check your DM for your API token!")
 
     @api.group('info', invoke_without_command=True)
-    async def api_info(self, ctx, *, arguments: str = None):
+    async def api_info(self, ctx: commands.Context, *, arguments: str = commands.Option(None, description='Flags: [--ignore-guild-warning] [--yes] [--order "Newest to Oldest"/"Oldest to Newest"]')):
         """
         Gets info/logs on your token. Useful for tracking, etc.
 
@@ -680,7 +680,7 @@ __**Info:**__
             await pages.start(ctx)
 
     @api_info.command('reset')
-    async def api_info_reset(self, ctx, *, arguments: str = None):
+    async def api_info_reset(self, ctx: commands.Context, *, arguments: str = commands.Option(None, description='Flags: [--yes]')):
         """
         Resets your OpenRobot API logs. Note that this action cannot be undone.
 
@@ -720,7 +720,7 @@ __**Info:**__
 
         while True:
             try:
-                await self.pool.execute("""
+                await self.bot.pool.execute("""
                 UPDATE tokens
                 SET endpoints_accessed = $2
                 WHERE user_id = $2
@@ -733,7 +733,7 @@ __**Info:**__
         return await ctx.send('Reseted.')
 
     @api.group(name='ip', invoke_without_command=True)
-    async def api_ip(self, ctx):
+    async def api_ip(self, ctx: commands.Context):
         """
         IP management. You can ban IPs from using your API Token, or unban IPs, or look at the list of IP bans you banned.
         """
@@ -749,7 +749,7 @@ __**Info:**__
         return ip not in ['127.0.0.1', '0.0.0.0']
 
     @api_ip.command('list', aliases=['show'])
-    async def api_ip_list(self, ctx, *, arguments: str = None):
+    async def api_ip_list(self, ctx, *, arguments: str = commands.Option(None, description='Flags: [--ignore-guild-warning] [--yes] [--order "Newest to Oldest"/"Oldest to Newest"]')):
         """
         Gets a list of the Ban IPs you banned.
 
@@ -781,7 +781,7 @@ __**Info:**__
 
         while True:
             try:
-                db = await self.bot.db.fetchrow("SELECT * FROM tokens WHERE user_id = $1", ctx.author.id)
+                db = await self.bot.pool.fetchrow("SELECT * FROM tokens WHERE user_id = $1", ctx.author.id)
             except asyncpg.exceptions._base.InterfaceError:
                 pass
             else:
@@ -822,7 +822,7 @@ __**Info:**__
         await pages.start(ctx)
 
     @api_ip.command('ban', aliases=['reject'])
-    async def api_ip_ban(self, ctx, *, flags: APIIPBan):
+    async def api_ip_ban(self, ctx, *, flags: APIIPBan = commands.Option(description='Flags: <--ip <ip>> [--reason <reason>]')):
         """
         IP bans a IP from using your token. This can accept either IPv4 or IPv6.
 
@@ -839,7 +839,7 @@ __**Info:**__
 
         while True:
             try:
-                db = await self.bot.db.fetchrow("SELECT * FROM tokens WHERE user_id = $1", ctx.author.id)
+                db = await self.bot.pool.fetchrow("SELECT * FROM tokens WHERE user_id = $1", ctx.author.id)
             except asyncpg.exceptions._base.InterfaceError:
                 pass
             else:
@@ -868,7 +868,7 @@ __**Info:**__
 
         while True:
             try:
-                db = await self.bot.db.fetchrow("""
+                db = await self.bot.pool.fetchrow("""
                 UPDATE tokens
                 SET ip_bans = $2
                 WHERE user_id = $1
@@ -881,7 +881,7 @@ __**Info:**__
         await ctx.send(f"IP banned {ip}.")
 
     @api_ip.command('unban', aliases=['accept', 'un-ban', 'un_ban'])
-    async def api_ip_unban(self, ctx, *, ip: str):
+    async def api_ip_unban(self, ctx, *, ip: str = commands.Option(description='The IP Address to unban.')):
         """
         IP unban a IP from using your token. This can accept either IPv4 or IPv6.
         """
@@ -891,7 +891,7 @@ __**Info:**__
 
         while True:
             try:
-                db = await self.bot.db.fetchrow("SELECT * FROM tokens WHERE user_id = $1", ctx.author.id)
+                db = await self.bot.pool.fetchrow("SELECT * FROM tokens WHERE user_id = $1", ctx.author.id)
             except asyncpg.exceptions._base.InterfaceError:
                 pass
             else:
@@ -912,7 +912,7 @@ __**Info:**__
 
         while True:
             try:
-                db = await self.bot.db.fetchrow("""
+                db = await self.bot.pool.fetchrow("""
                 UPDATE tokens
                 SET ip_bans = $2
                 WHERE user_id = $1

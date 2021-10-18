@@ -1,5 +1,6 @@
 import asyncio
 import discord
+from discord.ext.commands.flags import F
 import config
 import re
 import asyncpg
@@ -33,6 +34,7 @@ bot = commands.Bot(
     activity=discord.Activity(type=discord.ActivityType.listening, name="or.help"),
     case_insensitive=True,
     description=description,
+    slash_commands=True
 )
 
 bot.color = None
@@ -59,7 +61,7 @@ async def on_message(message: discord.Message):
     await bot.process_commands(message)
 
 @bot.command()
-async def ping(ctx):
+async def ping(ctx: commands.Context):
     """Gets the latency of the bot and the database."""
 
     content = f"Pong! My ping is `{round(bot.latency * 1000, 2)}ms`!"
@@ -97,7 +99,7 @@ async def ping(ctx):
     return await ctx.reply(content, mention_author=False)
 
 @bot.command()
-async def lyrics(ctx, *, query: str):
+async def lyrics(ctx: commands.Context, *, query: str = commands.Option(description='The query to search for the lyrics.')):
     """
     Get lyrics on a specific song/query.
 
@@ -327,7 +329,7 @@ async def publishCdn(fp : BytesIO, filename : str = "uwu.png", from_aiohttp=True
 bot.publishCdn = publishCdn
 
 @bot.command()
-async def celebrity(ctx, *, image = None):
+async def celebrity(ctx: commands.Context, *, image = commands.Option(None, description='The image. This can be a URL or a image attached.')):
     """
     Finds a celebrity in a image. Note that this is not 100% accurate and is still on beta.
 
@@ -404,7 +406,7 @@ async def celebrity(ctx, *, image = None):
     await menu.start(ctx)
 
 @bot.command()
-async def ocr(ctx, *, image = None):
+async def ocr(ctx: commands.Context, *, image = commands.Option(None, description='The image. This can be a URL or a image attached.')):
     """
     Optical Character Recognition. Reads text from images.
 
@@ -449,8 +451,8 @@ async def ocr(ctx, *, image = None):
     except:
         return await ctx.send("No text found in image.")
 
-@bot.group(invoke_without_command=True, aliases=['tr'], usage='<text> <flags>')
-async def translate(ctx, *, flags: str):
+@bot.group(invoke_without_command=True, aliases=['tr'], usage='<text> <flags>', slash_command=False)
+async def translate(ctx: commands.Context, *, flags: str):
     """
     Translates a text to another language.
 
@@ -526,7 +528,7 @@ async def translate(ctx, *, flags: str):
             return await ctx.send("Something wen't wrong while aquiring the translation from our API.")
 
 @translate.command(aliases=['langs', 'language', 'lang'])
-async def languages(ctx, *flags):
+async def languages(ctx: commands.Context, *, flags: str = commands.Option('', description='Add --raw to this to get the raw response.')):
     """
     Gets a list of languages supported by the translator.
 
@@ -537,7 +539,7 @@ async def languages(ctx, *flags):
     try:
         js = await api.translate.languages()
 
-        if '--raw' in flags:
+        if '--raw' in flags.split(' '):
             s = StringIO()
             s.write(json.dumps(js, indent=4))
             s.seek(0)
@@ -550,7 +552,7 @@ async def languages(ctx, *flags):
         return await ctx.send("Something wen't wrong while aquiring the supported languages for translation from our API.")
 
 @bot.command(aliases=['docs'])
-async def documentation(ctx):
+async def documentation(ctx: commands.Context):
     """
     Gives the OpenRobot documentation URL.
     """
@@ -563,7 +565,7 @@ def codeblock(code: str, *, language = ''):
 bot.codeblock = codeblock
 
 @bot.command(aliases=['src'])
-async def source(ctx, *, command: str = None):
+async def source(ctx: commands.Context, *, command: str = commands.Option(None, description='The command name/cog/event to get the source code')):
     """
     The source code of OpenRobot. You can get a code from a specific 
     command such as `api apply`, or get a source code from a 
@@ -690,6 +692,17 @@ async def _confirm(ctx, *args, **kwargs):
     await view.wait()
     
     return view.value
+
+@bot.group()
+async def invite(ctx: commands.Context):
+    url_with_slash = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['bot', 'application.commands',])
+    url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['bot',])
+    await ctx.send(f'With slash commands: <{url_with_slash}>\nWithout slash commands: <{url}>')
+
+@invite.command()
+async def slash_command(ctx: commands.Context):
+    url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['application.commands',])
+    await ctx.send(f'<{url}>')
 
 bot.confirm = _confirm
 
