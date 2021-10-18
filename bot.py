@@ -1,6 +1,5 @@
 import asyncio
 import discord
-from discord.ext.commands.flags import F
 import config
 import re
 import asyncpg
@@ -12,6 +11,7 @@ import inspect
 import os
 import textwrap
 import mystbin
+import typing
 from discord.ext import commands
 from urllib.parse import quote_plus
 from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator, Context
@@ -508,9 +508,6 @@ async def translate(ctx: commands.Context, *, flags: str):
         if from_lang is None:
             from_lang = "auto"
 
-        if ctx.interaction is not None:
-            await ctx.interaction.response.defer()
-
         try:
             try:
                 translate = await api.translate(text, to_lang, from_lang)
@@ -543,6 +540,73 @@ async def translate(ctx: commands.Context, *, flags: str):
         except:
             return await ctx.send("Something wen't wrong while aquiring the translation from our API.")
 
+#@bot.command(name='do-translate', message_command=False)
+async def slash_translate(ctx: commands.Context, text: str = commands.Option(description='The text to be translated.'), to_lang: typing.Literal['Afrikaans', 'Albanian', 'Amharic', 'Arabic', 'Armenian', 'Azerbaijani', 'Bengali', 'Bosnian', 'Bulgarian', 'Catalan', 'Chinese (Simplified)', 'Chinese (Traditional)', 'Croatian', 'Czech', 'Danish', 'Dari', 'Dutch', 'English', 'Estonian', 'Farsi (Persian)', 'Filipino, Tagalog', 'Finnish', 'French', 'French (Canada)', 'Georgian', 'German', 'Greek', 'Gujarati', 'Haitian Creole', 'Hausa', 'Hebrew', 'Hindi', 'Hungarian', 'Icelandic', 'Indonesian', 'Italian', 'Japanese', 'Kannada', 'Kazakh', 'Korean', 'Latvian', 'Lithuanian', 'Macedonian', 'Malay', 'Malayalam', 'Maltese', 'Mongolian', 'Norwegian', 'Pashto', 'Polish', 'Portuguese', 'Romanian', 'Russian', 'Serbian', 'Sinhala', 'Slovak', 'Slovenian', 'Somali', 'Spanish', 'Spanish (Mexico)', 'Swahili', 'Swedish', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Uzbek', 'Vietnamese', 'Welsh'] = commands.Option(description='The language for the text to be translated to.', name='to'), from_lang: typing.Literal['Afrikaans', 'Albanian', 'Amharic', 'Arabic', 'Armenian', 'Azerbaijani', 'Bengali', 'Bosnian', 'Bulgarian', 'Catalan', 'Chinese (Simplified)', 'Chinese (Traditional)', 'Croatian', 'Czech', 'Danish', 'Dari', 'Dutch', 'English', 'Estonian', 'Farsi (Persian)', 'Filipino, Tagalog', 'Finnish', 'French', 'French (Canada)', 'Georgian', 'German', 'Greek', 'Gujarati', 'Haitian Creole', 'Hausa', 'Hebrew', 'Hindi', 'Hungarian', 'Icelandic', 'Indonesian', 'Italian', 'Japanese', 'Kannada', 'Kazakh', 'Korean', 'Latvian', 'Lithuanian', 'Macedonian', 'Malay', 'Malayalam', 'Maltese', 'Mongolian', 'Norwegian', 'Pashto', 'Polish', 'Portuguese', 'Romanian', 'Russian', 'Serbian', 'Sinhala', 'Slovak', 'Slovenian', 'Somali', 'Spanish', 'Spanish (Mexico)', 'Swahili', 'Swedish', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Uzbek', 'Vietnamese', 'Welsh', 'auto'] = commands.Option('auto', description='The text\'s original language. Defaults to "auto".', name='from'), flags: str = commands.Option('', description='Add --raw to this to get the raw response.')):
+    if '--raw' in flags.split(' '):
+        raw = True
+    else:
+        raw = False
+
+    await ctx.interaction.response.defer()
+
+    try:
+        try:
+            translate = await api.translate(text, to_lang, from_lang)
+        except error.BadRequest as e:
+            if e.message == 'Invalid language in paramater to_lang.':
+                return await ctx.send(f'{to_lang} is not a valid language (`--to` flag)')
+            elif e.message == 'Invalid language in paramater from_lang.':
+                return await ctx.send(f'{from_lang} is not a valid language (`--from` flag)')
+
+        if raw:
+            s = StringIO()
+            s.write(json.dumps(translate.raw, indent=4))
+            s.seek(0)
+
+            return await ctx.send(file=discord.File(s, 'response.json'))
+
+        embed = discord.Embed(color=bot.color)
+
+        embed.description = f"""
+**Translation Result:** {discord.utils.escape_markdown(translate.text)}
+**To Language:** {translate.to}
+**From Language:** {translate.source}
+        """
+
+        embed.set_author(name=f'Translation Result ({translate.source} -> {translate.to})')
+
+        embed.timestamp = discord.utils.utcnow()
+
+        return await ctx.send(embed=embed)
+    except:
+        return await ctx.send("Something wen't wrong while aquiring the translation from our API.")
+
+#@bot.command(name='translate-languages', message_command=False)
+async def slash_languages(ctx: commands.Context, *, flags: str = commands.Option('', description='Add --raw to this to get the raw response.')):
+    """
+    Gets a list of languages supported by the translator.
+
+    Flags:
+    - `--raw`: Returns the raw response sent by our (OpenRobot) API.
+    """
+
+    await ctx.interaction.response.defer()
+
+    try:
+        js = await api.translate.languages()
+
+        if '--raw' in flags.split(' '):
+            s = StringIO()
+            s.write(json.dumps(js, indent=4))
+            s.seek(0)
+
+            return await ctx.send(file=discord.File(s, 'response.json'))
+
+        menu = MenuPages(TranslateLanguagesPagniator(list(js.items())), delete_message_after=True)
+        await menu.start(ctx)
+    except:
+        return await ctx.send("Something wen't wrong while aquiring the supported languages for translation from our API.")
+
 @translate.command(aliases=['langs', 'language', 'lang'])
 async def languages(ctx: commands.Context, *, flags: str = commands.Option('', description='Add --raw to this to get the raw response.')):
     """
@@ -551,9 +615,6 @@ async def languages(ctx: commands.Context, *, flags: str = commands.Option('', d
     Flags:
     - `--raw`: Returns the raw response sent by our (OpenRobot) API.
     """
-
-    if ctx.interaction is not None:
-        await ctx.interaction.response.defer()
 
     try:
         js = await api.translate.languages()
@@ -715,17 +776,17 @@ async def _confirm(ctx, *args, **kwargs):
     
     return view.value
 
-@bot.group()
-async def invite(ctx: commands.Context):
-    if ctx.invoked_subcommand is None:
+@bot.command()
+async def invite(ctx: commands.Context, option: typing.Literal['Slash Commands', 'Bot Invite'] = commands.Option(description='Either Slash Commands or Message Commands (Normal)')):
+    if option == 'Bot Invite':
         url_with_slash = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['bot', 'applications.commands',])
         url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['bot',])
         return await ctx.send(f'With slash commands: <{url_with_slash}>\nWithout slash commands: <{url}>')
-
-@invite.command(aliases=['slash-command', 'slash-commands', 'slash_command', 'slash_commands', 'slashcommands', 'slashcommand'])
-async def slash(ctx: commands.Context):
-    url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['applications.commands',])
-    return await ctx.send(f'<{url}>')
+    elif option == 'Slash Commands':
+        url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['applications.commands',])
+        return await ctx.send(f'<{url}>')
+    else:
+        return await ctx.send('Unknown Option') # idk when this would happen, but ok.
 
 bot.confirm = _confirm
 

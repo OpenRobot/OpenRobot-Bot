@@ -31,7 +31,7 @@ class API(Cog):
         elif isinstance(error, commands.CheckFailure):
             return await ctx.send('The API seems to be unavailable for some reason, and I may not run commands.')
 
-    @commands.group(invoke_without_command=True, slash_command=True)
+    @commands.group(invoke_without_command=True)
     async def api(self, ctx: commands.Context):
         """The base API Group Command."""
 
@@ -284,7 +284,9 @@ class API(Cog):
     @api.command('apply')
     async def api_apply(self, ctx: commands.Context, *, reason: str = commands.Option(description='Enter the reason why you want to apply for the API.')):
         """
-        Applies yourself for the OpenRobot API. Note that you can only apply once, and you cannot edit it afterwards.
+        Applies yourself for the OpenRobot API. 
+        
+        Note that you can only apply once, and you cannot edit it afterwards.
         """
 
         while True:
@@ -748,7 +750,9 @@ __**Info:**__
     @api.group(name='ip', invoke_without_command=True)
     async def api_ip(self, ctx: commands.Context):
         """
-        IP management. You can ban IPs from using your API Token, or unban IPs, or look at the list of IP bans you banned.
+        IP management. 
+        
+        You can ban IPs from using your API Token, or unban IPs, or look at the list of IP bans you banned.
         """
 
         if ctx.invoked_subcommand is None:
