@@ -930,7 +930,7 @@ class Music(Cog):
         await ViewMenuPages(ClassicPaginator(entries, per_page=1)).start(ctx)
 
     @music.command(name="voice-client", aliases=["voice_client", "voiceclient", "vc"])
-    async def voiceclient(self, ctx: commands.Context, *, server: discord.Guild = commands.Optionn(None, description='The server to show voice client detais.')):
+    async def voiceclient(self, ctx: commands.Context, *, server: discord.Guild = commands.Option(None, description='The server to show voice client detais.')):
         """
         Displays information about a specific voice client.
         """
