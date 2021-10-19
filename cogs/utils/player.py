@@ -194,8 +194,15 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
         if choose:
             entries = []
 
+            c = 0
+
             for index, track in enumerate(search.tracks):
+                if c == 10:
+                    break
+
                 entries.append((f'{index + 1:}', track.title, track.uri, track))
+
+                c += 1
 
             embed = discord.Embed(color=self.bot.color, title='Select the number of the track you want to play.')
             embed.description = ''
@@ -247,6 +254,8 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
 
             if not view.value:
                 return
+
+            await msg.delete()
 
             tracks = view.value[1][3]
         else:
