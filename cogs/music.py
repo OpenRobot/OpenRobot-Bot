@@ -27,6 +27,8 @@ def get_source(flags) -> slate.Source:
 
     return slate.Source.YOUTUBE
 
+music = commands
+
 class Music(Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -53,8 +55,8 @@ class Music(Cog):
     async def on_obsidian_track_stuck(self, player: Player, _: obsidian.TrackStuck) -> None:
         await player.handle_track_error()
 
-    @commands.group('music')
-    async def music(self, ctx: commands.Context):
+    #@commands.group('music')
+    async def __music(self, ctx: commands.Context): # useless
         """
         Useful Music commands.
         """
