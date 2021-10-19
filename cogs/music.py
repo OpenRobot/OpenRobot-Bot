@@ -892,7 +892,7 @@ class Music(Cog):
 
         await ctx.send(embed=discord.Embed(color=self.bot.color, description=f"Moved **[{track.title}]({track.uri})** from position **{entry_1}** to position **{entry_2}**."))
 
-    @music.command('set-filter', aliases=['filt'])
+    @music.command('filter', aliases=['filt', 'set-filter', 'set_filter', 'setfilter'])
     async def _filter(self, ctx: commands.Context, filter: typing.Literal['8D', 'Nightcore'] = commands.Option(description='The filter to enable/disable.')):
         """
         Filter commands.
