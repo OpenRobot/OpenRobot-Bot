@@ -121,7 +121,7 @@ class Music(Cog):
         """
 
         if ctx.voice_client is None or ctx.voice_client.is_connected() is False:
-            if (command := ctx.bot.get_command("connect")) is None or await command.can_run(ctx) is True:
+            if (command := ctx.bot.get_command("music connect")) is None or await command.can_run(ctx) is True:
                 await ctx.invoke(command)
 
         if ctx.author in ctx.voice_client.channel.members:
@@ -152,7 +152,7 @@ class Music(Cog):
             pass
 
         if ctx.voice_client is None or ctx.voice_client.is_connected() is False:
-            if (command := ctx.bot.get_command("connect")) is None or await command.can_run(ctx) is True:
+            if (command := ctx.bot.get_command("music connect")) is None or await command.can_run(ctx) is True:
                 await ctx.invoke(command)
 
         if ctx.author in ctx.voice_client.channel.members:
