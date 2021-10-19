@@ -618,7 +618,7 @@ class Music(Cog):
 
         await ViewMenuPages(QueueHistoryPaginator(l, per_page=10)).start(ctx)
 
-    @queue_history.command('detailed', aliases=['detail', 'detailed'])
+    @queue_history.command('detailed', aliases=['detail', 'd'])
     async def queue_history_detailed(self, ctx: commands.Context):
         """
         Displays detailed information about the tracks in the queue history.
