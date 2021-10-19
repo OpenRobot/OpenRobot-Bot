@@ -421,7 +421,7 @@ class Music(Cog):
         await ctx.send(embed=embed)
 
     @music.command('skip', aliases=['fs'])
-    async def skip(self, ctx: commands.Context, *, amount: int = commands.Option(1, 'Number of tracks to skip. Defaults to 1.')):
+    async def skip(self, ctx: commands.Context, *, amount: int = commands.Option(1, description='Number of tracks to skip. Defaults to 1.')):
         """
         Skips the current track.
 
