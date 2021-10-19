@@ -7,7 +7,7 @@ import humanize
 import slate
 import math
 from discord.ext import commands
-from utils import Cog, Player, FlagConverter, TimeConverter, is_guild_owner, QueueNowPlayingPaginator, ViewMenuPages, ClassicPaginator, QueueHistoryPaginator, Filters
+from cogs.utils import Cog, Player, FlagConverter, TimeConverter, is_guild_owner, QueueNowPlayingPaginator, ViewMenuPages, ClassicPaginator, QueueHistoryPaginator, Filters
 from slate import obsidian
 
 class Options(FlagConverter):
