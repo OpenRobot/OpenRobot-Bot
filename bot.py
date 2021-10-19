@@ -842,9 +842,10 @@ def start(**kwargs):
 
     async def start_obsidian():
         await bot.wait_until_ready()
-        
+
         return await bot.cogs['Music'].initiate_node()
 
     bot.loop.create_task(parse_flags(**kwargs))
+    bot.loop.create_task(start_obsidian())
 
     bot.run(config.TOKEN)
