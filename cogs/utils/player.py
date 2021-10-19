@@ -223,6 +223,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
 
             class View(discord.ui.View):
                 def __init__(self, ctx):
+                    super().__init__(timeout=60)
                     self.ctx = ctx
                     self.msg = None
 
