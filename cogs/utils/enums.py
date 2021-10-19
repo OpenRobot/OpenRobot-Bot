@@ -6,3 +6,4 @@ class Filters(Enum):
 
     ROTATION = 1
     NIGHTCORE = 2
+    VOLUME = 3

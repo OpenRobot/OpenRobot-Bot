@@ -16,4 +16,4 @@ class Context(commands.Context):
         if not 'mention_author' in kwargs:
             kwargs['mention_author'] = False
 
-        return super().reply(content, **kwargs)
+        return await super().reply(content, **kwargs)

@@ -1,6 +1,7 @@
 # Thanks to https://github.com/Axelware/Life-bot/blob/main/bot/utilities/custom/player.py
 
 from __future__ import annotations
+import typing
 
 import discord
 import asyncio
@@ -58,6 +59,8 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
 
         self.queue: Queue = Queue(self)
 
+        self._volume = 1
+
     @property
     def text_channel(self) -> discord.TextChannel | None:
         return self._text_channel
@@ -114,6 +117,23 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
 
         return await text_channel.send(embed=embed)
 
+    async def set_volume(self, volume: typing.Union[int, float]):
+        await self.set_filter(
+            slate.obsidian.Filter(self.filter, volume=volume)
+        )
+
+        old_volume = self._volume
+        self._volume = volume
+
+        return (old_volume, volume)
+
+    @property
+    def volume(self):
+        return self._volume
+
+    async def set_filter(self, filter: slate.obsidian.Filter, /, *, seek: bool = False):
+        return await super().set_filter(filter, seek=seek)
+
     async def send(
         self,
         *args, **kwargs
@@ -163,9 +183,13 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
         now: bool = False,
         next: bool = False,
         choose: bool = False,
+        message: discord.Message = None
     ) -> None:
 
         search = await self.search(query, source=source, ctx=ctx)
+
+        if message:
+            await message.delete()
 
         if choose:
             entries = []

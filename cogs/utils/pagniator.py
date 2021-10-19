@@ -91,12 +91,12 @@ class ViewMenuPages(ui.View, menus.MenuPages):
         else:
             return True
 
-    @ui.button(emoji='<:fast_forward_left:802368686547271741>', style=discord.ButtonStyle.gray, row=1)
+    @ui.button(emoji='<:openrobot_rewind_button:899931475720413187>', style=discord.ButtonStyle.gray, row=1)
     async def first_page(self, button, interaction):
         await self.show_page(0)
         await self.update_buttons()
 
-    @ui.button(emoji='<a:facing_left_arrow:799579706688667669>', label='Previous', style=discord.ButtonStyle.gray, row=1)
+    @ui.button(emoji='<:openrobot_previous_button:899937597877542922>', label='Previous', style=discord.ButtonStyle.gray, row=1)
     async def before_page(self, button, interaction):
         await self.show_checked_page(self.current_page - 1)
         await self.update_buttons()
@@ -136,17 +136,17 @@ class ViewMenuPages(ui.View, menus.MenuPages):
 
         await self.update_buttons()
 
-    @ui.button(emoji='<a:facing_right_arrow:799579865296535583>', label='Next', style=discord.ButtonStyle.gray, row=1)
+    @ui.button(emoji='<:openrobot_next_button:899878229437984799>', label='Next', style=discord.ButtonStyle.gray, row=1)
     async def next_page(self, button, interaction):
         await self.show_checked_page(self.current_page + 1)
         await self.update_buttons()
 
-    @ui.button(emoji='<:fast_forward_right:802368548482580510>', style=discord.ButtonStyle.gray, row=1)
+    @ui.button(emoji='<:openrobot_fast_forward_button:899878227777060894>', style=discord.ButtonStyle.gray, row=1)
     async def last_page(self, button, interaction):
         await self.show_page(self._source.get_max_pages() - 1)
         await self.update_buttons()
 
-    @ui.button(emoji='\U000023f9', label='Quit', style=discord.ButtonStyle.red, row=2)
+    @ui.button(emoji='<:openrobot_stop_button:899878227969974322>', label='Quit', style=discord.ButtonStyle.red, row=2)
     async def stop_page(self, button, interaction):
         self.stop()
         if self.delete_message_after:
@@ -314,7 +314,7 @@ class QueueNowPlayingPaginator(ListPageSource):
 **Loop mode:** {self.queue.loop_mode.name.title()}\n
         """
 
-        embed.description += '\n'.join([f"**{index + 1}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(seconds=track.length // 1000))} | {track.requester.mention}" for index, track in enumerate(self.queue)])
+        embed.description += '\n'.join([f"**{index + 1}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(seconds=track.length // 1000))} | {track.requester.mention}" for index, track in enumerate(entries)])
 
         return embed
 

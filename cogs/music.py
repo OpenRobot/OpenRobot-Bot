@@ -158,10 +158,8 @@ class Music(Cog):
             return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'You are not in {ctx.voice_client.channel.mention}!'))
 
         async with ctx.channel.typing():
-            if flags:
-                await ctx.voice_client.queue_search(query, ctx=ctx, now=flags.now, next=flags.next, source=get_source(flags))
-            else:
-                await ctx.voice_client.queue_search(query, ctx=ctx, now=False, next=False, source=slate.Source.YOUTUBE)
+            m = await ctx.send(embed=discord.Embed(color=self.bot.color, description='<a:openrobot_searching_gif:899928367799885834> Searching...'))
+            await ctx.voice_client.queue_search(query, ctx=ctx, now=flags.now, next=flags.next, source=get_source(flags), message=m)
 
     @music.command('search')
     async def search(self, ctx: commands.Context, *, query: str = None):
@@ -217,7 +215,8 @@ class Music(Cog):
             return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'You are not in {ctx.voice_client.channel.mention}!'))
 
         async with ctx.channel.typing():
-            await ctx.voice_client.queue_search(query, ctx=ctx, now=flags.now, next=flags.next, source=get_source(flags))
+            m = await ctx.send(embed=discord.Embed(color=self.bot.color, description='<a:openrobot_searching_gif:899928367799885834> Searching...'))
+            await ctx.voice_client.queue_search(query, ctx=ctx, now=flags.now, next=flags.next, source=get_source(flags), choose=True, message=m)
 
     @music.command(name="pause")
     async def pause(self, ctx: commands.Context):
@@ -281,6 +280,29 @@ class Music(Cog):
 
         await ctx.voice_client.set_pause(False)
         await ctx.send(embed=discord.Embed(color=self.bot.color, description="The player is now resumed."))
+
+    @music.command('volume', aliases=['vol'])
+    async def volume(self, ctx: commands.Context, volume: int = commands.Option(description='The volume to be set to.')):
+        """
+        Sets the volume of the player.
+
+        This can be a number from 1 - 100.
+        """
+        
+        if not ctx.voice_client:
+            return await ctx.send(embed=discord.Embed(color=self.bot.color, description='There are no tracks playing.'))
+
+        if ctx.author not in ctx.voice_client.channel.members:
+            return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'You are not in {ctx.voice_client.channel.mention}!'))
+
+        if 0 >= volume > 100:
+            return await ctx.send("Invalid volume. Only accepts numbers from 1-100.")
+        else:
+            volume /= 100
+
+        old_volume, new_volume = await ctx.voice_client.set_volume(volume)
+
+        await ctx.send(embed=discord.Embed(color=self.bot.color, description=f"Volume has been changed from **{old_volume*100}%** to **{new_volume*100}%**."))
 
     @music.command('seek', aliases=['skip-to', 'skipto', 'skip_to'])
     async def seek(self, ctx: commands.Context, *, time: TimeConverter = commands.Option(description='Seeks to the time provided.')):
@@ -589,7 +611,6 @@ class Music(Cog):
             embed = discord.Embed(
                 title=f"{ctx.voice_client.current.title}",
                 url=f"{ctx.voice_client.current.uri}",
-                image=ctx.voice_client.current.thumbnail,
                 description=f"**Author:** {ctx.voice_client.current.author}\n"
                             f"**Source:** {ctx.voice_client.current.source.name.title()}\n"
                             f"**Length:** {humanize.naturaldelta(datetime.timedelta(seconds=ctx.voice_client.current.length // 1000))}\n"
@@ -597,7 +618,7 @@ class Music(Cog):
                             f"**Is seekable:** {ctx.voice_client.current.is_seekable()}\n"
                             f"**Requester:** {ctx.voice_client.current.requester} `{ctx.voice_client.current.requester.id}`",
                 color=self.bot.color
-            )
+            ).set_thumbnail(url=ctx.voice_client.current.thumbnail)
             await ctx.author.send(embed=embed)
             await ctx.send(embed=discord.Embed(color=self.bot.color, description="Saved the current track to our DM's."))
 
@@ -668,15 +689,19 @@ class Music(Cog):
         await ViewMenuPages(ClassicPaginator(entries, per_page=1)).start(ctx)
 
     @music.group('queue-history', aliases=['h'])
-    async def queue_history(self, ctx: commands.Context):
+    async def queue_history(self, ctx: commands.Context, action: typing.Literal['Detailed', 'Show'] = commands.Option(description='Views detailed or shows normally.')):
         """
         Displays tracks in the queue history.
         """
 
-        if ctx.invoked_subcommand is None:
-            return await ctx.send_help(ctx.command)
+        if action == 'Show':
+            return await self.queue_history_show(ctx)
+        elif action == 'Detailed':
+            return await self.queue_history_detailed(ctx)
+        else:
+            return await ctx.send('Unknown action.')
 
-    @queue_history.command('show', aliases=['list'])
+    #@queue_history.command('show', aliases=['list'])
     async def queue_history_show(self, ctx: commands.Context):
         """
         Displays tracks in the queue history.
@@ -697,7 +722,7 @@ class Music(Cog):
 
         await ViewMenuPages(QueueHistoryPaginator(l, per_page=10)).start(ctx)
 
-    @queue_history.command('detailed', aliases=['detail', 'd'])
+    #@queue_history.command('detailed', aliases=['detail', 'd'])
     async def queue_history_detailed(self, ctx: commands.Context):
         """
         Displays detailed information about the tracks in the queue history.
@@ -723,9 +748,8 @@ class Music(Cog):
                             f"**Requester:** {track.requester.mention} `{track.requester.id}`\n"
                             f"**Is stream:** {track.is_stream()}\n"
                             f"**Is seekable:** {track.is_seekable()}\n",
-                image=track.thumbnail,
                 color=self.bot.color
-            )
+            ).set_thumbnail(url=track.thumbnail)
 
             entries.append(embed)
 
