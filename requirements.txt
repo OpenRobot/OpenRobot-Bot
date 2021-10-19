@@ -9,3 +9,5 @@ Pillow
 mystbin.py
 git+https://github.com/OpenRobot-Packages/API-Wrapper
 aioredis
+git+https://github.com/proguy914629bot/slate
+humanize

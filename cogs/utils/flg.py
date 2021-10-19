@@ -3,7 +3,7 @@ import shlex
 import typing
 from discord.ext import commands
 
-class FlagConverter(commands.FlagConverter, prefix='--', delimiter=' '):
+class FlagConverter(commands.FlagConverter, prefix='--', delimiter=' ', case_insensitive=True):
     pass
 
 class _Arguments(argparse.ArgumentParser):

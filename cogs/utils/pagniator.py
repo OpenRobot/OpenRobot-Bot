@@ -4,7 +4,8 @@ import datetime
 import json
 from discord import ui
 from discord.ext import menus
-from discord.ext.menus import ListPageSource
+from discord.ext.menus import ListPageSource, Menu
+import humanize
 
 class ViewMenuPages(ui.View, menus.MenuPages):
     def __init__(self, source, *, timeout=180, delete_message_after=False, clear_buttons_after=False, force_paginate=False):
@@ -160,7 +161,11 @@ class ViewMenuPages(ui.View, menus.MenuPages):
 
 MenuPages = ViewMenuPages
 
-class APIInfoPaginator(menus.ListPageSource):
+class ClassicPaginator(ListPageSource):
+    async def format_page(self, menu, page):
+        return page
+
+class APIInfoPaginator(ListPageSource):
     def __init__(self, data):
         super().__init__(data, per_page=5)
 
@@ -185,7 +190,7 @@ __**{c})**__
 
         return embed
 
-class CelebrityPaginator(menus.ListPageSource):
+class CelebrityPaginator(ListPageSource):
     def __init__(self, data):
         super().__init__(data, per_page=1)
 
@@ -234,7 +239,7 @@ Seems like this is `{page.name}`. I am `{round(page.item['Confidence'], 1)}%` su
 
         return embed
 
-class TranslateLanguagesPagniator(menus.ListPageSource):
+class TranslateLanguagesPagniator(ListPageSource):
     def __init__(self, data):
         super().__init__(data, per_page=10)
 
@@ -270,7 +275,7 @@ class CodePaginator(menus.ListPageSource):
 
         return embed
 
-class IPBanListPaginator(menus.ListPageSource):
+class IPBanListPaginator(ListPageSource):
     def __init__(self, data):
         super().__init__(data, per_page=5)
 
@@ -291,5 +296,39 @@ __**{c})**__
 
         embed.set_footer(text=f'Page {menu.current_page + 1}/{self.get_max_pages()}')
         embed.timestamp = menu.ctx.message.created_at
+
+        return embed
+
+class QueueNowPlayingPaginator(ListPageSource):
+    def __init__(self, queue, entries, *, per_page):
+        super().__init__(entries, per_page)
+        self.queue = queue
+
+    async def format_page(self, menu, entries):
+        embed = discord.Embed()
+        embed.color = menu.ctx.bot.color
+
+        embed.description = f"""
+**Tracks:** {len(self.queue)}
+**Time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in self.queue) // 1000))}
+**Loop mode:** {self.queue.loop_mode.name.title()}\n
+        """
+
+        embed.description += '\n'.join([f"**{index + 1}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(seconds=track.length // 1000))} | {track.requester.mention}" for index, track in enumerate(self.queue)])
+
+        return embed
+
+class QueueHistoryPaginator(ListPageSource):
+    async def format_page(self, menu, entries):
+        embed = discord.Embed(color=menu.ctx.bot.color)
+
+        embed.title = 'Queue history:'
+
+        embed.set_footer(text=f'1 = most recent | {len(entries)} = least recent')
+
+        embed.description = f'**Tracks:** {len(entries)}\n**Time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in entries) // 1000))}\n\n'
+
+        for index, track in entries:
+            embed.description = '\n'.join([f"**{index + 1}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(track.length // 1000))} | {track.requester.mention}"])
 
         return embed
