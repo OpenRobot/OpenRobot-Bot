@@ -892,16 +892,20 @@ class Music(Cog):
 
         await ctx.send(embed=discord.Embed(color=self.bot.color, description=f"Moved **[{track.title}]({track.uri})** from position **{entry_1}** to position **{entry_2}**."))
 
-    @music.group('set-filter', aliases=['filt'])
-    async def _filter(self, ctx: commands.Context):
+    @music.command('set-filter', aliases=['filt'])
+    async def _filter(self, ctx: commands.Context, filter: typing.Literal['8D', 'Nightcore'] = commands.Option(description='The filter to enable/disable.')):
         """
         Filter commands.
         """
 
-        if ctx.invoked_subcommand is None:
-            return await ctx.send_help(ctx.command)
+        if filter == '8D':
+            return await self._8D(ctx)
+        elif filter == 'Nightcore':
+            return await self.nightcore(ctx)
+        else:
+            return await ctx.send('Unknown filter.')
 
-    @_filter.command('8D', aliases=['8dimentional', '8-dimentional', '8_dimentional'])
+    #@_filter.command('8D', aliases=['8dimentional', '8-dimentional', '8_dimentional'])
     async def _8D(self, ctx: commands.Context):
         """
         Sets an 8D audio filter on the player.
@@ -935,7 +939,7 @@ class Music(Cog):
 
         await ctx.send(embed=embed)
 
-    @_filter.command('nightcore', aliases=["night_core", "night-core", "nc"])
+    #@_filter.command('nightcore', aliases=["night_core", "night-core", "nc"])
     async def nightcore(self, ctx: commands.Context):
         """
         Sets a nightcore audio filter on the player.
