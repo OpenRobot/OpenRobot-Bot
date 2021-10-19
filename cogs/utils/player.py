@@ -236,7 +236,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
 
                     await self.msg.edit(view=self, content='Timed Out.')
 
-            view = View()
+            view = View(ctx)
 
             view.msg = msg = await ctx.send(embed=embed, view=view)
 
