@@ -1,6 +1,7 @@
 # Thanks to https://github.com/Axelware/Life-bot/blob/main/bot/extensions/voice.py
 
 import datetime
+import inspect
 import discord
 import typing
 import humanize
@@ -23,10 +24,6 @@ def get_source(flags) -> slate.Source:
         return slate.Source.YOUTUBE_MUSIC
     elif flags.soundcloud:
         return slate.Source.SOUNDCLOUD
-    elif flags.local:
-        return slate.Source.LOCAL
-    elif flags.http:
-        return slate.Source.HTTP
 
     return slate.Source.YOUTUBE
 
@@ -108,7 +105,7 @@ class Music(Cog):
         return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'Left {chan.mention}'))
 
     @music.command('play', aliases=['p'])
-    async def play(self, ctx: commands.Context, query: str, *, flags: Options = commands.Option(None, description='Play command flags.')):
+    async def play(self, ctx: commands.Context, *, query: str = None):
         """
         Queues tracks with the given name or url.
 
@@ -122,9 +119,40 @@ class Music(Cog):
         - --now: Skips the current track and plays the track that is found.
         """
 
+        if query is None and ctx.voice_client and ctx.voice_client.paused is True:
+            return await self.resume(ctx)
+        elif query is None:
+            raise commands.MissingRequiredArgument(inspect.Parameter('query', inspect.Parameter.KEYWORD_ONLY, annotation=str))
+
+        flags = discord.Object(0)
+
+        if '--music' in query.split(' '):
+            flags.music = True
+            query = query.split(' --music', '')
+        else:
+            flags.music = False
+        
+        if '--soundcloud' in query.split(' '):
+            flags.soundcloud = True
+            query = query.replace(' --soundcloud', '')
+        else:
+            flags.soundcloud = False
+
+        if '--next' in query.split(' '):
+            flags.next = True
+            query = query.replace(' --next', '')
+        else:
+            flags.next = False
+
+        if '--now' in query.split(' '):
+            flags.now = True
+            query = query.replace(' --now', '')
+        else:
+            flags.now = False
+
         if ctx.voice_client is None or ctx.voice_client.is_connected() is False:
             if (command := ctx.bot.get_command("music connect")) is None or await command.can_run(ctx) is True:
-                await ctx.invoke(command)
+                await ctx.invoke(command, channel=None)
 
         if ctx.author not in ctx.voice_client.channel.members:
             return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'You are not in {ctx.voice_client.channel.mention}!'))
@@ -136,7 +164,7 @@ class Music(Cog):
                 await ctx.voice_client.queue_search(query, ctx=ctx, now=False, next=False, source=slate.Source.YOUTUBE)
 
     @music.command('search')
-    async def search(self, ctx: commands.Context, query: str = None, *, flags: Options = commands.Option(None, description='Search command flags.')):
+    async def search(self, ctx: commands.Context, *, query: str = None):
         """
         Choose which track to play based on a search.
 
@@ -150,21 +178,46 @@ class Music(Cog):
         - --now: Skips the current track and plays the track that is found.
         """
 
-        if query is None and ctx.voice_client.paused is True:
-            pass
+        if query is None and ctx.voice_client and ctx.voice_client.paused is True:
+            return await ctx.voice_client.set_pause(False)
+        elif query is None:
+            raise commands.MissingRequiredArgument(inspect.Parameter('query', inspect.Parameter.KEYWORD_ONLY, annotation=str))
+
+        flags = discord.Object(0)
+
+        if '--music' in query.split(' '):
+            flags.music = True
+            query = query.split(' --music', '')
+        else:
+            flags.music = False
+        
+        if '--soundcloud' in query.split(' '):
+            flags.soundcloud = True
+            query = query.replace(' --soundcloud', '')
+        else:
+            flags.soundcloud = False
+
+        if '--next' in query.split(' '):
+            flags.next = True
+            query = query.replace(' --next', '')
+        else:
+            flags.next = False
+
+        if '--now' in query.split(' '):
+            flags.now = True
+            query = query.replace(' --now', '')
+        else:
+            flags.now = False
 
         if ctx.voice_client is None or ctx.voice_client.is_connected() is False:
             if (command := ctx.bot.get_command("music connect")) is None or await command.can_run(ctx) is True:
-                await ctx.invoke(command)
+                await ctx.invoke(command, channel=None)
 
         if ctx.author not in ctx.voice_client.channel.members:
             return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'You are not in {ctx.voice_client.channel.mention}!'))
 
         async with ctx.channel.typing():
-            if flags:
-                await ctx.voice_client.queue_search(query, ctx=ctx, now=flags.now, next=flags.next, source=get_source(flags))
-            else:
-                await ctx.voice_client.queue_search(query, ctx=ctx, now=False, next=False, source=slate.Source.YOUTUBE)
+            await ctx.voice_client.queue_search(query, ctx=ctx, now=flags.now, next=flags.next, source=get_source(flags))
 
     @music.command(name="pause")
     async def pause(self, ctx: commands.Context):
@@ -207,6 +260,27 @@ class Music(Cog):
 
         await ctx.voice_client.set_pause(True)
         await ctx.send(embed=discord.Embed(color=self.bot.color, description="The player is now stopped."))
+
+    @music.command('resume')
+    async def resume(self, ctx: commands.Context):
+        """
+        Resumes the current track.
+        """
+
+        if not ctx.voice_client:
+            return await ctx.send(embed=discord.Embed(color=self.bot.color, description='There are no tracks playing.'))
+
+        if ctx.author not in ctx.voice_client.channel.members:
+            return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'You are not in {ctx.voice_client.channel.mention}!'))
+
+        if ctx.voice_client.paused is False:
+            return await ctx.send(embed=discord.Embed(
+                color=self.bot.color,
+                description="The track is already resumed."
+            ))
+
+        await ctx.voice_client.set_pause(False)
+        await ctx.send(embed=discord.Embed(color=self.bot.color, description="The player is now resumed."))
 
     @music.command('seek', aliases=['skip-to', 'skipto', 'skip_to'])
     async def seek(self, ctx: commands.Context, *, time: TimeConverter = commands.Option(description='Seeks to the time provided.')):
