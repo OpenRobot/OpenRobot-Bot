@@ -200,7 +200,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
             embed = discord.Embed(color=self.bot.color, title='Select the number of the track you want to play.')
             embed.description = ''
 
-            for index, title, url in entries:
+            for index, title, url. _ in entries:
                 embed.description += f'`{index}`. [`{title}`]({url})'
 
             class Select(discord.ui.Select):
