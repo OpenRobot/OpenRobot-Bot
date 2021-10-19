@@ -533,16 +533,20 @@ class Music(Cog):
                 description="I am unable to DM you."
             ))
 
-    @music.group('queue', aliases=['q'], invoke_without_command=True)
-    async def queue(self, ctx: commands.Context):
+    @music.command('queue', aliases=['q'])
+    async def queue(self, ctx: commands.Context, action: typing.Literal['Detailed', 'Show', ] = commands.Option(description='Views detailed or shows normally.')):
         """
         Queue music commands.
         """
 
-        if ctx.invoked_subcommand is None:
-            return await ctx.send_help(ctx.command)
+        if action == 'Show':
+            return await self.queue_show(ctx)
+        elif action == 'Detailed':
+            return await self.queue_detailed(ctx)
+        else:
+            return await ctx.send('Unknown action.')
 
-    @queue.command('show', aliases=['list'])
+    #@queue.command('show', aliases=['list'])
     async def queue_show(self, ctx: commands.Context):
         """
         Displays tracks in the queue.
@@ -558,7 +562,7 @@ class Music(Cog):
 
         await ViewMenuPages(QueueNowPlayingPaginator(queue, queue, per_page=10)).start(ctx)
 
-    @queue.command('detailed', aliases=['detail', 'd'])
+    #@queue.command('detailed', aliases=['detail', 'd'])
     async def queue_detailed(self, ctx: commands.Context):
         """
         Displays detailed information about the tracks in the queue.
@@ -590,7 +594,7 @@ class Music(Cog):
 
         await ViewMenuPages(ClassicPaginator(entries, per_page=1)).start(ctx)
 
-    @queue.group('history', aliases=['h'])
+    @music.group('queue-history', aliases=['h'])
     async def queue_history(self, ctx: commands.Context):
         """
         Displays tracks in the queue history.
