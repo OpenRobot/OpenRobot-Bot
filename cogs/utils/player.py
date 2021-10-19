@@ -213,7 +213,9 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
                     for child in self.view.children:
                         child.disabled = True
 
-                    await self.view.msg.edit(view=self, content=f'You selected {x.label} - <{x.description}>.')
+                    await interaction.response.defer()
+                    
+                    await self.view.msg.edit(view=self.view, content=f'You selected {x.label} - <{x.description}>.')
 
                     self.view.stop()
                     
