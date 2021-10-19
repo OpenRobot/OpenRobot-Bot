@@ -84,8 +84,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
         embed = discord.Embed(
             title="Now playing:",
             description=f"**[{self.current.title}]({self.current.uri})**\nBy **{self.current.author}**",
-            thumbnail=self.current.thumbnail
-        )
+        ).set_thumbnail(url=self.current.thumbnail)
 
         embed.add_field(
             name="__Player info:__",
