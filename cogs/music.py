@@ -892,7 +892,7 @@ class Music(Cog):
 
         await ctx.send(embed=discord.Embed(color=self.bot.color, description=f"Moved **[{track.title}]({track.uri})** from position **{entry_1}** to position **{entry_2}**."))
 
-    @music.group('filter', aliases=['filt'])
+    @music.group('set-filter', aliases=['filt'])
     async def _filter(self, ctx: commands.Context):
         """
         Filter commands.
