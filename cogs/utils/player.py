@@ -201,7 +201,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
             embed.description = ''
 
             for index, title, url, _ in entries:
-                embed.description += f'`{index}`. [`{title}`]({url})'
+                embed.description += f'`{index}`. [`{title}`]({url})\n'
 
             class Select(discord.ui.Select):
                 def __init__(self):
@@ -210,7 +210,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
                 async def callback(self, interaction: discord.Interaction):
                     x = discord.utils.find(lambda option: self.values[0] == option.label, self.options)
 
-                    for child in self.children:
+                    for child in self.view.children:
                         child.disabled = True
 
                     await self.msg.edit(view=self, content=f'You selected {x.label} - <{x.description}>.')
