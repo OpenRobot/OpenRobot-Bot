@@ -534,7 +534,7 @@ class Music(Cog):
             ))
 
     @music.command('queue', aliases=['q'])
-    async def queue(self, ctx: commands.Context, action: typing.Literal['Detailed', 'Show', ] = commands.Option(description='Views detailed or shows normally.')):
+    async def queue(self, ctx: commands.Context, action: typing.Literal['Detailed', 'Show'] = commands.Option(description='Views detailed or shows normally.')):
         """
         Queue music commands.
         """
@@ -586,9 +586,8 @@ class Music(Cog):
                             f"**Requester:** {track.requester.mention} `{track.requester.id}`\n"
                             f"**Is stream:** {track.is_stream()}\n"
                             f"**Is seekable:** {track.is_seekable()}\n",
-                image=track.thumbnail,
                 color=self.bot.color
-            )
+            ).set_image(url=track.thumbnail)
 
             entries.append(embed)
 

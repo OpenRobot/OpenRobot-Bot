@@ -78,8 +78,6 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
         if text_channel is None:
             return
 
-        guild_config = await self.client.guild_manager.get_config(text_channel.guild.id)
-
         embed = discord.Embed(
             title="Now playing:",
             description=f"**[{self.current.title}]({self.current.uri})**\nBy **{self.current.author}**",

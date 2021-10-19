@@ -301,7 +301,7 @@ __**{c})**__
 
 class QueueNowPlayingPaginator(ListPageSource):
     def __init__(self, queue, entries, *, per_page):
-        super().__init__(entries, per_page)
+        super().__init__(entries, per_page=per_page)
         self.queue = queue
 
     async def format_page(self, menu, entries):
