@@ -304,6 +304,8 @@ class QueueNowPlayingPaginator(ListPageSource):
         super().__init__(entries, per_page=per_page)
         self.queue = queue
 
+        self.num = 0
+
     async def format_page(self, menu, entries):
         embed = discord.Embed()
         embed.color = menu.ctx.bot.color
@@ -314,7 +316,13 @@ class QueueNowPlayingPaginator(ListPageSource):
 **Loop mode:** {self.queue.loop_mode.name.title()}\n
         """
 
-        embed.description += '\n'.join([f"**{index + 1}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(seconds=track.length // 1000))} | {track.requester.mention}" for index, track in enumerate(entries)])
+        for index, track in enumerate(entries):
+            self.num += 1
+
+            try:
+                embed.description += '\n'.join([f"**{self.num}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(seconds=track.length // 1000))} | {track.requester.mention}" ])
+            except:
+                embed.description += '\n'.join([f"**{self.num}.** [{str(track.title)}]({track.uri}) | LIVE | {track.requester.mention}" ])
 
         return embed
 

@@ -4,6 +4,7 @@ import datetime
 import inspect
 import discord
 import typing
+from discord import voice_client
 import humanize
 import slate
 import math
@@ -617,7 +618,7 @@ class Music(Cog):
                 url=f"{ctx.voice_client.current.uri}",
                 description=f"**Author:** {ctx.voice_client.current.author}\n"
                             f"**Source:** {ctx.voice_client.current.source.name.title()}\n"
-                            f"**Length:** {humanize.naturaldelta(datetime.timedelta(seconds=ctx.voice_client.current.length // 1000))}\n"
+                            f"**Length:** {humanize.naturaldelta(datetime.timedelta(seconds=ctx.voice_client.current.length // 1000))}\n" if not ctx.voice_client.is_stream() else "**Length:** LIVE"
                             f"**Is stream:** {ctx.voice_client.current.is_stream()}\n"
                             f"**Is seekable:** {ctx.voice_client.current.is_seekable()}\n"
                             f"**Requester:** {ctx.voice_client.current.requester} `{ctx.voice_client.current.requester.id}`",
@@ -625,7 +626,6 @@ class Music(Cog):
             ).set_thumbnail(url=ctx.voice_client.current.thumbnail)
             await ctx.author.send(embed=embed)
             await ctx.send(embed=discord.Embed(color=self.bot.color, description="Saved the current track to our DM's."))
-
         except discord.Forbidden:
             return await ctx.send(embed=discord.Embed(
                 color=self.bot.color,
@@ -680,7 +680,7 @@ class Music(Cog):
                 title=track.title,
                 url=track.uri,
                 description=f"**Author:** {track.author}\n"
-                            f"**Length:** {humanize.naturaldelta(datetime.timedelta(seconds=round(track.length) // 1000))}\n"
+                            f"**Length:** {humanize.naturaldelta(datetime.timedelta(seconds=round(track.length) // 1000))}\n" if not track.is_stream() else "**Length:** LIVE"
                             f"**Source:** {track.source.name.title()}\n"
                             f"**Requester:** {track.requester.mention} `{track.requester.id}`\n"
                             f"**Is stream:** {track.is_stream()}\n"
@@ -747,7 +747,7 @@ class Music(Cog):
                 title=track.title,
                 url=track.uri,
                 description=f"**Author:** {track.author}\n"
-                            f"**Length:** {humanize.naturaldelta(datetime.timedelta(seconds=round(track.length) // 1000))}\n"
+                            f"**Length:** {humanize.naturaldelta(datetime.timedelta(seconds=round(track.length) // 1000))}\n" if not track.is_stream() else "**Length:** LIVE"
                             f"**Source:** {track.source.name.title()}\n"
                             f"**Requester:** {track.requester.mention} `{track.requester.id}`\n"
                             f"**Is stream:** {track.is_stream()}\n"
@@ -1017,7 +1017,7 @@ class Music(Cog):
 
                 current = f"[{player.current.title}]({player.current.uri}) by **{player.current.author}**" if player.current else "None"
                 position = \
-                    f"{humanize.naturaldelta(datetime.timedelta(seconds=player.position // 1000))} / {humanize.naturaldelta(datetime.timedelta(seconds=player.current.length // 1000))}" \
+                    f"{humanize.naturaldelta(datetime.timedelta(seconds=player.position // 1000))} / {humanize.naturaldelta(datetime.timedelta(seconds=player.current.length // 1000)) if not player.current.is_stream() else 'LIVE'}" \
                     if player.current \
                     else "N/A"
 
@@ -1070,7 +1070,7 @@ class Music(Cog):
                 name="__Track info:__",
                 value=f"**Track:** [{player.current.title}]({player.current.uri})\n"
                       f"**Author:** {player.current.author}\n"
-                      f"**Position:** {humanize.naturaldelta(datetime.timedelta(seconds=player.position // 1000))} / {humanize.naturaldelta(datetime.timedelta(seconds=player.current.length // 1000))}\n"
+                      f"**Position:** {humanize.naturaldelta(datetime.timedelta(seconds=player.position // 1000))} / {humanize.naturaldelta(datetime.timedelta(seconds=player.current.length // 1000)) if not player.current.is_stream() else 'LIVE'}\n"
                       f"**Source:** {player.current.source.value.title()}\n"
                       f"**Requester:** {player.current.requester} `{player.current.requester.id}`\n"
                       f"**Is stream:** {player.current.is_stream()}\n"
@@ -1090,7 +1090,7 @@ class Music(Cog):
         embed.add_field(
             name=f"__Queue info:__",
             value=f"**Length:** {len(player.queue)}\n"
-                  f"**Total time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in player.queue) // 1000))}\n"
+                  f"**Total time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in player.queue) // 1000))}\n" if not any([track.is_stream() for track in player.queue]) else "**Total time:** Unable to determine."
                   f"**Loop mode:** {player.queue.loop_mode.name.title()}\n",
             inline=False
         )

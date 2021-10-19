@@ -91,12 +91,12 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
             value=f"**Paused:** {self.paused}\n"
                   f"**Loop mode:** {self.queue.loop_mode.name.title()}\n"
                   f"**Queue length:** {len(self.queue)}\n"
-                  f"**Queue time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in self.queue) // 1000))}\n",
+                  f"**Queue time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in self.queue) // 1000))}\n" if not any([track.is_stream() for track in self.queue]) else "**Queue time:** Unable to determine."
         )
 
         embed.add_field(
             name="__Track info:__",
-            value=f"**Time:** {humanize.naturaldelta(datetime.timedelta(seconds=self.position // 1000))} / {humanize.naturaldelta(datetime.timedelta(seconds=self.current.length // 1000))}\n"
+            value=f"**Time:** {humanize.naturaldelta(datetime.timedelta(seconds=self.position // 1000))} / {humanize.naturaldelta(datetime.timedelta(seconds=self.current.length // 1000)) if not self.current.is_stream() else 'LIVE'}\n" 
                   f"**Is Stream:** {self.current.is_stream()}\n"
                   f"**Source:** {self.current.source.value.title()}\n"
                   f"**Requester:** {self.current.requester.mention if self.current.requester else 'N/A'}\n"
