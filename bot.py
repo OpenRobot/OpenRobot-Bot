@@ -840,6 +840,11 @@ def start(**kwargs):
 
         bot.color = bot.color or discord.Colour(0x38B6FF)
 
+    async def start_obsidian():
+        await bot.wait_until_ready()
+        
+        return await bot.cogs['Music'].initiate_node()
+
     bot.loop.create_task(parse_flags(**kwargs))
 
     bot.run(config.TOKEN)

@@ -39,6 +39,8 @@ class Music(Cog):
     async def initiate_node(self):
         await self.slate.create_node(bot=self.bot, identifier='OpenRobot Obsidian - 1', **self.bot.config.OBSIDIAN_SLATE_CRIDENTIALS)
 
+        print('Obsidian Ready!')
+
     @commands.Cog.listener()
     async def on_obsidian_track_start(self, player: Player, _: obsidian.TrackStart) -> None:
         await player.handle_track_start()
