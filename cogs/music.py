@@ -101,9 +101,11 @@ class Music(Cog):
         if ctx.author not in ctx.voice_client.channel.members:
             return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'You are not in {ctx.voice_client.channel.mention}!'))
 
+        chan = ctx.voice_client.voice_channel
+
         await ctx.voice_client.disconnect()
 
-        return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'Left {ctx.voice_client.voice_channel.mention}'))
+        return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'Left {chan.mention}'))
 
     @music.command('play', aliases=['p'])
     async def play(self, ctx: commands.Context, query: str, *, flags: Options = commands.Option(None, description='Play command flags.')):
