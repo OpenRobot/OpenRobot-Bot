@@ -214,7 +214,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
                         child.disabled = True
 
                     await interaction.response.defer()
-                    
+
                     await self.view.msg.edit(view=self.view, content=f'You selected {x.label} - <{x.description}>.')
 
                     self.view.stop()
@@ -248,7 +248,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
             if not view.value:
                 return
 
-            track = view.value[1][3]
+            tracks = view.value[1][3]
         else:
             tracks = search.tracks[0] if search.type is slate.SearchType.TRACK else search.tracks
 
