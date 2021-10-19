@@ -164,7 +164,7 @@ class Music(Cog):
             else:
                 await ctx.voice_client.queue_search(query, ctx=ctx, now=False, next=False, source=slate.Source.YOUTUBE)
 
-    @music.command(name="pause", aliases=["stop"])
+    @music.command(name="pause")
     async def pause(self, ctx: commands.Context):
         """
         Pauses the current track.
