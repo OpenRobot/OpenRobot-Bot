@@ -195,7 +195,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
             entries = []
 
             for index, track in enumerate(search.tracks):
-                entries.append(f'{index + 1:}', track.title, track.uri, track)
+                entries.append((f'{index + 1:}', track.title, track.uri, track))
 
             embed = discord.Embed(color=self.bot.color, title='Select the number of the track you want to play.')
             embed.description = ''
