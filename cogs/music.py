@@ -124,7 +124,7 @@ class Music(Cog):
             if (command := ctx.bot.get_command("music connect")) is None or await command.can_run(ctx) is True:
                 await ctx.invoke(command)
 
-        if ctx.author in ctx.voice_client.channel.members:
+        if ctx.author not in ctx.voice_client.channel.members:
             return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'You are not in {ctx.voice_client.channel.mention}!'))
 
         async with ctx.channel.typing():
@@ -155,7 +155,7 @@ class Music(Cog):
             if (command := ctx.bot.get_command("music connect")) is None or await command.can_run(ctx) is True:
                 await ctx.invoke(command)
 
-        if ctx.author in ctx.voice_client.channel.members:
+        if ctx.author not in ctx.voice_client.channel.members:
             return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'You are not in {ctx.voice_client.channel.mention}!'))
 
         async with ctx.channel.typing():
