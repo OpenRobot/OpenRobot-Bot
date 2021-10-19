@@ -91,7 +91,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
             value=f"**Paused:** {self.paused}\n"
                   f"**Loop mode:** {self.queue.loop_mode.name.title()}\n"
                   f"**Queue length:** {len(self.queue)}\n"
-                  f"**Queue time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in self.queue) // 1000), friendly=True)}\n",
+                  f"**Queue time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in self.queue) // 1000))}\n",
         )
 
         embed.add_field(
