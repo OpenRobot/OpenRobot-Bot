@@ -794,6 +794,7 @@ bot.exts = [
     'jishaku',
     'cogs.api',
     'cogs.error',
+    'cogs.music',
 ]
 
 def start(**kwargs):
