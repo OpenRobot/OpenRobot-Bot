@@ -129,7 +129,7 @@ class Music(Cog):
 
         if query is None and ctx.voice_client and ctx.voice_client.paused is True:
             return await self.resume(ctx)
-        elif query is None and query == '--from-spotify-liked-songs':
+        elif query is None:
             raise commands.MissingRequiredArgument(inspect.Parameter('query', inspect.Parameter.KEYWORD_ONLY, annotation=str))
 
         flags = discord.Object(0)
@@ -197,12 +197,18 @@ class Music(Cog):
                     if access_token:
                         return await ctx.send('Please Sign-In to OpenRobot Spotify using `or.spotify login`.')
 
-                    async with aiohttp.ClientSession() as sess:
-                        async with sess.get('https://api.spotify.com/v1/me/tracks', params={'limit': 50, 'offset': offset, 'market': 'US', 'Authorization': f'Bearer {}'}) as resp:
-                            js = await resp.json()
+                    while True:
+                        async with aiohttp.ClientSession() as sess:
+                            async with sess.get('https://api.spotify.com/v1/me/tracks', params={'limit': 50, 'offset': offset, 'market': 'US', 'Authorization': f'Bearer {access_token}'}) as resp:
+                                js = await resp.json()
 
-                            for item in js['items']:
-                                urls.append(item['track']['external_urls']['spotify'])
+                                if not js['items']:
+                                    break
+
+                                for item in js['items']:
+                                    urls.append(item['track']['external_urls']['spotify'])
+
+                                offset += 50
 
                     if not urls:
                         return await ctx.send('If you don\'t have any Spotify Liked Songs, how can I load them?')
@@ -215,6 +221,8 @@ class Music(Cog):
                 ctx.voice_client.queue.put(tracks, position=0 if (flags.now or flags.next) else None)
                 if flags.now:
                     await self.stop()
+
+                await m.delete()
 
                 await ctx.reply(embed=discord.Embed(color=self.bot.color, description=f'Added {len(tracks)} tracks to the queue from your Spotify Liked Songs.'))
             else:
