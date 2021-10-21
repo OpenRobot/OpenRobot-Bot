@@ -2,6 +2,7 @@
 
 import datetime
 import inspect
+import io
 import aiohttp
 import discord
 import typing
@@ -201,6 +202,8 @@ class Music(Cog):
                         async with aiohttp.ClientSession() as sess:
                             async with sess.get('https://api.spotify.com/v1/me/tracks', params={'limit': 50, 'offset': offset, 'market': 'US', 'Authorization': f'Bearer {access_token}'}) as resp:
                                 js = await resp.json()
+
+                                await ctx.send(file=discord.File(io.StringIO(js), filename='result.json'))
 
                                 if not js['items']:
                                     break
