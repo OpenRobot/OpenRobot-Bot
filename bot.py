@@ -572,7 +572,7 @@ Now, sign in to the correct spotify account and click the `Agree` button.
         """
     }
 
-    async def generate_embed(step: str = None):
+    def generate_embed(step: str = None):
         step = step or 'discord'
 
         embed = discord.Embed(color=bot.color)
