@@ -2,12 +2,14 @@
 
 import datetime
 import inspect
+import aiohttp
 import discord
 import typing
 from discord import voice_client
 import humanize
 import slate
 import math
+import asyncpg
 from discord.ext import commands
 from cogs.utils import Cog, Player, FlagConverter, TimeConverter, is_guild_owner, QueueNowPlayingPaginator, ViewMenuPages, ClassicPaginator, QueueHistoryPaginator, Filters
 from slate import obsidian
@@ -118,18 +120,24 @@ class Music(Cog):
         - query: The query to search for.
 
         Flags:
-        - --music: Searches [YouTube music](https://music.youtube.com/) for results.
-        - --soundcloud: Searches [soundcloud](https://soundcloud.com/) for results.
-        - --next: Puts the track that is found at the start of the queue.
-        - --now: Skips the current track and plays the track that is found.
+        - `--from-spotify-liked-songs`: Plays music from your liked songs. Note that you are required to sign in to OpenRobot Spotify. `or.spotify login`
+        - `--music`: Searches [YouTube music](https://music.youtube.com/) for results.
+        - `--soundcloud`: Searches [soundcloud](https://soundcloud.com/) for results.
+        - `--next`: Puts the track that is found at the start of the queue.
+        - `--now`: Skips the current track and plays the track that is found.
         """
 
         if query is None and ctx.voice_client and ctx.voice_client.paused is True:
             return await self.resume(ctx)
-        elif query is None:
+        elif query is None and query == '--from-spotify-liked-songs':
             raise commands.MissingRequiredArgument(inspect.Parameter('query', inspect.Parameter.KEYWORD_ONLY, annotation=str))
 
         flags = discord.Object(0)
+
+        if query == '--from-spotify-liked-songs':
+            from_liked_songs = True
+        else:
+            from_liked_songs = False
 
         if '--music' in query.split(' '):
             flags.music = True
@@ -162,9 +170,55 @@ class Music(Cog):
         if ctx.author not in ctx.voice_client.channel.members:
             return await ctx.send(embed=discord.Embed(color=self.bot.color, description=f'You are not in {ctx.voice_client.channel.mention}!'))
 
+        offset = 0
+
+        urls = []
+
+        tracks = []
+
         async with ctx.channel.typing():
             m = await ctx.send(embed=discord.Embed(color=self.bot.color, description='<a:openrobot_searching_gif:899928367799885834> Searching...'))
-            await ctx.voice_client.queue_search(query, ctx=ctx, now=flags.now, next=flags.next, source=get_source(flags), message=m)
+
+            if from_liked_songs:
+                try:
+                    while True:
+                        try:
+                            x = await self.bot.spotify_pool.fetchrow("DELETE FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+                        except asyncpg.exceptions._base.InterfaceError:
+                            pass
+                        else:
+                            if x:
+                                access_token = x['access_token']
+                            else:
+                                access_token = None
+
+                            break
+
+                    if access_token:
+                        return await ctx.send('Please Sign-In to OpenRobot Spotify using `or.spotify login`.')
+
+                    async with aiohttp.ClientSession() as sess:
+                        async with sess.get('https://api.spotify.com/v1/me/tracks', params={'limit': 50, 'offset': offset, 'market': 'US', 'Authorization': f'Bearer {}'}) as resp:
+                            js = await resp.json()
+
+                            for item in js['items']:
+                                urls.append(item['track']['external_urls']['spotify'])
+
+                    if not urls:
+                        return await ctx.send('If you don\'t have any Spotify Liked Songs, how can I load them?')
+
+                    for url in urls:
+                        tracks.append((await ctx.voice_client.search(url)).tracks[0])
+                except:
+                    return await ctx.send('Something wen\'t wrong in our back-end, and we aren\'t able to query your Spotify Liked Songs.')
+
+                ctx.voice_client.queue.put(tracks, position=0 if (flags.now or flags.next) else None)
+                if flags.now:
+                    await self.stop()
+
+                await ctx.reply(embed=discord.Embed(color=self.bot.color, description=f'Added {len(tracks)} tracks to the queue from your Spotify Liked Songs.'))
+            else:
+                await ctx.voice_client.queue_search(query, ctx=ctx, now=flags.now, next=flags.next, source=get_source(flags), message=m, delete_message=True)
 
     @music.command('search')
     async def search(self, ctx: commands.Context, *, query: str = None):

@@ -183,13 +183,17 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
         now: bool = False,
         next: bool = False,
         choose: bool = False,
-        message: discord.Message = None
+        message: discord.Message = None,
+        delete_message: bool = False
     ) -> None:
 
         search = await self.search(query, source=source, ctx=ctx)
 
-        if message:
-            await message.delete()
+        if message and delete_message:
+            try:
+                await message.delete()
+            except:
+                pass
 
         if choose:
             entries = []
