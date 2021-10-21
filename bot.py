@@ -587,13 +587,13 @@ Now, sign in to the correct spotify account and click the `Agree` button.
         c = 0
 
         async with async_timeout.timeout(timeout):
-            while not (await bot.spotify_redis.get(str(ctx.author.id))).decode() == f'ON_STEP({step.upper()})':
+            while not getattr(await bot.spotify_redis.get(str(ctx.author.id)), 'decode', lambda: None)() == f'ON_STEP({step.upper()})':
                 pass
 
     username = None
     url = None
 
-    get_step = (await bot.spotify_redis.get(str(ctx.author.id))).decode()
+    get_step = getattr(await bot.spotify_redis.get(str(ctx.author.id)), 'decode', lambda: None)()
 
     if get_step:
         step: str = re.findall(r'\(.*\)', get_step)[0].strip('(').strip(')').lower()
