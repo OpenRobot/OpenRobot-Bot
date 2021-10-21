@@ -96,8 +96,8 @@ class Music(Cog):
                                     pass
                                 else:
                                     pass
-                except:
-                    pass
+                except Exception as e:
+                    raise e
 
             await asyncio.sleep(10)
             continue
