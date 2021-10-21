@@ -215,7 +215,8 @@ class Music(Cog):
 
                     for url in urls:
                         tracks.append((await ctx.voice_client.search(url)).tracks[0])
-                except:
+                except Exception as e:
+                    raise e
                     return await ctx.send('Something wen\'t wrong in our back-end, and we aren\'t able to query your Spotify Liked Songs.')
 
                 ctx.voice_client.queue.put(tracks, position=0 if (flags.now or flags.next) else None)
