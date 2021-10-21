@@ -205,7 +205,7 @@ class Music(Cog):
 
                                 import json
 
-                                await ctx.send(file=discord.File(io.StringIO(json.dumps(js, indent=4)), filename='result.json'))
+                                #await ctx.send(file=discord.File(io.StringIO(json.dumps(js, indent=4)), filename='result.json'))
 
                                 if not js['items']:
                                     break
@@ -219,7 +219,7 @@ class Music(Cog):
                         return await ctx.send('If you don\'t have any Spotify Liked Songs, how can I load them?')
 
                     for url in urls:
-                        tracks.append((await ctx.voice_client.search(url)).tracks[0])
+                        tracks.append((await ctx.voice_client.search(url, source=slate.Source.YOUTUBE, ctx=ctx)).tracks[0])
                 except Exception as e:
                     raise e
                     return await ctx.send('Something wen\'t wrong in our back-end, and we aren\'t able to query your Spotify Liked Songs.')
