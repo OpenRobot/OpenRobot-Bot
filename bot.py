@@ -905,16 +905,16 @@ async def _confirm(ctx, channel = None, *args, **kwargs):
 
             self.view.value = True
             
-            await interaction.message.edit(view=self)
+            await interaction.message.edit(view=self.view)
 
             self.view.stop()
 
     class No(discord.ui.Button):
         def __init__(self):
             super().__init__(
-                label='Yes',
-                style=discord.ButtonStyle.green,
-                emoji="<:yes:814691942821920810>"
+                label='No',
+                style=discord.ButtonStyle.red,
+                emoji="<:no:814692370430951476>"
             )
 
         async def callback(self, interaction: discord.Interaction):
@@ -923,7 +923,7 @@ async def _confirm(ctx, channel = None, *args, **kwargs):
 
             self.view.value = False
             
-            await interaction.message.edit(view=self)
+            await interaction.message.edit(view=self.view)
 
             self.view.stop()
 
