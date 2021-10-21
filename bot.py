@@ -665,8 +665,6 @@ Now, sign in to the correct spotify account and click the `Agree` button.
             else:
                 break
 
-        spotify = aiospotify.Client()
-
         async with aiohttp.ClientSession() as sess:
             async with sess.get('https://api.spotify.com/v1/me', headers={'Authorization': f'Bearer {spotify_db_res["access_token"]}'}) as resp:
                 js = await resp.json()
@@ -886,10 +884,12 @@ async def source(ctx: commands.Context, *, command: str = commands.Option(None, 
         menu = MenuPages(CodePaginator(list_codeblock), delete_message_after=True)
         await menu.start(ctx)
 
-async def _confirm(ctx, *args, **kwargs):
+async def _confirm(ctx, channel, *args, **kwargs):
     timeout = kwargs.pop('timeout', 60)
 
     options = kwargs.pop('options', [])
+
+    channel = channel or ctx.channel
 
     class Yes(discord.ui.Button):
         def __init__(self):
@@ -949,7 +949,7 @@ async def _confirm(ctx, *args, **kwargs):
 
     kwargs['view'] = view = View()
 
-    view.msg = await ctx.send(*args, **kwargs)
+    view.msg = await channel.send(*args, **kwargs)
     await view.wait()
     
     return view.value
