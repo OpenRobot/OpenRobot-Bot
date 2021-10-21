@@ -16,6 +16,7 @@ import asyncio
 from discord.ext import commands
 from cogs.utils import Cog, Player, FlagConverter, TimeConverter, is_guild_owner, QueueNowPlayingPaginator, ViewMenuPages, ClassicPaginator, QueueHistoryPaginator, Filters
 from slate import obsidian
+from config import AIOSPOTIFY_CRIDENTIALS as SPOTIFY_CRIENDTIALS
 
 class Options(FlagConverter):
     music: bool = False
@@ -79,7 +80,7 @@ class Music(Cog):
 
         try:
             async with aiohttp.ClientSession() as sess:
-                async with sess.post('https://accounts.spotify.com/api/token', headers={'Authorization': 'Basic ' + base64.urlsafe_b64encode(f'{self.spotify_auth.application_id}:{self.spotify_auth.application_secret}')}, params = {'grant_type': 'refresh_token', 'refresh_token': res['refresh_token']}) as resp:
+                async with sess.post('https://accounts.spotify.com/api/token', headers={'Authorization': 'Basic ' + base64.urlsafe_b64encode(f'{SPOTIFY_CRIENDTIALS["client_id"]}:{SPOTIFY_CRIENDTIALS["client_secret"]}')}, params = {'grant_type': 'refresh_token', 'refresh_token': res['refresh_token']}) as resp:
                     js = await resp.json()
 
                     if 'expires_in' not in js and 'access_token' not in js:
