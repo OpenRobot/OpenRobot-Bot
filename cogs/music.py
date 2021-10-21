@@ -184,7 +184,7 @@ class Music(Cog):
                 try:
                     while True:
                         try:
-                            x = await self.bot.spotify_pool.fetchrow("DELETE FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+                            x = await self.bot.spotify_pool.fetchrow("SELECT * FROM spotify_auth WHERE user_id = $1", ctx.author.id)
                         except asyncpg.exceptions._base.InterfaceError:
                             pass
                         else:
@@ -195,7 +195,7 @@ class Music(Cog):
 
                             break
 
-                    if access_token:
+                    if not access_token:
                         return await ctx.send('Please Sign-In to OpenRobot Spotify using `or.spotify login`.')
 
                     while True:
