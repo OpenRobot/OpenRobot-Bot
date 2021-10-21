@@ -577,7 +577,7 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
         embed = discord.Embed(color=bot.color)
 
-        embed.set_image(DEMO_URLS[step])
+        embed.set_image(url=DEMO_URLS[step])
 
         embed.description = DESCRIPTION[step]
 
@@ -638,8 +638,6 @@ Now, sign in to the correct spotify account and click the `Agree` button.
             await bot.spotify_redis.delete(str(ctx.author.id))
     
     if not username and not url:
-        await ctx.send('Check your DMs!')
-
         embed = generate_embed()
 
         await ctx.author.send(embed=embed)
@@ -651,6 +649,7 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
         embed = generate_embed('spotify')
 
+        await ctx.send('Check your DMs!')
         await ctx.author.send(embed=embed)
 
         try:
