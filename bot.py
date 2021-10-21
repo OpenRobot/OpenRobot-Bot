@@ -1070,4 +1070,6 @@ def start(**kwargs):
         except KeyError: # Cog isnt loaded
             pass
 
+    start_tasks()
+
     bot.run(config.TOKEN)
