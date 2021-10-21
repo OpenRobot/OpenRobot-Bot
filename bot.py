@@ -1061,7 +1061,13 @@ def start(**kwargs):
 
         return await bot.cogs['Music'].initiate_node()
 
-    bot.loop.create_task(parse_flags(**kwargs))
-    bot.loop.create_task(do_on_ready())
+    def start_tasks():
+        bot.loop.create_task(parse_flags(**kwargs))
+        bot.loop.create_task(do_on_ready())
+
+        try:
+            bot.loop.create_task(bot.cogs['Music'].renew())
+        except KeyError: # Cog isnt loaded
+            pass
 
     bot.run(config.TOKEN)

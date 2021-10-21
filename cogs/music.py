@@ -10,7 +10,9 @@ from discord import voice_client
 import humanize
 import slate
 import math
+import base64
 import asyncpg
+import asyncio
 from discord.ext import commands
 from cogs.utils import Cog, Player, FlagConverter, TimeConverter, is_guild_owner, QueueNowPlayingPaginator, ViewMenuPages, ClassicPaginator, QueueHistoryPaginator, Filters
 from slate import obsidian
@@ -35,7 +37,7 @@ music = commands
 
 class Music(Cog):
     def __init__(self, bot: commands.Bot):
-        self.bot = bot
+        super().__init__(bot)
 
         self.bot.slate = obsidian.NodePool()
         self.slate = self.bot.slate
@@ -44,6 +46,61 @@ class Music(Cog):
         await self.slate.create_node(bot=self.bot, identifier='OpenRobot Obsidian - 1', **self.bot.config.OBSIDIAN_SLATE_CRIDENTIALS)
 
         print('Obsidian Ready!')
+
+    async def get_user_near_expire(self) -> typing.Tuple[int, dict]:
+        while True:
+            try:
+                res = await self.bot.spotify_pool.fetchrow('SELECT * FROM spotify_auth ORDER BY expires_at ASC')
+            except:
+                pass
+            else:
+                if res is None:
+                    return None
+
+                return int(res['user_id']), dict(res)
+
+    async def renew(self): # Renews spotify token
+        await self.bot.wait_until_ready()
+
+        while True:
+            user_near_expire = await self.get_user_near_expire()
+
+            if user_near_expire is not None:
+                user_id, res = user_near_expire
+
+                while res['expires_at'] > datetime.datetime.utcnow():
+                    pass
+
+                try:
+                    async with aiohttp.ClientSession() as sess:
+                        async with sess.post('https://accounts.spotify.com/api/token', headers={'Authorization': 'Basic ' + base64.urlsafe_b64encode(f'{self.spotify_auth.application_id}:{self.spotify_auth.application_secret}')}, params = {'grant_type': 'refresh_token', 'refresh_token': res['refresh_token']}) as resp:
+                            js = await resp.json()
+
+                            if 'expires_in' not in js and 'access_token' not in js:
+                                await self.bot.spotify_pool.execute("""
+                                DELETE FROM spotify_auth
+                                WHERE user_id = $1
+                                """, user_id)
+                                continue
+
+                            while True:
+                                try:
+                                    await self.bot.spotify_pool.execute("""
+                                    UPDATE spotify_auth
+                                    SET access_token = $2,
+                                        expires_st = $3,
+                                        expires_in = $4
+                                    WHERE user_id = $1
+                                    """, user_id, js['access_token'], (datetime.datetime.utcnow() + datetime.timedelta(seconds=js['expires_in'])), js['expires_in'])
+                                except asyncpg.exceptions._base.InterfaceError:
+                                    pass
+                                else:
+                                    pass
+                except:
+                    pass
+
+            await asyncio.sleep(10)
+            continue
 
     @commands.Cog.listener()
     async def on_obsidian_track_start(self, player: Player, _: obsidian.TrackStart) -> None:
