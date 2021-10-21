@@ -203,7 +203,9 @@ class Music(Cog):
                             async with sess.get('https://api.spotify.com/v1/me/tracks', params={'limit': 50, 'offset': offset, 'market': 'US', 'Authorization': f'Bearer {access_token}'}) as resp:
                                 js = await resp.json()
 
-                                await ctx.send(file=discord.File(io.StringIO(js), filename='result.json'))
+                                import json
+
+                                await ctx.send(file=discord.File(io.StringIO(json.dumps(js, indent=4)), filename='result.json'))
 
                                 if not js['items']:
                                     break
