@@ -19,6 +19,8 @@ from io import BytesIO, StringIO
 from PIL import Image, ImageDraw
 from openrobot.api_wrapper import AsyncClient, error
 import aioredis
+import aiospotify
+import async_timeout
 
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).
@@ -40,6 +42,8 @@ bot = commands.Bot(
     description=description,
     slash_commands=True
 )
+
+bot.spotify = aiospotify.Client(**config.AIOSPOTIFY_CRIDENTIALS)
 
 bot.color = None
 bot.config = config
@@ -540,6 +544,158 @@ async def translate(ctx: commands.Context, *, flags: str):
         except:
             return await ctx.send("Something wen't wrong while aquiring the translation from our API.")
 
+@bot.command()
+async def spotify(ctx: commands.Context, *, flags: str = commands.Option(None, description='Flags: [--interactive]')):
+    """
+    Pair your spotify account to OpenRobot x Spotify.
+
+    Flags:
+    - `--interactive`: Interactively helps you step-by-step on how to pair your spotify account to OpenRobot Spotify.
+    """
+
+    flags = (flags or '').split(' ')
+
+    if '--interactive' not in flags:
+        return await ctx.send('https://spotify.openrobot.xyz/')
+
+    DEMO_URLS = {
+        'discord': 'https://api.openrobot.xyz/static/openrobot_spotify_step_discord.gif',
+        'spotify': 'https://api.openrobot.xyz/static/openrobot_spotify_step_spotify.gif'
+    }
+
+    DESCRIPTION = {
+        'discord': f"""
+Go to https://spotify.openrobot.xyz and `Authorize` to this Discord account, {ctx.author}.
+        """,
+        'spotify': """
+Now, sign in to the correct spotify account and click the `Agree` button.
+        """
+    }
+
+    async def generate_embed(step: str = None):
+        step = step or 'discord'
+
+        embed = discord.Embed(color=bot.color)
+
+        embed.set_image(DEMO_URLS[step])
+
+        embed.description = DESCRIPTION[step]
+
+        return embed
+
+    async def wait_for(step: str, *, timeout = 60):
+        c = 0
+
+        async with async_timeout.timeout(timeout):
+            while not await bot.spotify_redis.get(str(ctx.author.id)) == f'ON_STEP({step.upper()})':
+                pass
+
+    username = None
+    url = None
+
+    get_step = await bot.spotify_redis.get(str(ctx.author.id))
+
+    if get_step:
+        step: str = re.findall(r'\(.*\)', get_step)[0].strip('(').strip(')').lower()
+
+        if step == 'finish':
+            return await ctx.send('You just authenticated, wait for some time!')
+
+        confirm = await bot.confirm(ctx, embed=discord.Embed(description=f'Seems like you already tried to authenticate/pair your spotify account to OpenRobot. You we\'re at the `{step.capitalize()}` step.\nDo you want to continue from your step?', color=bot.color))
+
+        if confirm:
+            if step not in ['spotify']:
+                return await ctx.send(f'Unknown step. This is a problem in our back-end! Please try restarting your steps and report this to {bot.owner.mention} - `{bot.owner}`!') 
+
+            await ctx.send('Check your DMs!')
+
+            embed = generate_embed('spotify')
+
+            await ctx.author.send(embed=embed)
+
+            try:
+                await wait_for('FINISH', timeout=90)
+            except asyncio.TimeoutError:
+                return await ctx.author.send('Took to long, try again later.')
+
+            while True:
+                try:
+                    spotify_db_res = await bot.spotify_pool.fetchrow("SELECT * FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+                except asyncpg.exceptions._base.InterfaceError:
+                    pass
+                else:
+                    break
+
+            spotify = aiospotify.Client()
+
+            async with aiohttp.ClientSession() as sess:
+                async with sess.get('https://api.spotify.com/v1/me', headers={'Authorization': f'Bearer {spotify_db_res["access_token"]}'}) as resp:
+                    js = await resp.json()
+
+                    username = js['display_name']
+                    url = js['uri']
+        else:
+            await bot.spotify_redis.delete(str(ctx.author.id))
+    
+    if not username and not url:
+        await ctx.send('Check your DMs!')
+
+        embed = generate_embed()
+
+        await ctx.author.send(embed=embed)
+
+        try:
+            await wait_for('SPOTIFY', timeout=90)
+        except asyncio.TimeoutError:
+            return await ctx.author.send('Took to long, try again later.')
+
+        embed = generate_embed('spotify')
+
+        await ctx.author.send(embed=embed)
+
+        try:
+            await wait_for('FINISH', timeout=90)
+        except asyncio.TimeoutError:
+            return await ctx.author.send('Took to long, try again later.')
+
+        while True:
+            try:
+                spotify_db_res = await bot.spotify_pool.fetchrow("SELECT * FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+            except asyncpg.exceptions._base.InterfaceError:
+                pass
+            else:
+                break
+
+        spotify = aiospotify.Client()
+
+        async with aiohttp.ClientSession() as sess:
+            async with sess.get('https://api.spotify.com/v1/me', headers={'Authorization': f'Bearer {spotify_db_res["access_token"]}'}) as resp:
+                js = await resp.json()
+
+                username = js['display_name']
+                url = js['uri']
+
+    embed = discord.Embed(color=bot.color)
+
+    embed.description = f'Just for confirmation, Is [`{username}`]({url}) the spotify account you are trying to link to your discord account, `{ctx.author}`'
+
+    value = await bot.confirm(ctx, embed=embed)
+
+    if value:
+        await ctx.author.send('Ok! Authenticated and paired successfully!')
+    else:
+        await bot.spotify_redis.delete(str(ctx.author))
+
+        while True:
+            try:
+                await bot.spotify_pool.fetchrow("DELETE FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+            except asyncpg.exceptions._base.InterfaceError:
+                pass
+            else:
+                break
+
+        await ctx.author.send('Removed your spotify pair from this account. Please redo the command again.')
+
 #@bot.command(name='do-translate', message_command=False)
 async def slash_translate(ctx: commands.Context, text: str = commands.Option(description='The text to be translated.'), to_lang: typing.Literal['Afrikaans', 'Albanian', 'Amharic', 'Arabic', 'Armenian', 'Azerbaijani', 'Bengali', 'Bosnian', 'Bulgarian', 'Catalan', 'Chinese (Simplified)', 'Chinese (Traditional)', 'Croatian', 'Czech', 'Danish', 'Dari', 'Dutch', 'English', 'Estonian', 'Farsi (Persian)', 'Filipino, Tagalog', 'Finnish', 'French', 'French (Canada)', 'Georgian', 'German', 'Greek', 'Gujarati', 'Haitian Creole', 'Hausa', 'Hebrew', 'Hindi', 'Hungarian', 'Icelandic', 'Indonesian', 'Italian', 'Japanese', 'Kannada', 'Kazakh', 'Korean', 'Latvian', 'Lithuanian', 'Macedonian', 'Malay', 'Malayalam', 'Maltese', 'Mongolian', 'Norwegian', 'Pashto', 'Polish', 'Portuguese', 'Romanian', 'Russian', 'Serbian', 'Sinhala', 'Slovak', 'Slovenian', 'Somali', 'Spanish', 'Spanish (Mexico)', 'Swahili', 'Swedish', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Uzbek', 'Vietnamese', 'Welsh'] = commands.Option(description='The language for the text to be translated to.', name='to'), from_lang: typing.Literal['Afrikaans', 'Albanian', 'Amharic', 'Arabic', 'Armenian', 'Azerbaijani', 'Bengali', 'Bosnian', 'Bulgarian', 'Catalan', 'Chinese (Simplified)', 'Chinese (Traditional)', 'Croatian', 'Czech', 'Danish', 'Dari', 'Dutch', 'English', 'Estonian', 'Farsi (Persian)', 'Filipino, Tagalog', 'Finnish', 'French', 'French (Canada)', 'Georgian', 'German', 'Greek', 'Gujarati', 'Haitian Creole', 'Hausa', 'Hebrew', 'Hindi', 'Hungarian', 'Icelandic', 'Indonesian', 'Italian', 'Japanese', 'Kannada', 'Kazakh', 'Korean', 'Latvian', 'Lithuanian', 'Macedonian', 'Malay', 'Malayalam', 'Maltese', 'Mongolian', 'Norwegian', 'Pashto', 'Polish', 'Portuguese', 'Romanian', 'Russian', 'Serbian', 'Sinhala', 'Slovak', 'Slovenian', 'Somali', 'Spanish', 'Spanish (Mexico)', 'Swahili', 'Swedish', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Uzbek', 'Vietnamese', 'Welsh', 'auto'] = commands.Option('auto', description='The text\'s original language. Defaults to "auto".', name='from'), flags: str = commands.Option('', description='Add --raw to this to get the raw response.')):
     if '--raw' in flags.split(' '):
@@ -734,33 +890,56 @@ async def source(ctx: commands.Context, *, command: str = commands.Option(None, 
 async def _confirm(ctx, *args, **kwargs):
     timeout = kwargs.pop('timeout', 60)
 
+    options = kwargs.pop('options', [])
+
+    class Yes(discord.ui.Button):
+        def __init__(self):
+            super().__init__(
+                label='Yes',
+                style=discord.ButtonStyle.green,
+                emoji="<:yes:814691942821920810>"
+            )
+
+        async def callback(self, interaction: discord.Interaction):
+            for child in self.view.children:
+                child.disabled = True
+
+            self.view.value = True
+            
+            await interaction.message.edit(view=self)
+
+            self.view.stop()
+
+    class No(discord.ui.Button):
+        def __init__(self):
+            super().__init__(
+                label='Yes',
+                style=discord.ButtonStyle.green,
+                emoji="<:yes:814691942821920810>"
+            )
+
+        async def callback(self, interaction: discord.Interaction):
+            for child in self.view.children:
+                child.disabled = True
+
+            self.view.value = False
+            
+            await interaction.message.edit(view=self)
+
+            self.view.stop()
+
     class View(discord.ui.View):
         def __init__(self):
             super().__init__(timeout=timeout)
             self.msg = None
             self.value = None
 
-        @discord.ui.button(label='Yes', style=discord.ButtonStyle.green, emoji="<:yes:814691942821920810>")
-        async def yes(self, button: discord.ui.Button, interaction: discord.Interaction):
-            for child in view.children:
-                child.disabled = True
-
-            self.value = True
-            
-            await interaction.message.edit(view=self)
-
-            self.stop()
-
-        @discord.ui.button(label='No', style=discord.ButtonStyle.red, emoji="<:no:814692370430951476>")
-        async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
-            for child in view.children:
-                child.disabled = True
-
-            self.value = False
-
-            await interaction.message.edit(view=self)
-
-            self.stop()
+            if options:
+                for option in options:
+                    self.add_item(option)
+            else:
+                self.add_item(Yes())
+                self.add_item(No())
 
         async def interaction_check(self, interaction: discord.Interaction) -> bool:
             if interaction.user != ctx.author:
@@ -804,7 +983,9 @@ def start(**kwargs):
             bot.redis = None
         else:
             bot.pool = await asyncpg.create_pool(config.DATABASE)
+            bot.spotify_pool = await asyncpg.create_pool(config.SPOTIFY_DATABASE)
             bot.redis = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS)
+            bot.spotify_redis = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=1)
 
         if kwargs.get('cogs') is not None and 'cogs' not in kwargs:
             l = list(filter(lambda i: i[0].startswith('without-') and i[1], kwargs.items()))
@@ -840,12 +1021,14 @@ def start(**kwargs):
 
         bot.color = bot.color or discord.Colour(0x38B6FF)
 
-    async def start_obsidian():
+    async def do_on_ready():
         await bot.wait_until_ready()
+
+        bot.owner = bot.get_user(699839134709317642)
 
         return await bot.cogs['Music'].initiate_node()
 
     bot.loop.create_task(parse_flags(**kwargs))
-    bot.loop.create_task(start_obsidian())
+    bot.loop.create_task(do_on_ready())
 
     bot.run(config.TOKEN)
