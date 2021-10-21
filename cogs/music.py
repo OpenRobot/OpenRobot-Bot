@@ -200,7 +200,7 @@ class Music(Cog):
 
                     while True:
                         async with aiohttp.ClientSession() as sess:
-                            async with sess.get('https://api.spotify.com/v1/me/tracks', params={'limit': 50, 'offset': offset, 'market': 'US', 'Authorization': f'Bearer {access_token}'}) as resp:
+                            async with sess.get('https://api.spotify.com/v1/me/tracks', params={'limit': 50, 'offset': offset, 'market': 'US'}, header={'Authorization': f'Bearer {access_token}'}) as resp:
                                 js = await resp.json()
 
                                 import json
