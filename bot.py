@@ -544,8 +544,17 @@ async def translate(ctx: commands.Context, *, flags: str):
         except:
             return await ctx.send("Something wen't wrong while aquiring the translation from our API.")
 
-@bot.command()
-async def spotify(ctx: commands.Context, *, flags: str = commands.Option(None, description='Flags: [--interactive]')):
+@bot.group()
+async def spotify(ctx: commands.Context):
+    """
+    OpenRobot Spotify (OpenRobot x Spotify)
+    """
+    
+    if ctx.invoked_subcommand is None:
+        return await ctx.send_help(ctx.command)
+
+@spotify.command('login')
+async def spotify_login(ctx: commands.Context, *, flags: str = commands.Option(None, description='Flags: [--interactive]')):
     """
     Pair your spotify account to OpenRobot x Spotify.
 
@@ -692,6 +701,31 @@ Now, sign in to the correct spotify account and click the `Agree` button.
                 break
 
         await ctx.author.send('Removed your spotify pair from this account. Please redo the command again.')
+
+@spotify.command('logout')
+async def spotify_logout(ctx: commands.Context):
+    while True:
+        try:
+            x = await bot.spotify_pool.fetchrow("SELECT * FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+        except asyncpg.exceptions._base.InterfaceError:
+            pass
+        else:
+            break
+
+    if not x:
+        return await ctx.send('You have not logged in to OpenRobot Spotify.')
+
+    await bot.spotify_redis.delete(str(ctx.author))
+
+    while True:
+        try:
+            await bot.spotify_pool.fetchrow("DELETE FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+        except asyncpg.exceptions._base.InterfaceError:
+            pass
+        else:
+            break
+    
+    await ctx.send('Logged out successfully!')
 
 #@bot.command(name='do-translate', message_command=False)
 async def slash_translate(ctx: commands.Context, text: str = commands.Option(description='The text to be translated.'), to_lang: typing.Literal['Afrikaans', 'Albanian', 'Amharic', 'Arabic', 'Armenian', 'Azerbaijani', 'Bengali', 'Bosnian', 'Bulgarian', 'Catalan', 'Chinese (Simplified)', 'Chinese (Traditional)', 'Croatian', 'Czech', 'Danish', 'Dari', 'Dutch', 'English', 'Estonian', 'Farsi (Persian)', 'Filipino, Tagalog', 'Finnish', 'French', 'French (Canada)', 'Georgian', 'German', 'Greek', 'Gujarati', 'Haitian Creole', 'Hausa', 'Hebrew', 'Hindi', 'Hungarian', 'Icelandic', 'Indonesian', 'Italian', 'Japanese', 'Kannada', 'Kazakh', 'Korean', 'Latvian', 'Lithuanian', 'Macedonian', 'Malay', 'Malayalam', 'Maltese', 'Mongolian', 'Norwegian', 'Pashto', 'Polish', 'Portuguese', 'Romanian', 'Russian', 'Serbian', 'Sinhala', 'Slovak', 'Slovenian', 'Somali', 'Spanish', 'Spanish (Mexico)', 'Swahili', 'Swedish', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Uzbek', 'Vietnamese', 'Welsh'] = commands.Option(description='The language for the text to be translated to.', name='to'), from_lang: typing.Literal['Afrikaans', 'Albanian', 'Amharic', 'Arabic', 'Armenian', 'Azerbaijani', 'Bengali', 'Bosnian', 'Bulgarian', 'Catalan', 'Chinese (Simplified)', 'Chinese (Traditional)', 'Croatian', 'Czech', 'Danish', 'Dari', 'Dutch', 'English', 'Estonian', 'Farsi (Persian)', 'Filipino, Tagalog', 'Finnish', 'French', 'French (Canada)', 'Georgian', 'German', 'Greek', 'Gujarati', 'Haitian Creole', 'Hausa', 'Hebrew', 'Hindi', 'Hungarian', 'Icelandic', 'Indonesian', 'Italian', 'Japanese', 'Kannada', 'Kazakh', 'Korean', 'Latvian', 'Lithuanian', 'Macedonian', 'Malay', 'Malayalam', 'Maltese', 'Mongolian', 'Norwegian', 'Pashto', 'Polish', 'Portuguese', 'Romanian', 'Russian', 'Serbian', 'Sinhala', 'Slovak', 'Slovenian', 'Somali', 'Spanish', 'Spanish (Mexico)', 'Swahili', 'Swedish', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Uzbek', 'Vietnamese', 'Welsh', 'auto'] = commands.Option('auto', description='The text\'s original language. Defaults to "auto".', name='from'), flags: str = commands.Option('', description='Add --raw to this to get the raw response.')):
