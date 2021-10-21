@@ -59,45 +59,57 @@ class Music(Cog):
 
                 return int(res['user_id']), dict(res)
 
-    async def renew(self): # Renews spotify token
-        await self.bot.wait_until_ready()
-
-        while True:
+    async def renew_once(self, user_id: int = None):
+        if not user_id:
             user_near_expire = await self.get_user_near_expire()
 
             if user_near_expire is not None:
                 user_id, res = user_near_expire
-
-                while res['expires_at'] > datetime.datetime.utcnow():
-                    pass
-
+        else:
+            while True:
                 try:
-                    async with aiohttp.ClientSession() as sess:
-                        async with sess.post('https://accounts.spotify.com/api/token', headers={'Authorization': 'Basic ' + base64.urlsafe_b64encode(f'{self.spotify_auth.application_id}:{self.spotify_auth.application_secret}')}, params = {'grant_type': 'refresh_token', 'refresh_token': res['refresh_token']}) as resp:
-                            js = await resp.json()
+                    res = await self.bot.spotify_pool.fetchrow('SELECT * FROM spotify_auth WHERE user_id = $1', user_id)
+                except asyncpg.exceptions._base.InterfaceError:
+                    pass
+                else:
+                    break
 
-                            if 'expires_in' not in js and 'access_token' not in js:
-                                await self.bot.spotify_pool.execute("""
-                                DELETE FROM spotify_auth
-                                WHERE user_id = $1
-                                """, user_id)
-                                continue
+        while res['expires_at'] > datetime.datetime.utcnow():
+            pass
 
-                            while True:
-                                try:
-                                    await self.bot.spotify_pool.execute("""
-                                    UPDATE spotify_auth
-                                    SET access_token = $2,
-                                        expires_st = $3,
-                                        expires_in = $4
-                                    WHERE user_id = $1
-                                    """, user_id, js['access_token'], (datetime.datetime.utcnow() + datetime.timedelta(seconds=js['expires_in'])), js['expires_in'])
-                                except asyncpg.exceptions._base.InterfaceError:
-                                    pass
-                                else:
-                                    pass
-                except Exception as e:
-                    raise e
+        try:
+            async with aiohttp.ClientSession() as sess:
+                async with sess.post('https://accounts.spotify.com/api/token', headers={'Authorization': 'Basic ' + base64.urlsafe_b64encode(f'{self.spotify_auth.application_id}:{self.spotify_auth.application_secret}')}, params = {'grant_type': 'refresh_token', 'refresh_token': res['refresh_token']}) as resp:
+                    js = await resp.json()
+
+                    if 'expires_in' not in js and 'access_token' not in js:
+                        await self.bot.spotify_pool.execute("""
+                        DELETE FROM spotify_auth
+                        WHERE user_id = $1
+                        """, user_id)
+                        return
+
+                    while True:
+                        try:
+                            await self.bot.spotify_pool.execute("""
+                            UPDATE spotify_auth
+                            SET access_token = $2,
+                                expires_st = $3,
+                                expires_in = $4
+                            WHERE user_id = $1
+                            """, user_id, js['access_token'], (datetime.datetime.utcnow() + datetime.timedelta(seconds=js['expires_in'])), js['expires_in'])
+                        except asyncpg.exceptions._base.InterfaceError:
+                            pass
+                        else:
+                            pass
+        except Exception as e:
+            raise e
+
+    async def renew(self): # Renews spotify token
+        await self.bot.wait_until_ready()
+
+        while True:
+            await self.renew_once()
 
             await asyncio.sleep(10)
             continue
