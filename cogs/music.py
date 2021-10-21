@@ -205,7 +205,7 @@ class Music(Cog):
 
                                 import json
 
-                                #await ctx.send(file=discord.File(io.StringIO(json.dumps(js, indent=4)), filename='result.json'))
+                                await ctx.send(file=discord.File(io.StringIO(json.dumps(js, indent=4)), filename='result.json'))
 
                                 if not js['items']:
                                     break
