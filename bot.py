@@ -676,7 +676,7 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
     embed.description = f'Just for confirmation, Is [`{username}`]({url}) the spotify account you are trying to link to your discord account, `{ctx.author}`'
 
-    value = await bot.confirm(ctx, embed=embed)
+    value = await bot.confirm(ctx, channel=ctx.author, embed=embed)
 
     if value:
         await ctx.author.send('Ok! Authenticated and paired successfully!')
@@ -884,7 +884,7 @@ async def source(ctx: commands.Context, *, command: str = commands.Option(None, 
         menu = MenuPages(CodePaginator(list_codeblock), delete_message_after=True)
         await menu.start(ctx)
 
-async def _confirm(ctx, channel, *args, **kwargs):
+async def _confirm(ctx, channel = None, *args, **kwargs):
     timeout = kwargs.pop('timeout', 60)
 
     options = kwargs.pop('options', [])
