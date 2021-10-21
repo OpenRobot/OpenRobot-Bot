@@ -80,7 +80,7 @@ class Music(Cog):
 
         try:
             async with aiohttp.ClientSession() as sess:
-                async with sess.post('https://accounts.spotify.com/api/token', headers={'Authorization': 'Basic ' + base64.urlsafe_b64encode(f'{SPOTIFY_CRIENDTIALS["client_id"]}:{SPOTIFY_CRIENDTIALS["client_secret"]}')}, params = {'grant_type': 'refresh_token', 'refresh_token': res['refresh_token']}) as resp:
+                async with sess.post('https://accounts.spotify.com/api/token', headers={'Authorization': 'Basic ' + base64.urlsafe_b64encode(f'{SPOTIFY_CRIENDTIALS["client_id"]}:{SPOTIFY_CRIENDTIALS["client_secret"]}'.encode())}, params = {'grant_type': 'refresh_token', 'refresh_token': res['refresh_token']}) as resp:
                     js = await resp.json()
 
                     if 'expires_in' not in js and 'access_token' not in js:
