@@ -67,7 +67,7 @@ class OpenRobotHelp(commands.HelpCommand):
 
         # Do the help command
 
-        for cog, command in mapping.items():
+        for cog, commands in mapping.items():
             useable = 0
 
             # Only display useable commands. If no commands are useable in that cog, we don't want to display it
