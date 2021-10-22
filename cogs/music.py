@@ -289,23 +289,29 @@ class Music(Cog):
 
                     if not urls:
                         return await ctx.send('If you don\'t have any Spotify Liked Songs, how can I load them?')
-
-                    for url in urls:
-                        tracks.append((await ctx.voice_client.search(url, source=slate.Source.YOUTUBE, ctx=ctx)).tracks[0])
-                        await asyncio.sleep(.75)
                 except Exception as e:
                     raise e
                     return await ctx.send('Something wen\'t wrong in our back-end, and we aren\'t able to query your Spotify Liked Songs.')
 
                 await m.delete()
 
-                ctx.voice_client.queue.put(tracks, position=0 if (flags.now or flags.next) else None)
+                has_send = False
+
+                for url in urls:
+                    track = (await ctx.voice_client.search(url, source=slate.Source.YOUTUBE, ctx=ctx)).tracks[0]
+                    tracks.append(track)
+                    ctx.voice_client.queue.put(track, position=0 if (flags.now or flags.next) else None)
+
+                    if not has_send:
+                        has_send = True
+                        await ctx.reply(embed=discord.Embed(color=self.bot.color, description=f'Added {len(urls)} tracks to the queue from your Spotify Liked Songs.'))
+
+                    await asyncio.sleep(.75)
+
                 if flags.now:
                     await self.stop()
 
                 await m.delete()
-
-                await ctx.reply(embed=discord.Embed(color=self.bot.color, description=f'Added {len(tracks)} tracks to the queue from your Spotify Liked Songs.'))
             else:
                 await ctx.voice_client.queue_search(query, ctx=ctx, now=flags.now, next=flags.next, source=get_source(flags), message=m, delete_message=True)
 
