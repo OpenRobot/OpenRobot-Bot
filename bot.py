@@ -35,7 +35,7 @@ class Bot(commands.Bot):
 
 bot = commands.Bot(
     command_prefix=commands.when_mentioned_or(*config.PREFIXES),
-    help_command=commands.MinimalHelpCommand(no_category="Miscellanous"),
+    help_command=commands.MinimalHelpCommand(no_category="Miscellaneous"), # For old help command purposes only. This is used whenever the help cog fails.
     intents=discord.Intents.all(),
     activity=discord.Activity(type=discord.ActivityType.listening, name="or.help"),
     case_insensitive=True,
@@ -1007,6 +1007,7 @@ bot.exts = [
     'cogs.api',
     'cogs.error',
     'cogs.music',
+    'cogs.help',
 ]
 
 def start(**kwargs):
