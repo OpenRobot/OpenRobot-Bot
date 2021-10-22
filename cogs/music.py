@@ -37,6 +37,10 @@ def get_source(flags) -> slate.Source:
 music = commands
 
 class Music(Cog, emoji="🎵"):
+    """
+    Music commands. BETA
+    """
+    
     def __init__(self, bot: commands.Bot):
         super().__init__(bot)
 

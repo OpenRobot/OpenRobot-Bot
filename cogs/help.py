@@ -30,6 +30,7 @@ class OpenRobotHelp(commands.HelpCommand):
 
         self.no_category = self.options.get('no_category') or 'Miscellaneous'
         self.no_category_description = self.options.get('no_category_description') or 'Commands with no category'
+        self.no_category_emoji = self.options.get('no_category_emoji') or ''
         
     async def send(self, *args, **kwargs):
         return await self.get_destination().send(*args, **kwargs)
@@ -79,7 +80,7 @@ class OpenRobotHelp(commands.HelpCommand):
                     name = getattr(cog, 'full_name', cog.qualified_name)
                     description = cog.description or "No description provided."
                 else:
-                    name = self.no_category
+                    name = (f'{self.no_category_emoji} ' if self.no_category_emoji else '') + self.no_category
                     description = self.no_category_description
 
                 embed.add_field(name=f'{name} [{amount_commands}]', value=description)
@@ -98,7 +99,8 @@ class OpenRobotHelp(commands.HelpCommand):
 
         embed.description = f"""
         ```yml
-        {signature}```"""
+{signature}
+        ```"""
 
         embed.description += command.help or ''
 
@@ -125,7 +127,7 @@ class OpenRobotHelp(commands.HelpCommand):
 
         if isinstance(command, commands.Group):
             subcommands = command.commands
-            value = "\n".join([f'{subcommand}' for subcommand in subcommands])
+            value = "\n".join([f'`{subcommand}`' for subcommand in subcommands])
             embed.add_field(name='Subcommand(s):', value=value, inline=False)
 
         return await self.send(embed=embed)
@@ -159,6 +161,10 @@ class OpenRobotHelp(commands.HelpCommand):
         return await self.send(embed=discord.Embed(color=self.ctx.bot.color, description=error))
 
 class Help(Cog, emoji='<:help:901151299284922369>'):
+    """
+    The help command for the bot.
+    """
+    
     def cog_load(self):
         self._original_help_command = self.bot.help_command
         self.bot.help_command = OpenRobotHelp()
