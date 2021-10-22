@@ -41,7 +41,7 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
         CREATE TABLE IF NOT EXISTS api_status(
             guild_id BIGINT,
             channel_id BIGINT,
-            last_updated_status BOOLEAN DEFAULT NULL
+            last_updated_status BOOLEAN DEFAULT NULL,
             time_last_updated_status TIMESTAMP DEFAULT NULL
         );
         """)
@@ -113,7 +113,7 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
                             else:
                                 break
 
-    def exception_catching_callback(task):
+    def exception_catching_callback(self, task):
         if task.exception():
             task.print_stack()
 
