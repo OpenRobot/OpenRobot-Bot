@@ -82,7 +82,7 @@ class OpenRobotHelp(commands.HelpCommand):
                     name = self.no_category
                     description = self.no_category_description
 
-                embed.add_field(name=f'{name} [{len(amount_commands)}]', value=cog.description)
+                embed.add_field(name=f'{name} [{amount_commands}]', value=cog.description)
 
         embed.description = f"{ctx.bot.description}\n\n{len(ctx.bot.commands)} commands | {useable} usable"
 
