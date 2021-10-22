@@ -95,7 +95,7 @@ class Music(Cog):
                             await self.bot.spotify_pool.execute("""
                             UPDATE spotify_auth
                             SET access_token = $2,
-                                expires_st = $3,
+                                expires_at = $3,
                                 expires_in = $4
                             WHERE user_id = $1
                             """, user_id, js['access_token'], (datetime.datetime.utcnow() + datetime.timedelta(seconds=js['expires_in'])), js['expires_in'])
