@@ -140,6 +140,7 @@ class OpenRobotHelp(commands.HelpCommand):
         embed = self.generate_embed()
 
         embed.title = cog.qualified_name
+        embed.title += ' Category'
 
         embed.description = ', '.join([f'`{command}`' for command in await self.filter_commands(cog.get_commands())])
 
