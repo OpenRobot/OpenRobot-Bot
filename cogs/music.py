@@ -273,9 +273,9 @@ class Music(Cog):
                             async with sess.get('https://api.spotify.com/v1/me/tracks', params={'limit': 50, 'offset': offset, 'market': 'US'}, headers={'Authorization': f'Bearer {access_token}'}) as resp:
                                 js = await resp.json()
 
-                                import json
+                                #import json
 
-                                await ctx.send(file=discord.File(io.StringIO(json.dumps(js, indent=4)), filename='result.json'))
+                                #await ctx.send(file=discord.File(io.StringIO(json.dumps(js, indent=4)), filename='result.json'))
 
                                 if not js['items']:
                                     break
@@ -284,6 +284,8 @@ class Music(Cog):
                                     urls.append(item['track']['external_urls']['spotify'])
 
                                 offset += 50
+
+                                await asyncio.sleep(3)
 
                     if not urls:
                         return await ctx.send('If you don\'t have any Spotify Liked Songs, how can I load them?')
