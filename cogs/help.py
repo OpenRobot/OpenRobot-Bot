@@ -99,8 +99,7 @@ class OpenRobotHelp(commands.HelpCommand):
 
         embed.description = f"""
         ```yml
-{signature}
-        ```"""
+{signature}```"""
 
         embed.description += command.help or ''
 
