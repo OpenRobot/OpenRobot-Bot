@@ -18,7 +18,7 @@ class APIIPBan(FlagConverter):
     ip: str
     reason: str = None
 
-class API(Cog):
+class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
     async def cog_check(self, ctx) -> bool:
         if ctx.bot.pool is None:
             return False
