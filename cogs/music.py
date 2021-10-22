@@ -281,20 +281,23 @@ class Music(Cog):
                                     break
 
                                 for item in js['items']:
-                                    urls.append(item['track']['external_urls']['spotify'])
+                                    urls.append(item['track']['name'] + item['track']['artists'][0]['name'])
 
                                 offset += 50
 
-                                await asyncio.sleep(3)
+                                await asyncio.sleep(.75)
 
                     if not urls:
                         return await ctx.send('If you don\'t have any Spotify Liked Songs, how can I load them?')
 
                     for url in urls:
                         tracks.append((await ctx.voice_client.search(url, source=slate.Source.YOUTUBE, ctx=ctx)).tracks[0])
+                        await asyncio.sleep(.75)
                 except Exception as e:
                     raise e
                     return await ctx.send('Something wen\'t wrong in our back-end, and we aren\'t able to query your Spotify Liked Songs.')
+
+                await m.delete()
 
                 ctx.voice_client.queue.put(tracks, position=0 if (flags.now or flags.next) else None)
                 if flags.now:
