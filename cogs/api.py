@@ -5,6 +5,7 @@ import asyncpg
 import json
 import typing
 import datetime
+import humanize
 from secrets import token_urlsafe as generate_token
 from discord.ext import commands
 from cogs.utils import Cog, LegacyFlagItems, LegacyFlagConverter, FlagConverter, APIInfoPaginator, MenuPages, IPBanListPaginator
@@ -22,12 +23,94 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
     """
     Provide Utility commands for OpenRobot API
     """
-    
+
     async def cog_check(self, ctx) -> bool:
         if ctx.bot.pool is None:
             return False
 
         return True
+
+    def cog_load(self):
+        self.bot.loop.create_task(self.api_status_task())
+
+    async def api_status_task(self):
+        await self.bot.wait_until_ready()
+
+        await self.bot.pool.execute("""
+        CREATE TABLE IF NOT EXISTS api_status(
+            guild_id BIGINT,
+            channel_id BIGINT,
+            last_updated_status BOOLEAN DEFAULT NULL
+            time_last_updated_status TIMESTAMP DEFAULT NULL
+        );
+        """)
+
+        up_embed = discord.Embed(
+            color=discord.Colour.green(),
+            title='OpenRobot API Status:',
+            description='OpenRobot API (<https://api.openrobot.xyz>) is now up!'
+        ).set_footer(text='Uptime at')
+
+        down_embed = discord.Embed(
+            color=discord.Colour.red(),
+            title='OpenRobot API Status:',
+            description='OpenRobot API (<https://api.openrobot.xyz>) is currently down!'
+        ).set_footer(text='Downtime at')
+
+        while True:
+            up_embed.timestamp = discord.utils.utcnow()
+            down_embed.timestamp = discord.utils.utcnow()
+
+            try:
+                async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as sess:
+                    async with sess.get('https://api.openrobot.xyz/_internal/available') as resp:
+                        is_available = (await resp.json())['is_available']
+            except:
+                is_available = False
+
+            while True:
+                try:
+                    db = await self.bot.pool.fetch("SELECT * FROM api_status")
+                except asyncpg.exceptions._base.InterfaceError:
+                    pass
+                else:
+                    break
+
+            for record in db:
+                data = dict(record)
+
+                # TODO: maybe use Bot.get_channel instead.
+
+                guild = self.bot.get_guild(data['guild_id'])
+
+                if guild:
+                    chan = guild.get_channel(data['channel_id'])
+
+                    if chan:
+                        if (data['last_updated_status'] is not None) and (data['last_updated_status'] != is_available) and (is_available is True):
+                            embed = up_embed.copy()
+
+                            if data['time_last_updated_status']:
+                                embed.description += f'\nIt was down for `{humanize.precisedelta(embed.timestamp - data["time_last_updated_status"])}`.'
+
+                            await chan.send(embed)
+                        elif (data['last_updated_status'] != is_available) and (is_available is False):
+                            embed = down_embed.copy()
+
+                            await chan.send(embed=embed)
+
+                        while True:
+                            try:
+                                await self.bot.pool.execute("""
+                                UPDATE api_status
+                                SET last_updated_status = $3,
+                                    time_last_updated_status = $4
+                                WHERE guild_id = $1 AND channel_id = $2
+                                """, guild.id, chan.id, is_available, embed.timestamp)
+                            except asyncpg.exceptions._base.InterfaceError:
+                                pass
+                            else:
+                                break
 
     async def cog_command_error(self, ctx, error: Exception) -> None:
         if isinstance(error, commands.NotOwner):
@@ -42,8 +125,78 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
-    @api.command(aliases=['statistics'])
-    async def stats(self, ctx: commands.Context):
+    @api.group('status', invoke_without_command=True)
+    async def api_status(self, ctx: commands.Context, channel: discord.TextChannel = commands.Option(None, description='Use that channel for OpenRobot API Status updates.')):
+        """
+        API status.
+        """
+        if ctx.invoked_subcommand is None:
+            if channel:
+                while True:
+                    try:
+                        db = await self.bot.pool.fetchrow("""
+                        INSERT INTO api_status(guild_id, channel_id)
+                        VALUES ($1, $2)
+                        ON CONFLICT (guild_id)
+                        DO UPDATE SET channel_id = $2 WHERE guild_id = $1
+                        """, ctx.guild.id, ctx.channel.id)
+                    except asyncpg.exceptions._base.InterfaceError:
+                        pass
+                    else:
+                        break
+
+                return await ctx.send('Updated.')
+
+            up_embed = discord.Embed(
+                color=discord.Colour.green(),
+                title='OpenRobot API Status:',
+                description='OpenRobot API (<https://api.openrobot.xyz>) is currently up!'
+            )
+
+            down_embed = discord.Embed(
+                color=discord.Colour.red(),
+                title='OpenRobot API Status:',
+                description='OpenRobot API (<https://api.openrobot.xyz>) is currently down!'
+            )
+
+            try:
+                async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=5)) as sess:
+                    async with sess.get('https://api.openrobot.xyz/_internal/available') as resp:
+                        is_available = (await resp.json())['is_available']
+            except:
+                is_available = False
+
+            if is_available is False:
+                return await ctx.send(embed=down_embed)
+            else:
+                return await ctx.send(embed=up_embed)
+
+    @api.command('disable')
+    async def api_status_disable(self, ctx: commands.Context):
+        while True:
+            try:
+                db = await self.bot.pool.fetchrow('SELECT * FROM api_status WHERE guild_id = $1', ctx.guild.id)
+            except asyncpg.exceptions._base.InterfaceError:
+                pass
+            else:
+                break
+
+        if not db:
+            return await ctx.send('You have not activated API status.')
+
+        while True:
+            try:
+                await self.bot.pool.execute("""
+                DELETE FROM api_status
+                WHERE guild_id = $1
+                """, ctx.guild.id)
+            except asyncpg.exceptions._base.InterfaceError:
+                pass
+            else:
+                break
+
+    @api.command('stats', aliases=['statistics'])
+    async def api_stats(self, ctx: commands.Context):
         class SelectOption(discord.SelectOption):
             def __init__(self, *, name: str, endpoint: str, docs_url: str = None, emoji: typing.Optional[typing.Union[str, discord.Emoji, discord.PartialEmoji]] = None, default: bool = False) -> None:
                 if endpoint:
