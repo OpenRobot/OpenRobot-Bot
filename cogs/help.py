@@ -134,11 +134,14 @@ class OpenRobotHelp(commands.HelpCommand):
     async def send_cog_help(self, cog: Cog):
         ctx = self.ctx
 
+        if not await self.filter_commands(cog.get_commands()):
+            return await self.send('You have no permission to view this category!')
+
         embed = self.generate_embed()
 
         embed.title = cog.qualified_name
 
-        embed.description = ', '.join([f'`{command}`' for command in self.filter_commands(cog.get_commands())])
+        embed.description = ', '.join([f'`{command}`' for command in await self.filter_commands(cog.get_commands())])
 
         return await self.send(embed=embed)
 
