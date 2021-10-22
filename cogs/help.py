@@ -158,7 +158,7 @@ class OpenRobotHelp(commands.HelpCommand):
     async def send_error_message(self, error):
         return await self.send(embed=discord.Embed(color=self.ctx.bot.color, description=error))
 
-class Help(Cog):
+class Help(Cog, emoji='<:help:901151299284922369>'):
     def cog_load(self):
         self._original_help_command = self.bot.help_command
         self.bot.help_command = OpenRobotHelp()

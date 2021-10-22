@@ -24,4 +24,5 @@ class Cog(commands.Cog):
 
     def __init_subclass__(cls, **kwargs):
         cls.emoji = kwargs.pop('emoji', None)
-        cls.full_name = (f'{cls.emoji} ' if cls.emoji else '') + cls.qualified_name
+        qualified_name = str(cls.qualified_name) # bad TypeError
+        cls.full_name = (f'{cls.emoji} ' if cls.emoji else '') + qualified_name
