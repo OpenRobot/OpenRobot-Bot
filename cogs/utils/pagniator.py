@@ -320,9 +320,9 @@ class QueueNowPlayingPaginator(ListPageSource):
             self.num += 1
 
             try:
-                embed.description += '\n'.join([f"**{self.num}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(seconds=track.length // 1000))} | {track.requester.mention}" ])
+                embed.description += f"**{self.num}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(seconds=track.length // 1000))} | {track.requester.mention}\n"
             except:
-                embed.description += '\n'.join([f"**{self.num}.** [{str(track.title)}]({track.uri}) | LIVE | {track.requester.mention}" ])
+                embed.description += f"**{self.num}.** [{str(track.title)}]({track.uri}) | LIVE | {track.requester.mention}\n"
 
         return embed
 
