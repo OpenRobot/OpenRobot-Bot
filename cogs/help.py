@@ -76,7 +76,7 @@ class OpenRobotHelp(commands.HelpCommand):
                 useable += amount_commands
 
                 if cog:
-                    name = cog.full_name
+                    name = getattr(cog, 'full_name', cog.qualified_name)
                     description = cog.description or "No description provided."
                 else:
                     name = self.no_category
@@ -84,7 +84,7 @@ class OpenRobotHelp(commands.HelpCommand):
 
                 embed.add_field(name=f'{name} [{len(amount_commands)}]', value=cog.description)
 
-        embed.description = f"{len(ctx.bot.commands)} commands | {useable} usable"
+        embed.description = f"{ctx.bot.description}\n\n{len(ctx.bot.commands)} commands | {useable} usable"
 
         return await self.send(embed=embed)
 
@@ -106,7 +106,7 @@ class OpenRobotHelp(commands.HelpCommand):
             embed.add_field(name=f'{len(command.aliases)} Aliases:', value='- ' + '\n- '.join([f'`{alias}`' for alias in command.aliases]), inline=False)
 
         if cog := command.cog:
-            embed.add_field(name="Category:", value=cog.full_name, inline=False)
+            embed.add_field(name="Category:", value=getattr(cog, 'full_name', cog.qualified_name), inline=False)
 
         can_run = "<:no:597591030807920660>"
         # command.can_run to test if the cog is usable
