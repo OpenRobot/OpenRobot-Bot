@@ -95,23 +95,36 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
                                 embed.description += f'\nIt was down for `{humanize.precisedelta(embed.timestamp - data["time_last_updated_status"])}`.'
 
                             await chan.send(embed)
+
+                            while True:
+                                try:
+                                    await self.bot.pool.execute("""
+                                    UPDATE api_status
+                                    SET last_updated_status = $3,
+                                        time_last_updated_status = $4
+                                    WHERE guild_id = $1 AND channel_id = $2
+                                    """, guild.id, chan.id, is_available, embed.timestamp)
+                                except asyncpg.exceptions._base.InterfaceError:
+                                    pass
+                                else:
+                                    break
                         elif (data['last_updated_status'] != is_available) and (is_available is False):
                             embed = down_embed.copy()
 
                             await chan.send(embed=embed)
 
-                        while True:
-                            try:
-                                await self.bot.pool.execute("""
-                                UPDATE api_status
-                                SET last_updated_status = $3,
-                                    time_last_updated_status = $4
-                                WHERE guild_id = $1 AND channel_id = $2
-                                """, guild.id, chan.id, is_available, embed.timestamp)
-                            except asyncpg.exceptions._base.InterfaceError:
-                                pass
-                            else:
-                                break
+                            while True:
+                                try:
+                                    await self.bot.pool.execute("""
+                                    UPDATE api_status
+                                    SET last_updated_status = $3,
+                                        time_last_updated_status = $4
+                                    WHERE guild_id = $1 AND channel_id = $2
+                                    """, guild.id, chan.id, is_available, embed.timestamp)
+                                except asyncpg.exceptions._base.InterfaceError:
+                                    pass
+                                else:
+                                    break
 
     def exception_catching_callback(self, task):
         if task.exception():
