@@ -39,8 +39,8 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
 
         await self.bot.pool.execute("""
         CREATE TABLE IF NOT EXISTS api_status(
-            guild_id BIGINT,
-            channel_id BIGINT,
+            guild_id BIGINT UNIQUE,
+            channel_id BIGINT UNIQUE,
             last_updated_status BOOLEAN DEFAULT NULL,
             time_last_updated_status TIMESTAMP DEFAULT NULL
         );
@@ -140,10 +140,10 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
                 while True:
                     try:
                         await self.bot.pool.execute("""
-INSERT INTO api_status(guild_id, channel_id)
-VALUES ($1, $2)
-ON CONFLICT (api_status.guild_id)
-DO UPDATE SET excluded.channel_id = $2
+                        INSERT INTO api_status (guild_id, channel_id)
+                        VALUES ($1, $2)
+                        ON CONFLICT (guild_id) DO 
+                        UPDATE SET channel_id = $2;
                         """, ctx.guild.id, ctx.channel.id)
                     except asyncpg.exceptions._base.InterfaceError:
                         pass
