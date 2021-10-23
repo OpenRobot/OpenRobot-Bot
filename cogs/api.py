@@ -139,11 +139,11 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
             if channel:
                 while True:
                     try:
-                        db = await self.bot.pool.fetchrow("""
-                        INSERT INTO api_status(guild_id, channel_id)
-                        VALUES ($1, $2)
-                        ON CONFLICT (guild_id)
-                        DO UPDATE SET channel_id = $2 WHERE guild_id = $1
+                        await self.bot.pool.execute("""
+INSERT INTO api_status(guild_id, channel_id)
+VALUES ($1, $2)
+ON CONFLICT (api_status.guild_id)
+DO UPDATE SET excluded.channel_id = $2
                         """, ctx.guild.id, ctx.channel.id)
                     except asyncpg.exceptions._base.InterfaceError:
                         pass
