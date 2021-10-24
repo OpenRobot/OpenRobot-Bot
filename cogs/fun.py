@@ -9,14 +9,14 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
 
         class HelpButton(discord.ui.Button):
             def __init__(self):
-                super().__init__(style=discord.ButtonStyle.green, label='How to play?', emoji='<:rooThink:596576798351949847>', row=5)
+                super().__init__(style=discord.ButtonStyle.green, label='How to play?', emoji='<:rooThink:596576798351949847>', row=4)
 
             async def callback(self, interaction: discord.Interaction):
                 await interaction.response.send_message(slide_puzzle.help, ephemeral=True)
 
         class StopButton(discord.ui.Button):
             def __init__(self):
-                super().__init__(style=discord.ButtonStyle.danger, label='Stop', emoji='<:openrobot_stop_button:899878227969974322>', row=5)
+                super().__init__(style=discord.ButtonStyle.danger, label='Stop', emoji='<:openrobot_stop_button:899878227969974322>', row=4)
 
             async def callback(self, interaction: discord.Interaction):
                 slide_puzzle.end()
