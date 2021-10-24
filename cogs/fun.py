@@ -39,8 +39,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
             async def callback(self, interaction: discord.Interaction):
                 slide_puzzle.move(self.number)
 
-                for child in self.view.children:
-                    self.view.remove_item(child)
+                self.view.clear_items()
 
                 row = 0
 
@@ -64,7 +63,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                     for child in self.view.children:
                         child.disabled = True
 
-                    await interaction.message.edit(view=self.view, content=f'You won the game! You played for `{round(slide_puzzle.duration*1000, 2)} seconds` and wasted `{slide_puzzle.tries} tries`.')
+                    await interaction.message.edit(view=self.view, content=f'You won the game! You played for `{round(slide_puzzle.duration, 2)} seconds` and wasted `{slide_puzzle.tries} tries`.')
 
         class View(discord.ui.View):
             def __init__(self, ctx, *, timeout=90):

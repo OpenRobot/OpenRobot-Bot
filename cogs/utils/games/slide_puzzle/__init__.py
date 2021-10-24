@@ -38,7 +38,7 @@ class SlidePuzzle:
         l = list(range(1, self.x*self.y)) + [None] # None = one empty space
 
         while len(position) <= 4: # while the generated number of rows are less-than or equals to 4
-            if len(temp) >= 5: # If there are 5 or more buttons in a row
+            if len(temp) >= 4: # If there are 5 or more buttons in a row
                 position.append(temp)
                 temp = []
 
