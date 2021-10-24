@@ -30,7 +30,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
         class Button(discord.ui.Button):
             def __init__(self, number):
                 if number is None:
-                    super().__init__(style=discord.ButtonStyle.grey, disabled=True)
+                    super().__init__(style=discord.ButtonStyle.grey, disabled=True, label='\u200b')
                 else:
                     super().__init__(style=discord.ButtonStyle.blurple, label=number)
 
