@@ -1062,10 +1062,16 @@ def start(**kwargs):
                         pass
 
             for ext in bot.exts:
-                bot.load_extension(ext)
+                try:
+                    bot.load_extension(ext)
+                except:
+                    pass
         elif kwargs.get('cogs') is True:
             for ext in bot.exts:
-                bot.load_extension(ext)
+                try:
+                    bot.load_extension(ext)
+                except:
+                    pass
         else:
             pass
 
