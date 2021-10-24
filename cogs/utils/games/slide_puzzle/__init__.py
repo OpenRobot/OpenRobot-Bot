@@ -10,12 +10,12 @@ from .enums import *
 
 class SlidePuzzle:
     def __init__(self, **options):
-        self.position: typing.List[typing.List[int]] = self.generate_random()
-
         self.options: typing.Dict[str, str] = options
 
         self.x: int = options.pop('x', 5)
         self.y: int = options.pop('y', 4)
+
+        self.position: typing.List[typing.List[int]] = self.generate_random()
 
         self.tries = 0
 
