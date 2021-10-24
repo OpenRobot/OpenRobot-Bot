@@ -56,9 +56,10 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                     await interaction.message.edit(view=self.view, content=f'You won the game! You played for `{round(slide_puzzle.duration*1000, 2)} seconds` and wasted `{slide_puzzle.tries} tries`.')
 
         class View(discord.ui.View):
-            def __init__(self, *, timeout=90):
+            def __init__(self, ctx, *, timeout=90):
                 super().__init__(timeout=timeout)
 
+                self.ctx = ctx
                 self.message = None
 
                 for y in slide_puzzle.position:
@@ -74,7 +75,14 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
 
                 await self.message.edit(view=self, content='Game ended cause you didn\'t respond.')
 
-        view = View()
+            async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                if interaction.user != ctx.author:
+                    await interaction.response.send_message(f'Only {ctx.author.mention} can play this Slide Puzzle. To play your own game of Slide Puzzle, invoke the `slide-puzzle` command.', ephemeral=True)
+                    return False
+                else:
+                    return True
+
+        view = View(ctx)
 
         view.message = await ctx.send(view=view, content='\u200b')
 
