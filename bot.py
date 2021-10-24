@@ -30,8 +30,34 @@ Website: <https://openrobot.xyz/>
 """
 
 class Bot(commands.Bot):
+    def __init__(self, *args, **options):
+        super().__init__(*args, **options)
+
+        self.running_commands = {}
+
     async def get_context(self, message: discord.Message, *, cls: Context = Context) -> Context:
         return await super().get_context(message, cls=cls)
+
+    async def __invoke(self, ctx, **kwargs) -> None:
+        if ctx.command is not None:
+            self.dispatch('command', ctx)
+            run_in_task = kwargs.pop('task', True)
+            try:
+                if await self.can_run(ctx, call_once=True):
+                    if run_in_task:
+                        task = await self.loop.create_task(ctx.command.invoke(ctx))
+                        self.running_commands[ctx.message] = {'ctx': ctx, 'task': task}
+                    else:
+                        await ctx.command.invoke(ctx)
+                else:
+                    raise commands.CheckFailure('The global check once functions failed.')
+            except commands.CommandError as exc:
+                await ctx.command.dispatch_error(ctx, exc)
+            else:
+                self.dispatch('command_completion', ctx)
+        elif ctx.invoked_with:
+            exc = commands.CommandNotFound('Command "{}" is not found'.format(ctx.invoked_with))
+            self.dispatch('command_error', ctx, exc)
 
 bot = commands.Bot(
     command_prefix=commands.when_mentioned_or(*config.PREFIXES),

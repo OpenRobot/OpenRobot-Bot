@@ -64,7 +64,7 @@ class Music(Cog, emoji="🎵"):
 
                 return int(res['user_id']), dict(res)
 
-    async def renew_once(self, user_id: int = None):
+    async def renew_once(self, user_id: int = None, **kwargs):
         if not user_id:
             user_near_expire = await self.get_user_near_expire()
 
@@ -79,8 +79,9 @@ class Music(Cog, emoji="🎵"):
                 else:
                     break
 
-        while res['expires_at'] > datetime.datetime.utcnow():
-            pass
+        if kwargs.pop('wait', True):
+            while res['expires_at'] > datetime.datetime.utcnow():
+                pass
 
         try:
             async with aiohttp.ClientSession() as sess:

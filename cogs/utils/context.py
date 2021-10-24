@@ -12,6 +12,8 @@ class Context(commands.Context):
         self.db = DataBase(self.bot.pool, self.bot.redis)
         self.color = self.bot.color
 
+        self.running = None
+
     async def send(self, content: str = None, **kwargs):
         if not 'mention_author' in kwargs:
             kwargs['mention_author'] = False
