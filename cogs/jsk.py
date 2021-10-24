@@ -5,7 +5,7 @@ import typing
 from discord.ext import commands
 from jishaku.features.baseclass import Feature
 from cogs.utils.cog import Cog
-from jishaku.cog import Jishaku
+from jishaku.cog import STANDARD_FEATURES, OPTIONAL_FEATURES
 from jishaku.features.baseclass import Feature
 from jishaku.flags import Flags
 from jishaku.modules import package_version
@@ -30,14 +30,20 @@ def natural_size(size_in_bytes: int):
 
     return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
 
-class CustomJishaku(Cog, Jishaku, emoji="<:jishaku_logo:901355736850890813>"):
+class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.emoji = '<:jishaku_logo:901355736850890813>'
+        self.full_name =  (f'{self.emoji} ' if self.emoji else '') + 'Jishaku'
+
     def cog_load(self):
         try:
             self.bot.unload_extension('jishaku')
         except:
             pass
 
-    def cog_unload(self) -> None:
+    def cog_unload(self):
         try:
             self.bot.load_extension('jishaku')
         except:
@@ -142,4 +148,4 @@ class CustomJishaku(Cog, Jishaku, emoji="<:jishaku_logo:901355736850890813>"):
         await ctx.send(embed=embed)
 
 def setup(bot):
-    bot.add_cog(CustomJishaku(bot))
+    bot.add_cog(Jishaku(bot=bot))
