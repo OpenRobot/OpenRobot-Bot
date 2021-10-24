@@ -63,7 +63,7 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
             down_embed.timestamp = discord.utils.utcnow()
 
             try:
-                async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as sess:
+                async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=5)) as sess:
                     async with sess.get('https://api.openrobot.xyz/_internal/available') as resp:
                         is_available = (await resp.json())['is_available']
             except:
