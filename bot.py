@@ -1003,7 +1003,7 @@ async def invite(ctx: commands.Context, option: typing.Literal['Slash Commands',
 bot.confirm = _confirm
 
 bot.exts = [
-    'jishaku',
+    #'jishaku',
     'cogs.api',
     'cogs.error',
     'cogs.music',
