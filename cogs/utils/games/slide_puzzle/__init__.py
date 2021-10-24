@@ -12,7 +12,7 @@ class SlidePuzzle:
     def __init__(self, **options):
         self.options: typing.Dict[str, str] = options
 
-        self.x: int = options.pop('x', 5)
+        self.x: int = options.pop('x', 4)
         self.y: int = options.pop('y', 4)
 
         self.position: typing.List[typing.List[int]] = self.generate_random()

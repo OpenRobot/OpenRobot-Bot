@@ -97,5 +97,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
 
         view.message = await ctx.send(view=view, content='\u200b')
 
+        slide_puzzle.start()
+
 def setup(bot):
     bot.add_cog(Fun(bot))
