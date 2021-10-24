@@ -28,11 +28,11 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                 self.view.stop()
 
         class Button(discord.ui.Button):
-            def __init__(self, number):
+            def __init__(self, number, **kwargs):
                 if number is None:
-                    super().__init__(style=discord.ButtonStyle.grey, disabled=True, label='\u200b')
+                    super().__init__(style=discord.ButtonStyle.grey, disabled=True, label='\u200b', **kwargs)
                 else:
-                    super().__init__(style=discord.ButtonStyle.blurple, label=number)
+                    super().__init__(style=discord.ButtonStyle.blurple, label=number, **kwargs)
 
                 self.number = number
 
@@ -42,9 +42,13 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                 for child in self.view.children:
                     self.view.remove_item(child)
 
+                row = 0
+
                 for y in slide_puzzle.position:
                     for x in y:
-                        self.view.add_item(self.__class__(x))
+                        self.view.add_item(self.__class__(x, row=row))
+
+                    row += 1
 
                 self.view.add_item(StopButton())
                 self.view.add_item(HelpButton())
