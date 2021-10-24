@@ -43,10 +43,13 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                     self.view.remove_item(child)
 
                 row = 0
+                c = 0
 
                 for y in slide_puzzle.position:
                     for x in y:
-                        self.view.add_item(self.__class__(x, row=row))
+                        print(c)
+                        c += 1
+                        self.view.add_item(self.__class__(x))
 
                     row += 1
 
