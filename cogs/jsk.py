@@ -140,9 +140,10 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         # Show websocket latency in milliseconds
         summary.append(f"Average websocket latency: {round(self.bot.latency * 1000, 2)}ms")
 
-        embed = discord.Embed(description="\n".join(summary), color=self.bot.color).set_thumbnail(url=ctx.me.avatar.url)
+        embed = discord.Embed(description="\n".join(summary), color=self.bot.color)
+        #embed.set_thumbnail(url=ctx.me.avatar.url)
         embed.timestamp = discord.utils.utcnow()
-        embed.set_author(name='Jishaku', url=self.bot.get_emoji(901355736850890813).url)
+        embed.set_author(name='Jishaku', icon_url=self.bot.get_emoji(901355736850890813).url)
         embed.set_footer(text=f'Requested By: {ctx.author}', icon_url=ctx.author.avatar.url)
 
         await ctx.send(embed=embed)
