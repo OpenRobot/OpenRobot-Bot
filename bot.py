@@ -1034,7 +1034,8 @@ bot.exts = [
     'cogs.error',
     'cogs.music',
     'cogs.help',
-    'cogs.jsk'
+    'cogs.jsk',
+    'cogs.fun'
 ]
 
 def start(**kwargs):
