@@ -9,9 +9,7 @@ from .data import *
 from .enums import *
 
 class SlidePuzzle:
-    def __init__(self, bot, **options):
-        self.bot = bot
-
+    def __init__(self, **options):
         self.position: typing.List[typing.List[int]] = self.generate_random()
 
         self.options: typing.Dict[str, str] = options
