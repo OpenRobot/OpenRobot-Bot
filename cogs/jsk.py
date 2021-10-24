@@ -4,7 +4,7 @@ import math
 import typing
 from discord.ext import commands
 from jishaku.features.baseclass import Feature
-from utils.cog import Cog
+from cogs.utils.cog import Cog
 from jishaku.cog import Jishaku
 from jishaku.features.baseclass import Feature
 from jishaku.flags import Flags
