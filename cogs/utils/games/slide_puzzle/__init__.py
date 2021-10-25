@@ -148,6 +148,19 @@ class SlidePuzzle:
 
     def win(self) -> bool:
         try:
+            l = []
+
+            start = 1
+
+            for position in self.position:
+                if position == list(range(start, self.x+1)):
+                    l.append(True)
+                elif position == list(range(start, self.x)) + [None]:
+                    l.append(True)
+                else:
+                    l.append(False)
+
+                start += self.x
             if all([position in [list(range(1, self.x+1)), list(range(1, self.x)) + [None]] for position in self.position]):
                 return True
             else:
