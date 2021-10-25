@@ -153,15 +153,15 @@ class SlidePuzzle:
             start = 1
 
             for position in self.position:
-                if position == list(range(start, self.x+1)):
+                if position == list(range(start, start+self.x+1)):
                     l.append(True)
-                elif position == list(range(start, self.x)) + [None]:
+                elif position == list(range(start, start+self.x)) + [None]:
                     l.append(True)
                 else:
                     l.append(False)
 
                 start += self.x
-                
+
             if all(l):
                 return True
             else:
