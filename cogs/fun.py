@@ -24,7 +24,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                 for child in self.view.children:
                     child.disabled = True
 
-                await interaction.message.edit(view=self.view, content=f'You gave up and ended the game. You played for `{round(slide_puzzle.duration*1000, 2)} seconds` and wasted `{slide_puzzle.tries} tries`.')
+                await interaction.message.edit(view=self.view, content=f'You gave up and ended the game. You played for `{round(slide_puzzle.duration, 2)} seconds` and wasted `{slide_puzzle.tries} tries`.')
                 self.view.stop()
 
         class Button(discord.ui.Button):
@@ -52,7 +52,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
 
                 for y in slide_puzzle.position:
                     for x in y:
-                        self.view.add_item(self.__class__(x))
+                        self.view.add_item(self.__class__(x, row=row))
 
                     row += 1
 
@@ -64,6 +64,8 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                         child.disabled = True
 
                     await interaction.message.edit(view=self.view, content=f'You won the game! You played for `{round(slide_puzzle.duration, 2)} seconds` and wasted `{slide_puzzle.tries} tries`.')
+
+                await interaction.message.edit(view=self.view)
 
         class View(discord.ui.View):
             def __init__(self, ctx, *, timeout=180):
