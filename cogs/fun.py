@@ -4,7 +4,7 @@ from cogs.utils import Cog, games
 
 class Fun(Cog, emoji=""): # TODO: Put fun emoji
     @commands.command('slide-puzzle', aliases=['slidepuzzle', 'slide_puzzle'])
-    async def slide_puzzle(self, ctx: commands.Context, size: str = None):
+    async def slide_puzzle(self, ctx: commands.Context, *, size: str = None):
         """
         Slide puzzle. You need to order the numbers to make it from the smallest to the greatest.
 
@@ -17,6 +17,9 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
             size_x, size_y = size.split('x')
         except:
             return await ctx.send('Invalid size')
+
+        size_x = int(size_x.strip(' '))
+        size_y = int(size_y.strip(' '))
 
         if (1 < size_x < 5) or (1 < size_y < 5):
             return await ctx.send('Invalid size')
