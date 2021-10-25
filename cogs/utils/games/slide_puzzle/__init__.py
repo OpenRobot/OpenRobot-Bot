@@ -161,7 +161,8 @@ class SlidePuzzle:
                     l.append(False)
 
                 start += self.x
-            if all([position in [list(range(1, self.x+1)), list(range(1, self.x)) + [None]] for position in self.position]):
+                
+            if all(l):
                 return True
             else:
                 return False
