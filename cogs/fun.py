@@ -43,7 +43,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
             async def callback(self, interaction: discord.Interaction):
                 def check(m):
                     try:
-                        return m.author == interaction.user and m.channel == self.view.ctx.channel and m.content.split('-') and m.content.split('-')[0].isdigit() and m.content.split('-')[1].isdigit()
+                        return m.author == interaction.user and m.channel == self.view.ctx.channel and m.content.split('-') and (m.content.split('-')[0].isdigit() or m.content.split('-')[0].lower() == 'none') and (m.content.split('-')[1].isdigit() or m.content.split('-')[1].lower() == 'none')
                     except:
                         return False
 
@@ -55,8 +55,8 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                     return await interaction.followup.send('Took to long to respond where to switch.', ephemeral=True) # btw proguy can u co-author me for the commit u will do whenever after this cuz i helped :> ok
                 
                 try:
-                    num1 = int(msg.content.split('-')[0])
-                    num2 = int(msg.content.split('-')[1])
+                    num1 = int(msg.content.split('-')[0]) if msg.content.split('-')[0].lower() != 'none' else None
+                    num2 = int(msg.content.split('-')[1]) if msg.content.split('-')[1].lower() != 'none' else None
                 except:
                     return await interaction.followup.send('Not a valid integer.', ephemeral=True)
 
@@ -72,7 +72,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
 
                 await interaction.message.edit(view=self.view)
 
-                await interaction.followup.send(f'Switched number {num1} with {num2}. You now have {slide_puzzle.switch_attempts.left} tries to switch.', ephemeral=True)
+                await interaction.followup.send(f'Switched number {str(num1).title()} with {str(num2).title()}. You now have {slide_puzzle.switch_attempts.left} tries to switch.', ephemeral=True)
 
         class StopButton(discord.ui.Button):
             def __init__(self):

@@ -210,7 +210,7 @@ class SlidePuzzle:
     def switch_attempts(self):
         return self._switch_attempts
 
-    def switch(self, num1: int, num2: int):
+    def switch(self, num1: typing.Union[int, None], num2: typing.Union[int, None]):
         if not self._switch_attempts.left:
             raise SwitchAttemptExhausted()
         
@@ -218,6 +218,6 @@ class SlidePuzzle:
         num2_location: Location = self.get_location(num2)
 
         self.position[num1_location.y][num1_location.x] = num2
-        self.position[num2_location.y][num2_location.x] = None
+        self.position[num2_location.y][num2_location.x] = num1
 
         self._switch_attempts.left -= 1
