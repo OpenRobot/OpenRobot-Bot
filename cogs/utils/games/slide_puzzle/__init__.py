@@ -25,8 +25,8 @@ class SlidePuzzle:
 
         s = ''
 
-        for y in self.y:
-            for x in self.x:
+        for y in range(self.y):
+            for x in range(1, self.x+1):
                 s += f'{x} '
 
             s += '\n'
