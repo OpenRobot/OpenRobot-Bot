@@ -47,15 +47,15 @@ class SlidePuzzle:
             if self.x == 2 and self.y == 2:
                 return 0
             elif self.x == 2 and self.y == 3:
-                return 1
+                return 0
             elif self.x == 5 or self.y == 4:
-                return 3
+                return 2
             elif self.x == 4 or self.y == 4:
-                return 2
+                return 1
             elif self.x == 3 or self.y == 3:
-                return 2
+                return 1
             else:
-                return 3
+                return 2
         else:
             return self._switch_attempts.total
 

@@ -74,6 +74,14 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
 
                 await interaction.followup.send(f'Switched number {str(num1).title()} with {str(num2).title()}. You now have {slide_puzzle.switch_attempts.left} tries to switch.', ephemeral=True)
 
+                if slide_puzzle.win():
+                    for child in self.view.children:
+                        child.disabled = True
+
+                    await interaction.message.edit(view=self.view, content=f'You won the game! You played for `{round(slide_puzzle.duration, 2)} seconds` and took `{slide_puzzle.tries} tries`.')
+                    self.view.stop()
+                    return
+
         class StopButton(discord.ui.Button):
             def __init__(self):
                 super().__init__(style=discord.ButtonStyle.danger, label='Stop', emoji='<:openrobot_stop_button:899878227969974322>', row=4)
