@@ -12,8 +12,8 @@ class SlidePuzzle:
     def __init__(self, **options):
         self.options: typing.Dict[str, str] = options
 
-        self.x: int = options.pop('x', 4)
-        self.y: int = options.pop('y', 4)
+        self.x: int = options.pop('x', 3)
+        self.y: int = options.pop('y', 3)
 
         self.position: typing.List[typing.List[int]] = self.generate_random()
 
@@ -36,9 +36,28 @@ class SlidePuzzle:
 
         s = s[:-3]
 
+        self._switch_attempts = SwitchAttempts(self.get_total_attemps(calculate=True))
+
         self.help = f'You must order the numbers from 1-{self.x*self.y}.\nHere is a graph of it: ' + f"""```
 {s}
 ```For the last button, you should leave it empty."""
+
+    def get_total_attemps(self, *, calculate: bool = False) -> int:
+        if calculate:
+            if self.x == 2 and self.y == 2:
+                return 0
+            elif self.x == 2 and self.y == 3:
+                return 1
+            elif self.x == 5 or self.y == 4:
+                return 3
+            elif self.x == 4 or self.y == 4:
+                return 2
+            elif self.x == 3 or self.y == 3:
+                return 2
+            else:
+                return 3
+        else:
+            return self._switch_attempts.total
 
     def generate_random(self) -> typing.List[typing.Union[int, None]]:
         position = []
@@ -186,3 +205,19 @@ class SlidePuzzle:
 
     def start(self):
         self.start_time = time.perf_counter()
+
+    @property
+    def switch_attempts(self):
+        return self._switch_attempts
+
+    def switch(self, num1: int, num2: int):
+        if not self._switch_attempts.left:
+            raise SwitchAttemptExhausted()
+        
+        num1_location: Location = self.get_location(num1)
+        num2_location: Location = self.get_location(num2)
+
+        self.position[num1_location.y][num1_location.x] = num2
+        self.position[num2_location.y][num2_location.x] = None
+
+        self._switch_attempts.left -= 1
