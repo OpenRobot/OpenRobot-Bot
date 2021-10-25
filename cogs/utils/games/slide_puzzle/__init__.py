@@ -147,14 +147,13 @@ class SlidePuzzle:
             self.end()
 
     def win(self) -> bool:
-        if self.position[0] == [1, 2, 3, 4, 5] and \
-            self.position[1] == [6, 7, 8, 9, 10] and \
-                self.position[2] == [11, 12, 13, 14, 15] and \
-                    self.position[3] == [16, 17, 18, 19, None]:
-
-            return True
-        else:
-            return False
+        try:
+            if all([position in [list(range(1, self.x+1)), list(range(1, self.x)) + [None]] for position in self.position]):
+                return True
+            else:
+                return False
+        except:
+            pass
 
     def end(self):
         self.end_time = time.perf_counter()

@@ -4,8 +4,24 @@ from cogs.utils import Cog, games
 
 class Fun(Cog, emoji=""): # TODO: Put fun emoji
     @commands.command('slide-puzzle', aliases=['slidepuzzle', 'slide_puzzle'])
-    async def slide_puzzle(self, ctx: commands.Context):
-        slide_puzzle = games.SlidePuzzle()
+    async def slide_puzzle(self, ctx: commands.Context, size: str = None):
+        """
+        Slide puzzle. You need to order the numbers to make it from the smallest to the greatest.
+
+        Size can be from `2x2` to `4x4`.
+        """
+
+        size = size or '4x4'
+
+        try:
+            size_x, size_y = size.split('x')
+        except:
+            return await ctx.send('Invalid size')
+
+        if (1 < size_x < 5) or (1 < size_y < 5):
+            return await ctx.send('Invalid size')
+        
+        slide_puzzle = games.SlidePuzzle(x=size_x, y=size_y)
 
         class HelpButton(discord.ui.Button):
             def __init__(self):
@@ -37,7 +53,10 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                 self.number = number
 
             async def callback(self, interaction: discord.Interaction):
-                slide_puzzle.move(self.number)
+                try:
+                    slide_puzzle.move(self.number)
+                except games.slide_puzzle.CannotBeMoved:
+                    await interaction.response.send_message(f'You can\'t move number {self.number}.')
 
                 self.view.clear_items()
 
