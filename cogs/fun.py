@@ -60,7 +60,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                 except:
                     return await interaction.followup.send('Not a valid integer.', ephemeral=True)
 
-                if (not 2 <= num1 <= slide_puzzle.x*slide_puzzle.y) or (not 2 <= num2 <= slide_puzzle.x*slide_puzzle.y):
+                if (not 0 < num1 <= (slide_puzzle.x*slide_puzzle.y)-1) or (not 0 < num2 <= (slide_puzzle.x*slide_puzzle.y)-1):
                     return await interaction.followup.send('Not a valid integer in the puzzle.', ephemeral=True)
                 
                 slide_puzzle.switch(num1, num2)
