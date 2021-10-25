@@ -38,9 +38,15 @@ class SlidePuzzle:
 
         self._switch_attempts = SwitchAttempts(self.get_total_attemps(calculate=True))
 
-        self.help = f'You must order the numbers from 1-{self.x*self.y}.\nHere is a graph of it: ' + f"""```
+        self.help = f"""Goal: You must order the numbers from 1-{self.x*self.y}.\nHere is a graph of it: ```
 {s}
-```For the last button, you should leave it empty."""
+```For the last button, you should leave it empty.
+
+Switching Numbers:
+- You can switch a number with the other.
+- You only have `{self._switch_attempts.total}` attempts in total{f' and `{self._switch_attempts.left}` left' if self._switch_attempts.left != self._switch_attempts.total else ''}.
+- You can also switch a number with a empty number.
+- Format of changing number is `num1-num2` e.g `1-5`. To change a number with a empty number, use `none` e.g `1-none`."""
 
     def get_total_attemps(self, *, calculate: bool = False) -> int:
         if calculate:

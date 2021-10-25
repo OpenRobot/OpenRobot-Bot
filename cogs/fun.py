@@ -47,7 +47,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                     except:
                         return False
 
-                await interaction.response.send_message(f'Please send what numbers you want to switch. Send a message with the format `num1-num2`\n\nNote that you only have {slide_puzzle.switch_attempts.left} tries left to switch, including this one.\nTo cancel, just type something random \U0001f642', ephemeral=True)
+                await interaction.response.send_message(f'Please send what numbers you want to switch. Send a message with the format `num1-num2` e.g `1-5`. To switch it with a empty number, use `none` e.g `1-none`\n\nNote that you only have {slide_puzzle.switch_attempts.left} tries left to switch, including this one.\nTo cancel, just type something random \U0001f642', ephemeral=True)
 
                 try:
                     msg = await self.view.ctx.bot.wait_for('message', check=check, timeout=60)
@@ -60,8 +60,14 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                 except:
                     return await interaction.followup.send('Not a valid integer.', ephemeral=True)
 
-                if (not 0 < num1 <= (slide_puzzle.x*slide_puzzle.y)-1) or (not 0 < num2 <= (slide_puzzle.x*slide_puzzle.y)-1):
-                    return await interaction.followup.send('Not a valid integer in the puzzle.', ephemeral=True)
+                try:
+                    if (not 0 < num1 <= (slide_puzzle.x*slide_puzzle.y)-1) or (not 0 < num2 <= (slide_puzzle.x*slide_puzzle.y)-1):
+                        return await interaction.followup.send('Not a valid integer in the puzzle.', ephemeral=True)
+                except TypeError:
+                    pass
+
+                if num1 == num2:
+                    return await interaction.followup.send('You can\'t switch with the same number, that is just, wasting.', ephemeral=True)
                 
                 slide_puzzle.switch(num1, num2)
 
