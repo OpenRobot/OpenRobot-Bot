@@ -66,15 +66,19 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                     await interaction.message.edit(view=self.view, content=f'You won the game! You played for `{round(slide_puzzle.duration, 2)} seconds` and wasted `{slide_puzzle.tries} tries`.')
 
         class View(discord.ui.View):
-            def __init__(self, ctx, *, timeout=90):
+            def __init__(self, ctx, *, timeout=180):
                 super().__init__(timeout=timeout)
 
                 self.ctx = ctx
                 self.message = None
 
+                row = 0
+
                 for y in slide_puzzle.position:
                     for x in y:
-                        self.add_item(Button(x))
+                        self.add_item(Button(x, row=row))
+
+                    row += 1
 
                 self.add_item(StopButton())
                 self.add_item(HelpButton())
