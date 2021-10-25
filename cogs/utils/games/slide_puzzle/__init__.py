@@ -34,6 +34,8 @@ class SlidePuzzle:
 
             s += '\n'
 
+        s = s[:-2]
+
         self.help = f'You must order the numbers from 1-{self.x*self.y}.\nHere is a graph of it: ' + f"""```
 {s}
 ```For the last button, you should leave it empty."""
