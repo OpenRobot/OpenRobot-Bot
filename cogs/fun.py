@@ -59,7 +59,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                 try:
                     slide_puzzle.move(self.number)
                 except games.slide_puzzle.CannotBeMoved:
-                    await interaction.response.send_message(f'You can\'t move number {self.number}.')
+                    await interaction.response.send_message(f'You can\'t move number {self.number}.', ephemeral=True)
 
                 self.view.clear_items()
 
@@ -86,6 +86,8 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                         child.disabled = True
 
                     await interaction.message.edit(view=self.view, content=f'You won the game! You played for `{round(slide_puzzle.duration, 2)} seconds` and wasted `{slide_puzzle.tries} tries`.')
+                    self.view.stop()
+                    return
 
                 await interaction.message.edit(view=self.view)
 
