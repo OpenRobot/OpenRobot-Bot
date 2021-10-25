@@ -13,7 +13,9 @@ class Option(Enum):
     PAPER = 1
     SCISSORS = 2
 
-class Winner(Player):
+class Winner(Enum):
+    PlayerOne = 1
+    PlayerTwo = 2
     TIE = 3
 
 class Emoji(Enum):
