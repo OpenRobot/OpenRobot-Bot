@@ -36,7 +36,7 @@ class SlidePuzzle:
 
         s = s[:-3]
 
-        self._switch_attempts = SwitchAttempts(self.get_total_attemps(calculate=True))
+        self._switch_attempts = SwitchAttempts(self.get_total_attempts(calculate=True))
 
         self.help = f"""Goal: You must order the numbers from 1-{self.x*self.y}.\nHere is a graph of it: ```
 {s}
@@ -48,7 +48,7 @@ Switching Numbers:
 - You can also switch a number with a empty number.
 - Format of changing number is `num1-num2` e.g `1-5`. To change a number with a empty number, use `none` e.g `1-none`."""
 
-    def get_total_attemps(self, *, calculate: bool = False) -> int:
+    def get_total_attempts(self, *, calculate: bool = False) -> int:
         if calculate:
             if self.x == 2 and self.y == 2:
                 return 0
