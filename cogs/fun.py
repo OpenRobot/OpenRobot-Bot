@@ -137,7 +137,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
 
                 for y in slide_puzzle.position:
                     for x in y:
-                        self.view.add_item(Button(x, row=row))
+                        self.add_item(Button(x, row=row))
 
                     row += 1
 
