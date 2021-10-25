@@ -41,8 +41,6 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                 super().__init__(style=discord.ButtonStyle.green, label=f'Need help? Switch Numbers', emoji='<:rooBulli:744346131324076072>', row=4, **kwargs)
 
             async def callback(self, interaction: discord.Interaction):
-                await interaction.response.defer()
-
                 def check(m):
                     try:
                         return m.author == interaction.user and m.channel == self.view.ctx.channel and m.content.split('-') and m.content.split('-')[0].isdigit() and m.content.split('-')[1].isdigit()
