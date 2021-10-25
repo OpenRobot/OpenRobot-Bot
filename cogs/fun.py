@@ -8,7 +8,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
         """
         Slide puzzle. You need to order the numbers to make it from the smallest to the greatest.
 
-        Size can be from `2x2` to `5x5`.
+        Size can be from `2x2` to `5x4`.
         """
 
         size = size or '4x4'
@@ -21,7 +21,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
         size_x = int(size_x.strip(' '))
         size_y = int(size_y.strip(' '))
 
-        if (not 1 < size_x < 6) or (not 1 < size_y < 6):
+        if (not 1 < size_x < 6) or (not 1 < size_y < 5):
             return await ctx.send('Invalid size')
         
         slide_puzzle = games.SlidePuzzle(x=size_x, y=size_y)
