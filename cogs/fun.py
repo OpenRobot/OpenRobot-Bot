@@ -141,8 +141,8 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
 
                     row += 1
 
-                self.view.add_item(StopButton())
-                self.view.add_item(HelpButton())
+                self.add_item(StopButton())
+                self.add_item(HelpButton())
                 self.add_item(SwitchButton())
             
             async def on_timeout(self) -> None:
