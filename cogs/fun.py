@@ -43,7 +43,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                 for child in self.view.children:
                     child.disabled = True
 
-                await interaction.message.edit(view=self.view, content=f'You gave up and ended the game. You played for `{round(slide_puzzle.duration, 2)} seconds` and wasted `{slide_puzzle.tries} tries`.')
+                await interaction.message.edit(view=self.view, content=f'You gave up and ended the game. You played for `{round(slide_puzzle.duration, 2)} seconds` and tried `{slide_puzzle.tries} times`.')
                 self.view.stop()
 
         class Button(discord.ui.Button):
@@ -85,7 +85,7 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                     for child in self.view.children:
                         child.disabled = True
 
-                    await interaction.message.edit(view=self.view, content=f'You won the game! You played for `{round(slide_puzzle.duration, 2)} seconds` and wasted `{slide_puzzle.tries} tries`.')
+                    await interaction.message.edit(view=self.view, content=f'You won the game! You played for `{round(slide_puzzle.duration, 2)} seconds` and took `{slide_puzzle.tries} tries`.')
                     self.view.stop()
                     return
 

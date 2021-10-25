@@ -23,11 +23,16 @@ class SlidePuzzle:
         self.end_time = None
         self.duration = None
 
-        self.help = 'You must order the numbers from 1-15.\nHere is a graph of it: ' + """```
-1 2 3 4
-5 6 7 8
-9 10 11 12
-13 14 15
+        s = ''
+
+        for y in self.y:
+            for x in self.x:
+                s += f'{x} '
+
+            s += '\n'
+
+        self.help = f'You must order the numbers from 1-{self.x*self.y}.\nHere is a graph of it: ' + f"""```
+{s}
 ```For the last button, you should leave it empty."""
 
     def generate_random(self) -> typing.List[typing.Union[int, None]]:
