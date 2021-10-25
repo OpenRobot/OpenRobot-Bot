@@ -71,7 +71,7 @@ class SlidePuzzle:
 
         none_location = self.get_location(None)
 
-        if none_location.x == 3:
+        if none_location.x == self.x-1:
             l.append(
                 self.position[none_location.y][2]
             )
@@ -91,7 +91,7 @@ class SlidePuzzle:
             l.append(
                 self.position[none_location.y+1][none_location.x]
             )
-        elif none_location.y == 3:
+        elif none_location.y == self.y-1:
             l.append(
                 self.position[none_location.y-1][none_location.x]
             )
