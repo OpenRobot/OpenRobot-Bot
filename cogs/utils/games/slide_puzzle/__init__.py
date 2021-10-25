@@ -24,10 +24,13 @@ class SlidePuzzle:
         self.duration = None
 
         s = ''
+        start = 0
 
         for y in range(self.y):
-            for x in range(1, self.x+1):
+            for x in range(start+1, start+self.x+1):
                 s += f'{x} '
+
+            start += self.x
 
             s += '\n'
 
