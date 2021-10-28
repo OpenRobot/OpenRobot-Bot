@@ -263,7 +263,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
 
             tracks = view.value[1][3]
         else:
-            tracks = search.tracks[0] if search.type is slate.SearchType.TRACK else search.tracks
+            tracks = search.tracks[0] if search.search_type is slate.SearchType.TRACK else search.tracks
 
         self.queue.put(tracks, position=0 if (now or next) else None)
         if now:
