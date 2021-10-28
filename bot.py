@@ -112,10 +112,10 @@ async def ping(ctx: commands.Context):
     def do_ping_string(ping: int) -> str:
         s = '```diff\n'
 
-        if ping >= 250:
-            s += f'+ {ping}'
+        if ping <= 250:
+            s += f'+ {ping} ms'
         else:
-            s += f'- {ping}'
+            s += f'- {ping} ms'
 
         s += '```'
         
@@ -123,7 +123,7 @@ async def ping(ctx: commands.Context):
 
     msg = await ctx.send('Calculating Latency...')
 
-    embed = discord.Embed()
+    embed = discord.Embed(color=bot.color)
 
     embed.add_field(name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:', value=do_ping_string(round(bot.ping.bot_latency() * 1000, 2)))
     embed.add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value=do_ping_string(round(await bot.ping.typing() * 1000, 2)))
