@@ -269,7 +269,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
         if now:
             await self.stop()
 
-        if search.type is slate.SearchType.TRACK or isinstance(search.result, list):
+        if search.search_type is slate.SearchType.TRACK or isinstance(search.result, list):
             description = f"Added the {search.source.value.lower()} track [{search.tracks[0].title}]({search.tracks[0].uri}) to the queue."
         else:
             description = f"Added the {search.source.value.lower()} {search.type.name.lower()} [{search.result.name}]({search.result.uri}) to the queue."
