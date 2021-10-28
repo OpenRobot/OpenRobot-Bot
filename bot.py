@@ -47,8 +47,8 @@ class Bot(commands.Bot):
         self.spotify_pool: asyncpg.Pool = None
         self.spotify_redis: aioredis.Redis = None
 
-    async def get_context(self, message: discord.Message, *, cls: Context = Context) -> Context:
-        return await super().get_context(message, cls=cls)
+    #async def get_context(self, message: discord.Message, *, cls: Context = Context) -> Context:
+        #return await super().get_context(message, cls=cls)
 
     async def __invoke(self, ctx, **kwargs) -> None:
         if ctx.command is not None:
