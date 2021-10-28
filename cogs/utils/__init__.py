@@ -9,6 +9,7 @@ from .player import *
 from .checks import *
 from .enums import *
 from .games import *
+from .ping import *
 
 # Module imports
 from . import cog, flg, views, pagniator, converters, context, player, checks, enums, games

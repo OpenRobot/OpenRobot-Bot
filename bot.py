@@ -3,7 +3,6 @@ import discord
 import config
 import re
 import asyncpg
-import time
 import jishaku
 import aiohttp
 import json
@@ -13,10 +12,9 @@ import textwrap
 import mystbin
 import typing
 from discord.ext import commands
-from urllib.parse import quote_plus
-from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator, Context
+from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator, Context, Ping
 from io import BytesIO, StringIO
-from PIL import Image, ImageDraw
+from PIL import Image
 from openrobot.api_wrapper import AsyncClient, error
 import aioredis
 import aiospotify
@@ -34,6 +32,20 @@ class Bot(commands.Bot):
         super().__init__(*args, **options)
 
         self.running_commands = {}
+
+        # Some other attrs that can be used
+        self.spotify: aiospotify.Client = aiospotify.Client(**config.AIOSPOTIFY_CRIDENTIALS)
+        self.color: discord.Colour = None
+        self.config = config
+        self.mystbin: mystbin.Client = mystbin.Client()
+        self.api: AsyncClient = AsyncClient(config.API_TOKEN, ignore_warning=True)
+        self.ping: Ping = Ping(self)
+
+        # Databases
+        self.pool: asyncpg.Pool = None
+        self.redis: aioredis.Redis = None
+        self.spotify_pool: asyncpg.Pool = None
+        self.spotify_redis: aioredis.Redis = None
 
     async def get_context(self, message: discord.Message, *, cls: Context = Context) -> Context:
         return await super().get_context(message, cls=cls)
@@ -59,7 +71,7 @@ class Bot(commands.Bot):
             exc = commands.CommandNotFound('Command "{}" is not found'.format(ctx.invoked_with))
             self.dispatch('command_error', ctx, exc)
 
-bot = commands.Bot(
+bot = Bot(
     command_prefix=commands.when_mentioned_or(*config.PREFIXES),
     help_command=commands.MinimalHelpCommand(no_category="Miscellaneous"), # For old help command purposes only. This is used whenever the help cog fails.
     intents=discord.Intents.all(),
@@ -69,13 +81,7 @@ bot = commands.Bot(
     slash_commands=True
 )
 
-bot.spotify = aiospotify.Client(**config.AIOSPOTIFY_CRIDENTIALS)
-
-bot.color = None
-bot.config = config
-bot.mystbin = mystbin.Client()
-api = AsyncClient(config.API_TOKEN, ignore_warning=True)
-bot.api = api
+api = bot.api
 
 def override(func): # Plainly just for `source` command.
     func.__is_overridden__ = True
@@ -94,46 +100,59 @@ async def on_message(message: discord.Message):
 
     await bot.process_commands(message)
 
-@bot.command()
+@bot.command(aliases=['latency'])
 async def ping(ctx: commands.Context):
-    """Gets the latency of the bot and the database."""
+    """
+    Gets the latency of the bot, databases and more.
+    """
 
     if ctx.interaction is not None:
         await ctx.interaction.response.defer()
 
-    content = f"Pong! My ping is `{round(bot.latency * 1000, 2)}ms`!"
+    def do_ping_string(ping: int) -> str:
+        s = '```diff\n'
 
-    if bot.pool is not None:
-        try:
-            start = time.perf_counter()
+        if ping >= 250:
+            s += f'+ {ping}'
+        else:
+            s += f'- {ping}'
 
-            for _ in range(5):
-                try:
-                    await bot.pool.execute("SELECT 1")
-                except asyncpg.exceptions._base.InterfaceError:
-                    pass
-                else:
-                    break
+        s += '```'
+        
+        return s
 
-            result = time.perf_counter() - start
+    msg = await ctx.send('Calculating Latency...')
 
-            content += f"\nDB Latency (PostgreSQL): `{round(result * 1000, 2)}ms`"
-        except:
-            pass
+    embed = discord.Embed()
+
+    embed.add_field(name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:', value=do_ping_string(round(bot.ping.bot_latency() * 1000, 2)))
+    embed.add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value=do_ping_string(round(await bot.ping.typing() * 1000, 2)))
+    embed.add_field(name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', value=do_ping_string(round(await bot.ping.discord_web_ping() * 1000, 2)))
+
+    if bot.pool is None:
+        postgresql_ping = await bot.ping.database.postgresql()
     
-    if bot.redis is not None:
-        try:
-            start = time.perf_counter()
+    if bot.spotify_pool is None:
+        postgresql_spotify_ping = await bot.ping.database.postgresql(spotify=True)
 
-            await bot.redis.ping()
+    if postgresql_ping is not None or postgresql_ping is not None:
+        if postgresql_ping is not None and postgresql_spotify_ping is not None:
+            psql_ping = list(sorted([postgresql_ping, postgresql_spotify_ping]))[0]
+        elif postgresql_spotify_ping is None:
+            psql_ping = postgresql_ping
+        elif postgresql_ping is None:
+            psql_ping = postgresql_spotify_ping
 
-            result = time.perf_counter() - start
+        embed.add_field(name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:', value=do_ping_string(round(psql_ping * 1000, 2)))
 
-            content += f"\nDB Latency (Redis Cache): `{round(result * 1000, 2)}ms`"
-        except:
-            pass
+    if bot.redis:
+        redis_ping = await bot.ping.database.redis()
 
-    return await ctx.reply(content, mention_author=False)
+        if redis_ping:
+            embed.add_field(name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:', value=do_ping_string(round(redis_ping * 1000, 2)))
+
+    await msg.delete()
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def lyrics(ctx: commands.Context, *, query: str = commands.Option(description='The query to search for the lyrics.')):
