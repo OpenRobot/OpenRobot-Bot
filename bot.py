@@ -129,11 +129,15 @@ async def ping(ctx: commands.Context):
     embed.add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value=do_ping_string(round(await bot.ping.typing() * 1000, 2)))
     embed.add_field(name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', value=do_ping_string(round(await bot.ping.discord_web_ping() * 1000, 2)))
 
-    if bot.pool is None:
+    if bot.pool is not None:
         postgresql_ping = await bot.ping.database.postgresql()
+    else:
+        postgresql_ping = None
     
-    if bot.spotify_pool is None:
+    if bot.spotify_pool is not None:
         postgresql_spotify_ping = await bot.ping.database.postgresql(spotify=True)
+    else:
+        postgresql_spotify_ping = None
 
     if postgresql_ping is not None or postgresql_ping is not None:
         if postgresql_ping is not None and postgresql_spotify_ping is not None:
