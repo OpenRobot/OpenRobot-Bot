@@ -123,7 +123,7 @@ async def ping(ctx: commands.Context):
 
     msg = await ctx.send('Calculating Latency...')
 
-    embed = discord.Embed(color=bot.color)
+    embed = discord.Embed(color=bot.color, timestamp=ctx.message.created_at).set_author(name='Latency/Ping Info:', icon_url=ctx.author.avatar.url).set_footer(icon_url=ctx.author.avatar.url, text=f'Requested by: {ctx.author}')
 
     embed.add_field(name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:', value=do_ping_string(round(bot.ping.bot_latency() * 1000, 2)))
     embed.add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value=do_ping_string(round(await bot.ping.typing() * 1000, 2)))
