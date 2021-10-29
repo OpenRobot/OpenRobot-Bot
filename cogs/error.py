@@ -5,6 +5,9 @@ from cogs.utils import Cog
 class Error(Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
+        if hasattr(ctx.command, "on_error"): 
+            return
+            
         error = getattr(error, 'original', error)
 
         if isinstance(error, commands.CheckFailure) and ctx.cog == self.bot.get_cog('API'):
