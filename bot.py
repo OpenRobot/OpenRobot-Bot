@@ -1131,11 +1131,10 @@ def start(**kwargs):
         with open('restart.json', 'w') as f:
             json.dump({}, f, indent=4)
 
-        restarted_at = datetime.datetime.fromtimestamp(js['restarted_at'], tz=datetime.timezone.utc)
+        if ('channel_id' in js) and ('message_id' in js) and ('restarted_at' in js):
+            restarted_at = datetime.datetime.fromtimestamp(js['restarted_at'], tz=datetime.timezone.utc)
+            restart_duration = utcnow - restarted_at
 
-        restart_duration = utcnow - restarted_at
-
-        if js.get('channel_id') and js.get('message_id'):
             chan = bot.get_channel(js['channel_id'])
 
             if chan:
