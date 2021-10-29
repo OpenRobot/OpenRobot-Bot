@@ -1143,8 +1143,8 @@ def start(**kwargs):
                 except:
                     pass
 
-            with open('restart.json', 'w') as f:
-                json.dump({}, f, indent=4)
+        with open('restart.json', 'w') as f:
+            json.dump({}, f, indent=4)
 
     def start_tasks():
         bot.loop.create_task(parse_flags(**kwargs))
