@@ -150,7 +150,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
 
         await ctx.send(embed=embed)
 
-    @Feature.Command(parent="jsk", name="restart", aliases=["rs", "rst"])
+    @Feature.Command(parent="jsk", name="restart", aliases=["rs", "rst", "reboot", "rbt", "rb"])
     async def jsk_restart(self, ctx: commands.Context):
         m = await ctx.send(embed=discord.Embed(description='<a:openrobot_searching_gif:899928367799885834> Restarting...', color=self.bot.color))
 
