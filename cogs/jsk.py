@@ -152,7 +152,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
 
     @Feature.Command(parent="jsk", name="restart", aliases=["rs", "rst"])
     async def jsk_restart(self, ctx: commands.Context):
-        m = await ctx.send('Restarting...')
+        m = await ctx.send(embed=discord.Embed(description='<a:openrobot_searching_gif:899928367799885834> Restarting...', color=self.bot.color))
 
         with open('restart.json', 'w') as f:
             json.dump({'message_id': m.id, 'channel_id': m.channel.id, 'restarted_at': discord.utils.utcnow().timestamp()}, f, indent=4)

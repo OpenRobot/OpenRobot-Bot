@@ -1142,7 +1142,7 @@ def start(**kwargs):
                 msg = chan.get_partial_message(js['message_id'])
 
                 try:
-                    await msg.edit(content=f'Back in `{restart_duration.seconds} seconds`.')
+                    await msg.edit(embed=discord.Embed(description=f'Back in `{restart_duration.seconds} seconds`.', color=bot.color))
                 except:
                     pass
 
