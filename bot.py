@@ -1128,6 +1128,9 @@ def start(**kwargs):
         with open('restart.json', 'r') as f:
             js: dict = json.load(f)
 
+        with open('restart.json', 'w') as f:
+            json.dump({}, f, indent=4)
+
         restarted_at = datetime.datetime.fromtimestamp(js['restarted_at'], tz=datetime.timezone.utc)
 
         restart_duration = utcnow - restarted_at
@@ -1136,15 +1139,12 @@ def start(**kwargs):
             chan = bot.get_channel(js['channel_id'])
 
             if chan:
-                msg = await chan.get_partial_message(js['message_id'])
+                msg = chan.get_partial_message(js['message_id'])
 
                 try:
                     await msg.edit(content=f'Back in `{restart_duration.seconds} seconds`.')
                 except:
                     pass
-
-        with open('restart.json', 'w') as f:
-            json.dump({}, f, indent=4)
 
     def start_tasks():
         bot.loop.create_task(parse_flags(**kwargs))
