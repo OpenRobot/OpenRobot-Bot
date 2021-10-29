@@ -281,7 +281,7 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
                 for i in data:
                     count += len(list(self._endpoints_accessed(i['endpoints_accessed'])))
 
-                last_used = sorted(list(self._endpoints_accessed([d['endpoints_accessed'] for d in data])), key=lambda i: i['timestamp'])[0]
+                last_used = sorted(list(self._endpoints_accessed([d['endpoints_accessed'] for d in data])), key=lambda i: i['timestamp'], reverse=True)[0]
 
                 embed.description = f"""
 - **Total number of requests today:** `{len(list(filter(lambda r: r['timestamp'] >= utcnow.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(), list(self._endpoints_accessed([d['endpoints_accessed'] for d in data])))))}`
@@ -322,7 +322,7 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
 
                     count = len(endpoint_data)
 
-                    last_used = sorted(endpoint_data, key=lambda i: i['timestamp'])[0]
+                    last_used = sorted(endpoint_data, key=lambda i: i['timestamp'], reverse=True)[0]
 
                     newline = '\n' # f-strings can't have backslashes, so we will do a little workaround
 
