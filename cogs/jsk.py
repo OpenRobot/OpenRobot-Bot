@@ -3,6 +3,7 @@ import sys
 import math
 import typing
 import json
+import os
 from discord.ext import commands
 from jishaku.features.baseclass import Feature
 from cogs.utils.cog import Cog
@@ -156,7 +157,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         with open('restart.json', 'w') as f:
             json.dump({'message_id': m.id, 'channel_id': m.channel.id, 'restarted_at': discord.utils.utcnow().timestamp()}, f, indent=4)
 
-        sys.exit(0) # Let systemd handle the rest
+        os.system('sudo systemctl restart Bot') # Let systemd handle the rest
 
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))
