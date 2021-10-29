@@ -290,7 +290,7 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
 
 - **Last used:**
  \u200b \u200b \u200b- **At:** {discord.utils.format_dt(datetime.datetime.fromtimestamp(last_used['timestamp'], tz=datetime.timezone.utc))}
- \u200b \u200b \u200b- **Endpoint:** `{last_used['endpoint']}`
+ \u200b \u200b \u200b- **Endpoint:** `{'/api/lyrics' if last_used['endpoint'].startswith('/api/lyrics/') else last_used['endpoint']}`
                 """
                 
                 return embed
