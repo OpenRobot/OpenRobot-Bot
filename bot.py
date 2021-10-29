@@ -1123,11 +1123,12 @@ def start(**kwargs):
     async def do_restart_message():
         await bot.wait_until_ready()
 
+        utcnow = discord.utils.utcnow()
+
         with open('restart.json', 'r') as f:
             js: dict = json.load(f)
 
         restarted_at = datetime.datetime.fromtimestamp(js['restarted_at'], tz=datetime.timezone.utc)
-        utcnow = datetime.datetime.utcnow()
 
         restart_duration = utcnow - restarted_at
 
