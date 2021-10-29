@@ -156,7 +156,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         with open('restart.json', 'w') as f:
             json.dump({'message_id': m.id, 'channel_id': m.channel.id, 'timestamp': discord.utils.utcnow().timestamp()}, f, indent=4)
 
-        await self.bot.close() # Let systemd handle the rest
+        sys.exit(0) # Let systemd handle the rest
 
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))
