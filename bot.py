@@ -162,16 +162,8 @@ async def ping(ctx: commands.Context):
     await ctx.send(embed=embed)
 
 @bot.command(aliases=['act'])
-async def activity(ctx: commands.Context, *, activity: typing.Literal['Watch Together', 'Poker Night', 'Chess', 'Doodle Crew', 'Word Snacks', 'Letter Tile', 'Spellcast'] = commands.Option(description='The activity to start.'), channel: discord.VoiceChannel = commands.Option(None, description='The voice channel to start the activity. Defaults to the channel you are in.')):
+async def activity(ctx: commands.Context, channel: discord.VoiceChannel = commands.Option(description='The voice channel to start the activity. Defaults to the channel you are in.'), *, activity: typing.Literal['Watch Together', 'Poker Night', 'Chess', 'Doodle Crew', 'Word Snacks', 'Letter Tile', 'Spellcast'] = commands.Option(description='The activity to start.')):
     act = getattr(discord_activity.ActivityType, activity.replace(' ', '_').lower())
-
-    try:
-        channel = channel or ctx.author.voice.channel
-    except:
-        return await ctx.send('Please provide a channel.')
-    else:
-        if channel is None:
-            return await ctx.send('Please provide a channel.')
 
     try:
         started_activity = await bot.discord_activity.set_activity(channel.id, act)
@@ -184,6 +176,8 @@ async def activity(ctx: commands.Context, *, activity: typing.Literal['Watch Tog
 async def activity_error(ctx: commands.Context, error: Exception):
     if isinstance(error, commands.BadLiteralArgument):
         return await ctx.send('Invalid activity.')
+    elif isinstance(error, commands.MissingRequiredArgument):
+        return await ctx.send('Please provide a channel.')
 
     raise error
 
