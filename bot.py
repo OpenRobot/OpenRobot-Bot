@@ -17,6 +17,7 @@ from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlag
 from io import BytesIO, StringIO
 from PIL import Image
 from openrobot.api_wrapper import AsyncClient, error
+from openrobot import discord_activities as discord_activity
 import aioredis
 import aiospotify
 import async_timeout
@@ -41,6 +42,7 @@ class Bot(commands.Bot):
         self.mystbin: mystbin.Client = mystbin.Client()
         self.api: AsyncClient = AsyncClient(config.API_TOKEN, ignore_warning=True)
         self.ping: Ping = Ping(self)
+        self.discord_activity: discord_activity.DiscordActivity = discord_activity.DiscordActivity(config.TOKEN)
 
         # Databases
         self.pool: asyncpg.Pool = None
@@ -158,6 +160,32 @@ async def ping(ctx: commands.Context):
 
     await msg.delete()
     await ctx.send(embed=embed)
+
+@bot.command(aliases=['act'])
+async def activity(ctx: commands.Context, *, activity: typing.Literal['Watch Together', 'Poker Night', 'Chess', 'Doodle Crew', 'Word Snacks', 'Letter Tile', 'Spellcast'] = commands.Option(description='The activity to start.'), channel: discord.VoiceChannel = commands.Option(None, description='The voice channel to start the activity. Defaults to the channel you are in.')):
+    act = getattr(discord_activity.ActivityType, activity.replace(' ', '_').lower())
+
+    try:
+        channel = channel or ctx.author.voice.channel
+    except:
+        return await ctx.send('Please provide a channel.')
+    else:
+        if channel is None:
+            return await ctx.send('Please provide a channel.')
+
+    try:
+        started_activity = await bot.discord_activity.set_activity(channel.id, act)
+    except:
+        return await ctx.send(f'Something wen\'t wrong. Make sure I have `Create Invite` permissions in {channel.mention}!')
+
+    await ctx.send(embed=discord.Embed(color=bot.color, description=f'[Click here to start your `{activity}` activity]({started_activity.url})'))
+
+@activity.error
+async def activity_error(ctx: commands.Context, error: Exception):
+    if isinstance(error, commands.BadLiteralArgument):
+        return await ctx.send('Invalid activity.')
+
+    raise error
 
 @bot.command()
 async def lyrics(ctx: commands.Context, *, query: str = commands.Option(description='The query to search for the lyrics.')):

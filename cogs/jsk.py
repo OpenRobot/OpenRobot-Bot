@@ -157,7 +157,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         with open('restart.json', 'w') as f:
             json.dump({'message_id': m.id, 'channel_id': m.channel.id, 'restarted_at': discord.utils.utcnow().timestamp()}, f, indent=4)
 
-        os.system('sudo systemctl restart Bot') # Let systemd handle the rest
+        os.system('/usr/bin/sudo /usr/bin/systemctl restart Bot') # Let systemd handle the rest
 
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))
