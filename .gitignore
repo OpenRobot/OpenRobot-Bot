@@ -4,6 +4,9 @@ config.py
 # VSCode Settings
 .vscode/
 
+# Restart info
+restart.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

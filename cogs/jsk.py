@@ -2,6 +2,7 @@ import discord
 import sys
 import math
 import typing
+import json
 from discord.ext import commands
 from jishaku.features.baseclass import Feature
 from cogs.utils.cog import Cog
@@ -147,6 +148,15 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         embed.set_footer(text=f'Requested By: {ctx.author}', icon_url=ctx.author.avatar.url)
 
         await ctx.send(embed=embed)
+
+    @Feature.Command(parent="jsk", name="restart", aliases=["rs", "rst"])
+    async def jsk_restart(self, ctx: commands.Context):
+        m = await ctx.send('Restarting...')
+
+        with open('restart.json', 'w') as f:
+            json.dump({'message_id': m.id, 'channel_id': m.channel.id, 'timestamp': discord.utils.utcnow().timestamp()}, f, indent=4)
+
+        await self.bot.close() # Let systemd handle the rest
 
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))

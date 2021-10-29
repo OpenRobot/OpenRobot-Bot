@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import discord
 import config
 import re
@@ -1119,9 +1120,35 @@ def start(**kwargs):
 
         return await bot.cogs['Music'].initiate_node()
 
+    async def do_restart_message():
+        await bot.wait_until_ready()
+
+        with open('restart.json', 'r') as f:
+            js: dict = json.load(f)
+
+        restarted_at = datetime.datetime.fromtimestamp(js['restarted_at'], tz=datetime.timezone.utc)
+        utcnow = datetime.datetime.utcnow()
+
+        restart_duration = utcnow - restarted_at
+
+        if js.get('channel_id') and js.get('message_id'):
+            chan = bot.get_channel(js['channel_id'])
+
+            if chan:
+                msg = await chan.get_partial_message(js['message_id'])
+
+                try:
+                    await msg.edit(content=f'Back in `{restart_duration.seconds} seconds`.')
+                except:
+                    pass
+
+            with open('restart.json', 'w') as f:
+                json.dump({}, f, indent=4)
+
     def start_tasks():
         bot.loop.create_task(parse_flags(**kwargs))
         bot.loop.create_task(do_on_ready())
+        bot.loop.create_task(do_restart_message())
 
         try:
             bot.loop.create_task(bot.cogs['Music'].renew())
