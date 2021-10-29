@@ -175,11 +175,9 @@ async def activity(ctx: commands.Context, channel: discord.VoiceChannel = comman
 @activity.error
 async def activity_error(ctx: commands.Context, error: Exception):
     if isinstance(error, commands.BadLiteralArgument):
-        return await ctx.send('Invalid activity.')
+        await ctx.send('Invalid activity.')
     elif isinstance(error, commands.MissingRequiredArgument):
-        return await ctx.send('Please provide a channel.')
-
-    raise error
+        await ctx.send('Please provide a channel.')
 
 @bot.command()
 async def lyrics(ctx: commands.Context, *, query: str = commands.Option(description='The query to search for the lyrics.')):
