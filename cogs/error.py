@@ -1,6 +1,7 @@
 import asyncpg
 import discord
 import traceback_with_variables as custom_traceback
+import prettify_exceptions
 import string
 import random
 import traceback
@@ -40,7 +41,7 @@ class Error(Cog):
         report_channel = self.bot.get_channel(905631512467230790)
 
         colored_tb = '\n'.join(custom_traceback.iter_exc_lines(error, fmt=custom_traceback.Format(color_scheme=custom_traceback.ColorSchemes.common)))
-        non_colored_tb = '\n'.join(custom_traceback.iter_exc_lines(error, fmt=custom_traceback.Format(color_scheme=custom_traceback.ColorSchemes.none)))
+        #non_colored_tb = '\n'.join(custom_traceback.iter_exc_lines(error, fmt=custom_traceback.Format(color_scheme=custom_traceback.ColorSchemes.none)))
 
         etype = type(error)
         trace = error.__traceback__
@@ -50,8 +51,10 @@ class Error(Cog):
 
         print(colored_tb)
 
+        non_colored_tb = '\n'.join(prettify_exceptions.DefaultFormatter().format_exception(etype, error, trace))
+
         # Do paginator
-        paginator = commands.Paginator(max_size=4000)
+        paginator = commands.Paginator(max_size=4000, prefix='```py')
 
         l = non_colored_tb.split('\n')
 
@@ -82,7 +85,7 @@ class Error(Cog):
             url = discord.Embed.Empty
 
         for page in paginator.pages:
-            embed = discord.Embed(color=self.bot.color, description='```py\n' + page + '```')
+            embed = discord.Embed(color=self.bot.color, description=page)
 
             if (not has_set_author) and self.bot.tb_pool and url is not discord.Embed.Empty:
                 embed.set_author(name=f'ID: {error_id}', url=url)
