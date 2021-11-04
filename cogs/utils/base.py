@@ -3,7 +3,7 @@ import config
 import asyncpg
 import mystbin
 from discord.ext import commands
-from cogs.utils import Ping
+from .ping import Ping
 from openrobot.api_wrapper import AsyncClient
 from openrobot import discord_activities as discord_activity
 import aioredis
