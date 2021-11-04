@@ -39,8 +39,8 @@ class Error(Cog):
 
         report_channel = self.bot.get_channel(905631512467230790)
 
-        colored_tb = '\n'.join(custom_traceback.iter_exc_lines(error, format=custom_traceback.Format(color_scheme=custom_traceback.ColorSchemes.common)))
-        non_colored_tb = '\n'.join(custom_traceback.iter_exc_lines(error, format=custom_traceback.Format(color_scheme=custom_traceback.ColorSchemes.none)))
+        colored_tb = '\n'.join(custom_traceback.iter_exc_lines(error, fmt=custom_traceback.Format(color_scheme=custom_traceback.ColorSchemes.common)))
+        non_colored_tb = '\n'.join(custom_traceback.iter_exc_lines(error, fmt=custom_traceback.Format(color_scheme=custom_traceback.ColorSchemes.none)))
 
         etype = type(error)
         trace = error.__traceback__
