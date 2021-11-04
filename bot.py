@@ -1134,6 +1134,11 @@ def start(**kwargs):
         except KeyError: # Cog isnt loaded
             pass
 
+        try:
+            bot.loop.create_task(bot.cogs['Error'].initiate_tb_pool())
+        except KeyError: # Cog isnt loaded
+            pass
+
     start_tasks()
 
     bot.run(config.TOKEN)
