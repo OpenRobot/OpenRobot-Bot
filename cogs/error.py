@@ -1,7 +1,7 @@
 import asyncpg
 import discord
 import traceback_with_variables as custom_traceback
-import prettify_exceptions
+from cogs.utils import OpenRobotFormatter
 import string
 import random
 import traceback
@@ -51,7 +51,7 @@ class Error(Cog):
 
         print(colored_tb)
 
-        non_colored_tb = '\n'.join(prettify_exceptions.DefaultFormatter().format_exception(etype, error, trace))
+        non_colored_tb = '\n'.join(OpenRobotFormatter(no_color=True).format_exception(etype, error, trace))
 
         # Do paginator
         paginator = commands.Paginator(max_size=4000, prefix='```py')

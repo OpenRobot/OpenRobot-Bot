@@ -34,7 +34,7 @@ if 'without-jishaku' not in kwargs:
     os.environ['JISHAKU_FORCE_PAGINATOR'] = 'True'
     os.environ['JISHAKU_NO_DM_TRACEBACK'] = 'True'
 
-if '--traceback-color' not in args:
-    os.environ['NO_COLOR'] = True
+if '--traceback-color' in args:
+    os.environ['NO_COLOR'] = 'False'
 
 start(**kwargs)
