@@ -4,6 +4,7 @@ git+https://github.com/OpenRobot-Packages/API-Wrapper
 git+https://github.com/OpenRobot-Packages/Python-Discord-Activities
 git+https://github.com/Axelware/slate
 git+https://github.com/Gorialis/jishaku
+traceback-with-variables
 asyncpg >= 0.24.0
 psutil >= 5.8.0
 thefuzz[speedup]

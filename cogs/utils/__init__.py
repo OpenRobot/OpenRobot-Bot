@@ -10,6 +10,7 @@ from .checks import *
 from .enums import *
 from .games import *
 from .ping import *
+from .base import *
 
 # Module imports
-from . import cog, flg, views, pagniator, converters, context, player, checks, enums, games
+from . import cog, flg, views, pagniator, converters, context, player, checks, enums, games, base

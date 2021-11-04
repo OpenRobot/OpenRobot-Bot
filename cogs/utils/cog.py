@@ -1,9 +1,10 @@
 import discord
 import inspect
+from .base import Bot
 from discord.ext import commands
 
 class Cog(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     def cog_load(self):
