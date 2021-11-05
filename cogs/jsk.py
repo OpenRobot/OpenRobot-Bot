@@ -159,5 +159,15 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
 
         os.system('/usr/bin/sudo /usr/bin/systemctl restart Bot') # Let systemd handle the rest
 
+    #@Feature.Command(parent="jsk", name="error", aliases=["errors", "err"])
+    #async def jsk_error(self, ctx: commands.Context):
+        #if ctx.invoked_subcommand is None:
+            #return await ctx.send_help(ctx.command)
+
+    #@Feature.Command(parent="jsk_error", name="list", aliases=["show"])
+    #async def jsk_error_list(self, ctx: commands.Context, *flags):
+        #if '--all' in flags:
+            
+
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))

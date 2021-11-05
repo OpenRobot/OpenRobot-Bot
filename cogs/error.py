@@ -13,18 +13,7 @@ class Error(Cog):
         await self.bot.wait_until_ready() # Db is initialted when the bot is ready, so....
 
         if self.bot.tb_pool:
-            await self.bot.tb_pool.execute("""
-            CREATE TABLE IF NOT EXISTS tracebacks(
-                user_id BIGINT,
-                error_id TEXT,
-                guild_id BIGINT DEFAULT NULL,
-                channel_id BIGINT,
-                message_id BIGNINT,
-                message_jump_url TEXT,
-                traceback_pretty TEXT,
-                traceback_original TEXT
-            );
-            """)
+            await self.bot.error.initiate()
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
@@ -47,16 +36,16 @@ class Error(Cog):
         trace = error.__traceback__
 
         lines = traceback.format_exception(etype, error, trace)
-        traceback_original = ''.join(lines)
+        original_traceback = ''.join(lines)
 
         print(colored_tb)
 
-        non_colored_tb = '\n'.join(OpenRobotFormatter(no_color=True).format_exception(etype, error, trace))
+        pretty_traceback = '\n'.join(OpenRobotFormatter(no_color=True).format_exception(etype, error, trace))
 
         # Do paginator
         paginator = commands.Paginator(max_size=4000, prefix='```py')
 
-        l = non_colored_tb.split('\n')
+        l = pretty_traceback.split('\n')
 
         for i in l:
             paginator.add_line(i)
@@ -74,9 +63,16 @@ class Error(Cog):
 
             while True:
                 try:
-                    await self.bot.tb_pool.execute("""
-                    INSERT INTO tracebacks VALUES($1, $2, $3, $4, $5, $6, $7, $8)
-                    """, ctx.author.id, error_id, (ctx.guild.id if ctx.guild else None), ctx.channel.id, ctx.message.id, ctx.message.jump_url, non_colored_tb, traceback_original)
+                    await self.bot.error.create(
+                        user_id=ctx.author.id, 
+                        error_id=error_id, 
+                        guild_id=(ctx.guild.id if ctx.guild else None), 
+                        channel_id=ctx.channel.id, 
+                        message_id=ctx.message.id, 
+                        message_jump_url=ctx.message.jump_url, 
+                        pretty_traceback=pretty_traceback, 
+                        original_traceback=original_traceback
+                    )
                 except asyncpg.exceptions._base.InterfaceError:
                     pass
                 else:

@@ -169,6 +169,7 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
             title = lyric.title
             artist = lyric.artist
             lyrics = lyric.lyrics
+            track_image = lyric.images.track
 
             if not lyrics:
                 return None # return await ctx.send(f"Song with query `{query}` not found.")
@@ -183,6 +184,9 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
                 embed.set_author(name=f'Artist: {artist}')
             else:
                 pass
+
+            if track_image:
+                embed.set_thumbnail(url=track_image)
 
             embed.description = lyrics
 
@@ -873,10 +877,13 @@ async def source(ctx: commands.Context, *, command: str = commands.Option(None, 
     if ctx.interaction is not None:
         await ctx.interaction.response.defer()
 
-    if '--code' in command.split(' '):
-        code = True
-        command = command.replace(' --code', '')
-    else:
+    try:
+        if '--code' in command.split(' '):
+            code = True
+            command = command.replace(' --code', '')
+        else:
+            code = False
+    except:
         code = False
 
     source_url = 'https://github.com/OpenRobot/OpenRobot-Bot'

@@ -4,6 +4,7 @@ import asyncpg
 import mystbin
 from discord.ext import commands
 from .ping import Ping
+from .error import Error
 from openrobot.api_wrapper import AsyncClient
 from openrobot import discord_activities as discord_activity
 import aioredis
@@ -22,6 +23,7 @@ class Bot(commands.Bot):
         self.mystbin: mystbin.Client = mystbin.Client()
         self.api: AsyncClient = AsyncClient(config.API_TOKEN, ignore_warning=True)
         self.ping: Ping = Ping(self)
+        self.error: Error = Error(self)
         self.discord_activity: discord_activity.DiscordActivity = discord_activity.DiscordActivity(config.TOKEN)
 
         # Databases
