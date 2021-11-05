@@ -30,9 +30,9 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
 
         return True
 
-    def cog_load(self):
-        task = self.bot.loop.create_task(self.api_status_task())
-        task.add_done_callback(self.exception_catching_callback)
+    #def cog_load(self):
+        #task = self.bot.loop.create_task(self.api_status_task())
+        #task.add_done_callback(self.exception_catching_callback)
 
     async def api_status_task(self):
         await self.bot.wait_until_ready()
