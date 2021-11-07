@@ -367,7 +367,7 @@ async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, des
         if label.name in parent_name_added:
             continue
 
-        label_str += f'- `{label.name}` - `{label.confidence}`\n'
+        label_str += f'- `{label.name}` - `{round(label.confidence, 2)}%`\n'
 
         if label.parent_name:
             parent_name_added.append(label.parent_name)
