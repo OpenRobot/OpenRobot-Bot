@@ -375,7 +375,9 @@ async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, des
     label_str = label_str[:-1] # remove last newline.
 
     safe_score = round(100 - check.score * 100, 2)
+    safe_score = int(safe_score) if safe_score % 1 else safe_score
     unsafe_score = round(check.score * 100, 2)
+    unsafe_score = int(unsafe_score) if unsafe_score % 1 else unsafe_score
 
     is_safe = safe_score > unsafe_score
 
@@ -383,8 +385,8 @@ async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, des
 
     embed = discord.Embed(color=bot.color)
     embed.set_image(url=url)
-    embed.add_field(name='<:status_dnd:596576774364856321> Unsafe Score:', value=unsafe_score)
-    embed.add_field(name='<:status_online:596576749790429200> Safe Score:', value=safe_score)
+    embed.add_field(name='<:status_dnd:596576774364856321> Unsafe Score:', value=f'`{unsafe_score}%`')
+    embed.add_field(name='<:status_online:596576749790429200> Safe Score:', value=f'`{safe_score}%`')
     embed.description = f"""
 **Is Safe:** {is_safe}
 **Labels:**{newline + label_str if label_str else ' None.'}
