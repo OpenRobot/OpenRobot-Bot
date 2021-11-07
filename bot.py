@@ -349,7 +349,7 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
 @bot.command('nsfw-check', aliases=['nsfwcheck', 'nsfw_check', 'check'])
 async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, description='The image. This can be a URL or a image attached.')):
     """
-    NSFW Checks an Image. Heavily inspired by [Ami's](https://discord.com/users/801742991185936384) check command
+    NSFW Checks an Image. Heavily inspired by [Ami#7836](https://discord.com/users/801742991185936384)'s check command
 
     Flags:
     - `--raw`: Returns the raw response sent by our (OpenRobot) API.
@@ -392,7 +392,7 @@ async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, des
 **Is Safe:** {is_safe}
 **Labels:**{newline + label_str if label_str else ' None.'}
     """
-    embed.set_footer(text='Powered by OpenRobot API (https://api.openrobot.xyz/)')
+    embed.set_footer(text='Powered by OpenRobot API (https://api.openrobot.xyz/)\nInspired by Ami#7836')
 
     await ctx.send(embed=embed)
 
