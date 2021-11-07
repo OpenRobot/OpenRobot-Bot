@@ -14,6 +14,14 @@ class ImageConverter(Converter):
             if x:
                 return x[0]
 
+        try:
+            return await commands.MemberConverter().convert(ctx, argument).avatar.url
+        except:
+            try:
+                return await commands.UserConverter().convert(ctx, argument).avatar.url
+            except:
+                pass
+
         if ctx.message.attachments:
             return ctx.message.attachments[0].url
         if ctx.message.reference:
@@ -36,6 +44,8 @@ class ImageConverter(Converter):
                 if emoji := re.findall(r'<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>', ctx.message.reference.resolved.content):
                     emoji_id = emoji[0][1:-1].split(':')[2]
                     return f'https://cdn.discordapp.com/emojis/{emoji_id}.png'
+
+            return ctx.message.reference.resolved.author.avatar.url
 
         return None
 

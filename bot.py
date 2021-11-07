@@ -346,7 +346,7 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
 
         msg = await ctx.send(embed=l)
 
-@bot.command('nsfw-check', aliases=['nsfwcheck', 'nsfw_check', 'check'])
+@bot.command('nsfw-check', aliases=['nsfwcheck', 'nsfw_check', 'check'], slash_command=False)
 async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, description='The image. This can be a URL or a image attached.')):
     """
     NSFW Checks an Image. Heavily inspired by [Ami#7836](https://discord.com/users/801742991185936384)'s check command
@@ -355,10 +355,7 @@ async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, des
     - `--raw`: Returns the raw response sent by our (OpenRobot) API.
     """
 
-    url = await ImageConverter().convert(ctx, image)
-
-    if not url:
-        return await ctx.send('No image provided.')
+    url = await ImageConverter().convert(ctx, image) or ctx.author.avatar.url
 
     check = await bot.api.nsfw_check(url)
 
