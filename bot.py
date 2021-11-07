@@ -392,6 +392,7 @@ async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, des
 **Is Safe:** {is_safe}
 **Labels:**{newline + label_str if label_str else ' None.'}
     """
+    embed.set_footer(text='Powered by OpenRobot API (https://api.openrobot.xyz/)')
 
     await ctx.send(embed=embed)
 
