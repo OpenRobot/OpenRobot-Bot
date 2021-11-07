@@ -346,6 +346,55 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
 
         msg = await ctx.send(embed=l)
 
+@bot.command('nsfw-check', aliases=['nsfwcheck', 'nsfw_check', 'check'])
+async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, description='The image. This can be a URL or a image attached.')):
+    """
+    NSFW Checks an Image. Heavily inspired by [Ami's](https://discord.com/users/801742991185936384) check command
+
+    Flags:
+    - `--raw`: Returns the raw response sent by our (OpenRobot) API.
+    """
+
+    url = await ImageConverter().convert(ctx, image)
+
+    if not url:
+        return await ctx.send('No image provided.')
+
+    check = await bot.api.nsfw_check(url)
+
+    label_str = ''
+
+    parent_name_added = []
+
+    for label in reversed(check.labels): # Childrens are always returned last in the label, so.....
+        if label.name in parent_name_added:
+            continue
+
+        label_str += f'- `{label.name}` - `{label.confidence}`\n'
+
+        if label.parent_name:
+            parent_name_added.append(label.parent_name)
+
+    label_str = label_str[:-1] # remove last newline.
+
+    safe_score = round(100 - check.score, 2)
+    unsafe_score = round(check.score, 2)
+
+    is_safe = safe_score > unsafe_score
+
+    newline = '\n' # Python won't let backstrings in f-strings, so yeah.
+
+    embed = discord.Embed(color=bot.color)
+    embed.set_image(url=url)
+    embed.add_field(name='<:status_dnd:596576774364856321> Unsafe Score:', value=unsafe_score)
+    embed.add_field(name='<:status_online:596576749790429200> Safe Score:', value=safe_score)
+    embed.description = f"""
+**Is Safe:** {is_safe}
+**Labels:**{newline + label_str if label_str else ' None.'}
+    """
+
+    await ctx.send(embed=embed)
+
 async def publishCdn(fp : BytesIO, filename : str = "uwu.png", from_aiohttp=True, file_type = None):
     fileType = file_type or f"{filename.split('.')[-1:]}"
 

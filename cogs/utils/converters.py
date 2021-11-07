@@ -27,6 +27,16 @@ class ImageConverter(Converter):
                     elif embed.thumbnail is not discord.Embed.Empty:
                         return embed.thumbnail.url
 
+        if ctx.message.content:
+            if emoji := re.findall(r'<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>', ctx.message.content):
+                emoji_id = emoji[0][1:-1].split(':')[2]
+                return f'https://cdn.discordapp.com/emojis/{emoji_id}.png'
+        elif ctx.message.reference:
+            if ctx.message.reference.resolved.content:
+                if emoji := re.findall(r'<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>', ctx.message.reference.resolved.content):
+                    emoji_id = emoji[0][1:-1].split(':')[2]
+                    return f'https://cdn.discordapp.com/emojis/{emoji_id}.png'
+
         return None
 
 # https://github.com/Axelware/Life-bot/blob/949937a37d349b816abfe99c50bd878878f6a94a/bot/utilities/objects/time.py#L5-L12
