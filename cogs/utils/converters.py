@@ -15,10 +15,10 @@ class ImageConverter(Converter):
                 return x[0]
 
         try:
-            return await commands.MemberConverter().convert(ctx, argument).avatar.url
+            return (await commands.MemberConverter().convert(ctx, argument)).avatar.url
         except:
             try:
-                return await commands.UserConverter().convert(ctx, argument).avatar.url
+                return (await commands.UserConverter().convert(ctx, argument)).avatar.url
             except:
                 pass
 
