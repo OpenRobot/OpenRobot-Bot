@@ -377,8 +377,8 @@ async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, des
 
     label_str = label_str[:-1] # remove last newline.
 
-    safe_score = round(100 - check.score, 2)
-    unsafe_score = round(check.score, 2)
+    safe_score = round(100 - check.score * 100, 2)
+    unsafe_score = round(check.score * 100, 2)
 
     is_safe = safe_score > unsafe_score
 
