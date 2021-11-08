@@ -37,12 +37,12 @@ class ImageConverter(Converter):
 
         if ctx.message.content:
             if emoji := re.findall(r'<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>', ctx.message.content):
-                emoji_id = emoji[0][1:-1].split(':')[2]
+                emoji_id = emoji[0][2]
                 return f'https://cdn.discordapp.com/emojis/{emoji_id}.png'
         elif ctx.message.reference:
             if ctx.message.reference.resolved.content:
                 if emoji := re.findall(r'<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>', ctx.message.reference.resolved.content):
-                    emoji_id = emoji[0][1:-1].split(':')[2]
+                    emoji_id = emoji[0][2]
                     return f'https://cdn.discordapp.com/emojis/{emoji_id}.png'
 
             return ctx.message.reference.resolved.author.avatar.url
