@@ -555,9 +555,6 @@ async def ocr(ctx: commands.Context, *, image = commands.Option(None, descriptio
 
                 return await ctx.send(file=discord.File(s, 'response.json'))
         except Exception as e:
-            if ctx.debug:
-                raise e
-
             pass
         
         text = ocr_result.text
