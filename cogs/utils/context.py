@@ -20,4 +20,6 @@ class Context(commands.Context):
         if not 'mention_author' in kwargs:
             kwargs['mention_author'] = False
 
-        return await super().reply(content, **kwargs)
+        kwargs['reference'] = self.message
+
+        return await super().send(content, **kwargs)
