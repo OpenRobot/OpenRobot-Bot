@@ -143,53 +143,37 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
-    @api.group('status', invoke_without_command=True)
+    @api.command('status', invoke_without_command=True)
     async def api_status(self, ctx: commands.Context, channel: discord.TextChannel = commands.Option(None, description='Use that channel for OpenRobot API Status updates.')):
         """
         API status.
         """
-        if ctx.invoked_subcommand is None:
-            if channel:
-                while True:
-                    try:
-                        await self.bot.pool.execute("""
-                        INSERT INTO api_status (guild_id, channel_id)
-                        VALUES ($1, $2)
-                        ON CONFLICT (guild_id) DO 
-                        UPDATE SET channel_id = $2;
-                        """, ctx.guild.id, ctx.channel.id)
-                    except asyncpg.exceptions._base.InterfaceError:
-                        pass
-                    else:
-                        break
 
-                return await ctx.send('Updated.')
+        up_embed = discord.Embed(
+            color=discord.Colour.green(),
+            title='OpenRobot API Status:',
+            description='OpenRobot API (<https://api.openrobot.xyz>) is currently up!'
+        )
 
-            up_embed = discord.Embed(
-                color=discord.Colour.green(),
-                title='OpenRobot API Status:',
-                description='OpenRobot API (<https://api.openrobot.xyz>) is currently up!'
-            )
+        down_embed = discord.Embed(
+            color=discord.Colour.red(),
+            title='OpenRobot API Status:',
+            description='OpenRobot API (<https://api.openrobot.xyz>) is currently down!'
+        )
 
-            down_embed = discord.Embed(
-                color=discord.Colour.red(),
-                title='OpenRobot API Status:',
-                description='OpenRobot API (<https://api.openrobot.xyz>) is currently down!'
-            )
+        try:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=5)) as sess:
+                async with sess.get('https://api.openrobot.xyz/_internal/available') as resp:
+                    is_available = (await resp.json())['is_available']
+        except:
+            is_available = False
 
-            try:
-                async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=5)) as sess:
-                    async with sess.get('https://api.openrobot.xyz/_internal/available') as resp:
-                        is_available = (await resp.json())['is_available']
-            except:
-                is_available = False
+        if is_available is False:
+            return await ctx.send(embed=down_embed)
+        else:
+            return await ctx.send(embed=up_embed)
 
-            if is_available is False:
-                return await ctx.send(embed=down_embed)
-            else:
-                return await ctx.send(embed=up_embed)
-
-    @api.command('disable')
+    #@api.command('disable')
     async def api_status_disable(self, ctx: commands.Context):
         while True:
             try:
@@ -256,7 +240,12 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
                         SelectOption(
                             name='Translate',
                             endpoint='/api/translate',
-                            docs_url='https://api.openrobot.xyz/api/docs#operation/do_translate_api_translate_get'
+                            docs_url='https://api.openrobot.xyz/api/docs#tag/Translate'
+                        ),
+                        SelectOption(
+                            name='NSFW Check',
+                            endpoint='/api/nsfw-check',
+                            docs_url='https://api.openrobot.xyz/api/docs#tag/NSFW-Check'
                         )
                     ]
                 )

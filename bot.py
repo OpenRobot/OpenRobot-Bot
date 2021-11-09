@@ -355,9 +355,24 @@ async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, des
     - `--raw`: Returns the raw response sent by our (OpenRobot) API.
     """
 
-    url = await ImageConverter().convert(ctx, image) or ctx.author.avatar.url
+    if image:
+        if '--raw' in image.split(' '):
+            raw = True
+        else:
+            raw = False
+    else:
+        raw = False
+
+    url = await ImageConverter(strip_remove=['--raw']).convert(ctx, image) or ctx.author.avatar.url
 
     check = await bot.api.nsfw_check(url)
+
+    if raw:
+        s = StringIO()
+        s.write(json.dumps(check.raw, indent=4))
+        s.seek(0)
+
+        return await ctx.send(file=discord.File(s, 'response.json'))
 
     label_str = ''
 
@@ -430,7 +445,7 @@ async def celebrity(ctx: commands.Context, *, image = commands.Option(None, desc
     - `--raw`: Returns the raw response sent by our (OpenRobot) API.
     """
 
-    url = await ImageConverter().convert(ctx, image)
+    url = await ImageConverter(strip_remove=['--raw']).convert(ctx, image)
 
     if not url:
         return await ctx.send('No image provided.')
@@ -507,7 +522,7 @@ async def ocr(ctx: commands.Context, *, image = commands.Option(None, descriptio
     - `--raw`: Returns the raw response sent by our (OpenRobot) API.
     """
 
-    url = await ImageConverter().convert(ctx, image)
+    url = await ImageConverter(strip_remove=['--raw']).convert(ctx, image)
 
     if not url:
         return await ctx.send('No image provided.')
@@ -516,19 +531,19 @@ async def ocr(ctx: commands.Context, *, image = commands.Option(None, descriptio
         await ctx.interaction.response.defer()
 
     try:
-        ocr = await api.ocr(url=url)
+        ocr_result = await api.ocr(url=url)
 
         try:
             if '--raw' in image.split(' '):
                 s = StringIO()
-                s.write(json.dumps(ocr.raw, indent=4))
+                s.write(json.dumps(ocr_result.raw, indent=4))
                 s.seek(0)
 
                 return await ctx.send(file=discord.File(s, 'response.json'))
         except:
             pass
         
-        text = ocr.text
+        text = ocr_result.text
 
         if len(discord.utils.escape_markdown(text)) > 4000:
             url = await bot.mystbin.post(text, syntax="text")
@@ -541,7 +556,7 @@ async def ocr(ctx: commands.Context, *, image = commands.Option(None, descriptio
             embed.set_author(name='Result:')
             embed.timestamp = discord.utils.utcnow()
 
-            embed.description = discord.utils.escape_markdown(text)
+            embed.description = commands.clean_content(use_nicknames=False, escape_markdown=True, content=text)
 
             return await ctx.send(embed=embed)
     except:

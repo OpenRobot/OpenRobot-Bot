@@ -1,10 +1,19 @@
 import re
 import discord
+import datetime
 from discord.ext import commands
 from discord.ext.commands import Converter, Context
 
 class ImageConverter(Converter):
+    def __init__(self, **kwargs):
+        self.options = kwargs
+
     async def convert(self, ctx: Context, argument: str):
+        for strip_remove in self.options.get('strip_remove', []):
+            argument = argument.replace(strip_remove, '')
+            argument = argument.replace(' ' + strip_remove, '')
+            argument = argument.replace(strip_remove + ' ', '')
+            
         if argument:
             x = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', argument)
             if x:
@@ -55,10 +64,39 @@ class ImageConverter(Converter):
 class Time:
     def __init__(self, *, seconds: int) -> None:
         self._seconds = seconds
+        self._timedelta = datetime.timedelta(seconds=self._seconds)
 
     @property
     def seconds(self) -> int:
         return self._seconds
+
+    @property
+    def timedelta(self):
+        return self._timedelta
+
+    @property
+    def minutes(self) -> int:
+        return self._seconds // 60
+
+    @property
+    def hours(self) -> int:
+        return self._seconds // 3600
+
+    @property
+    def days(self) -> int:
+        return self._seconds // 86400
+
+    @property
+    def weeks(self) -> int:
+        return self._seconds // 604800
+
+    @property
+    def months(self) -> int:
+        return self._seconds // 2592000
+
+    @property
+    def years(self) -> int:
+        return self._seconds // 31536000
 
 COLON_FORMAT_REGEX = re.compile(r"""
 ^
