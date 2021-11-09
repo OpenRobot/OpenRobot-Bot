@@ -562,7 +562,7 @@ async def ocr(ctx: commands.Context, *, image = commands.Option(None, descriptio
         if len(discord.utils.escape_markdown(text)) > 4000:
             url = await bot.mystbin.post(text, syntax="text")
             view = discord.ui.View(timeout=None)
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, url=str(url)))
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, url=str(url), label='OCR Result (View in Mystbin)'))
 
             return await ctx.send('Content too long to send. Click the button to view the result.', view=view)
         else:
