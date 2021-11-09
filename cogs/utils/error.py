@@ -56,7 +56,7 @@ class Error:
 
         original_tb = kwargs.pop('original_traceback')
 
-        return ErrorResult(dict(await self.bot.tb_pool.fetchrow(
+        return ErrorResult(**dict(await self.bot.tb_pool.fetchrow(
             "INSERT INTO tracebacks VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *", 
 
             user_id,
@@ -87,6 +87,6 @@ class Error:
         if len(db) == 0:
             return []
         elif len(db) == 1:
-            return ErrorResult(dict(db[0]))
+            return ErrorResult(**dict(db[0]))
         else:
-            return [ErrorResult(dict(x)) for x in db]
+            return [ErrorResult(**dict(x)) for x in db]
