@@ -556,7 +556,7 @@ async def ocr(ctx: commands.Context, *, image = commands.Option(None, descriptio
             embed.set_author(name='Result:')
             embed.timestamp = discord.utils.utcnow()
 
-            embed.description = commands.clean_content(use_nicknames=False, escape_markdown=True, content=text)
+            embed.description = await commands.clean_content(use_nicknames=False, escape_markdown=True).convert(ctx, text)
 
             return await ctx.send(embed=embed)
     except:
