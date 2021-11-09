@@ -9,10 +9,11 @@ class ImageConverter(Converter):
         self.options = kwargs
 
     async def convert(self, ctx: Context, argument: str):
-        for strip_remove in self.options.get('strip_remove', []):
-            argument = argument.replace(strip_remove, '')
-            argument = argument.replace(' ' + strip_remove, '')
-            argument = argument.replace(strip_remove + ' ', '')
+        if isinstance(argument, str):
+            for strip_remove in self.options.get('strip_remove', []):
+                argument = argument.replace(strip_remove, '')
+                argument = argument.replace(' ' + strip_remove, '')
+                argument = argument.replace(strip_remove + ' ', '')
             
         if argument:
             x = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', argument)
