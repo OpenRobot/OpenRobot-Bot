@@ -17,6 +17,8 @@ class Error(Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
+        if ctx.command == self.bot.get_command('jsk dbg'):
+            return
         if hasattr(ctx.command, "on_error"): 
             return
             
