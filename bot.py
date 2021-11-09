@@ -545,7 +545,7 @@ async def ocr(ctx: commands.Context, *, image = commands.Option(None, descriptio
         await ctx.interaction.response.defer()
 
     try:
-        ocr_result = await api.ocr(url=url)
+        ocr_result = await api.ocr(source=url)
 
         try:
             if '--raw' in image.split(' '):
