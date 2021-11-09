@@ -21,7 +21,10 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
 
             if (not 1 < size_x < 6) or (not 1 < size_y < 5):
                 return await ctx.send('Invalid size')
-        except:
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
             return await ctx.send('Invalid size')
         
         slide_puzzle = games.SlidePuzzle(x=size_x, y=size_y)
@@ -44,27 +47,37 @@ class Fun(Cog, emoji=""): # TODO: Put fun emoji
                 def check(m):
                     try:
                         return m.author == interaction.user and m.channel == self.view.ctx.channel and m.content.split('-') and (m.content.split('-')[0].isdigit() or m.content.split('-')[0].lower() == 'none') and (m.content.split('-')[1].isdigit() or m.content.split('-')[1].lower() == 'none')
-                    except:
+                    except Exception as e:
+                        if ctx.debug:
+                            raise e
+
                         return False
 
                 await interaction.response.send_message(f'Please send what numbers you want to switch. Send a message with the format `num1-num2` e.g `1-5`. To switch it with a empty number, use `none` e.g `1-none`\n\nNote that you only have {slide_puzzle.switch_attempts.left} tries left to switch, including this one.\nTo cancel, just type something random \U0001f642', ephemeral=True)
 
                 try:
                     msg = await self.view.ctx.bot.wait_for('message', check=check, timeout=60)
-                except:
+                except Exception as e:
+                    if ctx.debug:
+                        raise e
+
                     return await interaction.followup.send('Took to long to respond where to switch.', ephemeral=True) # btw proguy can u co-author me for the commit u will do whenever after this cuz i helped :> ok
                 
                 try:
                     num1 = int(msg.content.split('-')[0]) if msg.content.split('-')[0].lower() != 'none' else None
                     num2 = int(msg.content.split('-')[1]) if msg.content.split('-')[1].lower() != 'none' else None
-                except:
+                except Exception as e:
+                    if ctx.debug:
+                        raise e
+
                     return await interaction.followup.send('Not a valid integer.', ephemeral=True)
 
                 try:
                     if (not 0 < num1 <= (slide_puzzle.x*slide_puzzle.y)-1) or (not 0 < num2 <= (slide_puzzle.x*slide_puzzle.y)-1):
                         return await interaction.followup.send('Not a valid integer in the puzzle.', ephemeral=True)
-                except TypeError:
-                    pass
+                except TypeError as e:
+                    if ctx.debug:
+                        raise e
 
                 if num1 == num2:
                     return await interaction.followup.send('You can\'t switch with the same number, that is just, wasting.', ephemeral=True)

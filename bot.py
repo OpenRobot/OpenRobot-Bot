@@ -123,7 +123,10 @@ async def activity(ctx: commands.Context, channel: discord.VoiceChannel = comman
 
     try:
         started_activity = await bot.discord_activity.set_activity(channel.id, act)
-    except:
+    except Exception as e:
+        if ctx.debug:
+            raise e
+
         return await ctx.send(f'Something wen\'t wrong. Make sure I have `Create Invite` permissions in {channel.mention}!')
 
     await ctx.send(embed=discord.Embed(color=bot.color, description=f'[Click here to start your `{activity}` activity]({started_activity.url})'))
@@ -193,7 +196,10 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
             embed.set_footer(text=f'Invoked by: {ctx.author}')
 
             return embed # await ctx.send(embed=embed)
-        except:
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
             return None # return await ctx.send(f"Song with query `{query}` not found.") 
 
     def generateErrorEmbed(error):
@@ -466,13 +472,19 @@ async def celebrity(ctx: commands.Context, *, image = commands.Option(None, desc
                 s.seek(0)
 
                 return await ctx.send(file=discord.File(s, 'response.json'))
-        except:
+        except Exception as e:
+            if ctx.debug:
+                raise e
+                
             pass
 
         if not js['detectedFaces']:
             try:
                 return await ctx.send("Celebrity cannot be found in the image provided.", file=discord.File(img_bytes, 'image_celebrity.png'))
-            except:
+            except Exception as e:
+                if ctx.debug:
+                    raise e
+
                 return await ctx.send("Celebrity cannot be found in the image provided.")
 
         class CelebrityProperties:
@@ -504,7 +516,9 @@ async def celebrity(ctx: commands.Context, *, image = commands.Option(None, desc
                 #url=url, cropped_url=None, name=i['Name'], raw=js, item=i
             #)) # await publishCdn(await bot.loop.run_in_executor(None, crop_image, i), file_type='png')
     except Exception as e:
-        raise e
+        if ctx.debug:
+            raise e
+            
         try:
             return await ctx.send("Celebrity cannot be found in the image provided.", file=discord.File(img_bytes, 'image_celebrity.png'))
         except:
@@ -540,7 +554,10 @@ async def ocr(ctx: commands.Context, *, image = commands.Option(None, descriptio
                 s.seek(0)
 
                 return await ctx.send(file=discord.File(s, 'response.json'))
-        except:
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
             pass
         
         text = ocr_result.text
@@ -559,7 +576,10 @@ async def ocr(ctx: commands.Context, *, image = commands.Option(None, descriptio
             embed.description = await commands.clean_content(use_nicknames=False, escape_markdown=True).convert(ctx, text)
 
             return await ctx.send(embed=embed)
-    except:
+    except Exception as e:
+        if ctx.debug:
+            raise e
+
         return await ctx.send("No text found in image.")
 
 @bot.group(invoke_without_command=True, aliases=['tr'], usage='<text> <flags>', slash_command=False)
@@ -610,6 +630,9 @@ async def translate(ctx: commands.Context, *, flags: str):
             try:
                 translate = await api.translate(text, to_lang, from_lang)
             except error.BadRequest as e:
+                if ctx.debug:
+                    raise e
+
                 if e.message == 'Invalid language in paramater to_lang.':
                     return await ctx.send(f'{to_lang} is not a valid language (`--to` flag)')
                 elif e.message == 'Invalid language in paramater from_lang.':
@@ -635,7 +658,10 @@ async def translate(ctx: commands.Context, *, flags: str):
             embed.timestamp = discord.utils.utcnow()
 
             return await ctx.send(embed=embed)
-        except:
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
             return await ctx.send("Something wen't wrong while aquiring the translation from our API.")
 
 @bot.group()
@@ -718,7 +744,10 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
             try:
                 await wait_for('FINISH', timeout=90)
-            except asyncio.TimeoutError:
+            except asyncio.TimeoutError as e:
+                if ctx.debug:
+                    raise e
+
                 return await ctx.author.send('Took to long, try again later.')
 
             while True:
@@ -747,7 +776,10 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
         try:
             await wait_for('SPOTIFY', timeout=90)
-        except asyncio.TimeoutError:
+        except asyncio.TimeoutError as e:
+            if ctx.debug:
+                raise e
+
             return await ctx.author.send('Took to long, try again later.')
 
         embed = generate_embed('spotify')
@@ -757,7 +789,10 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
         try:
             await wait_for('FINISH', timeout=90)
-        except asyncio.TimeoutError:
+        except asyncio.TimeoutError as e:
+            if ctx.debug:
+                raise e
+
             return await ctx.author.send('Took to long, try again later.')
 
         while True:
@@ -834,6 +869,9 @@ async def slash_translate(ctx: commands.Context, text: str = commands.Option(des
         try:
             translate = await api.translate(text, to_lang, from_lang)
         except error.BadRequest as e:
+            if ctx.debug:
+                raise e
+
             if e.message == 'Invalid language in paramater to_lang.':
                 return await ctx.send(f'{to_lang} is not a valid language (`--to` flag)')
             elif e.message == 'Invalid language in paramater from_lang.':
@@ -859,7 +897,10 @@ async def slash_translate(ctx: commands.Context, text: str = commands.Option(des
         embed.timestamp = discord.utils.utcnow()
 
         return await ctx.send(embed=embed)
-    except:
+    except Exception as e:
+        if ctx.debug:
+            raise e
+
         return await ctx.send("Something wen't wrong while aquiring the translation from our API.")
 
 #@bot.command(name='translate-languages', message_command=False)
@@ -885,7 +926,10 @@ async def slash_languages(ctx: commands.Context, *, flags: str = commands.Option
 
         menu = MenuPages(TranslateLanguagesPagniator(list(js.items())), delete_message_after=True)
         await menu.start(ctx)
-    except:
+    except Exception as e:
+        if ctx.debug:
+            raise e
+
         return await ctx.send("Something wen't wrong while aquiring the supported languages for translation from our API.")
 
 @translate.command(aliases=['langs', 'language', 'lang'])
@@ -909,7 +953,10 @@ async def languages(ctx: commands.Context, *, flags: str = commands.Option('', d
 
         menu = MenuPages(TranslateLanguagesPagniator(list(js.items())), delete_message_after=True)
         await menu.start(ctx)
-    except:
+    except Exception as e:
+        if ctx.debug:
+            raise e
+
         return await ctx.send("Something wen't wrong while aquiring the supported languages for translation from our API.")
 
 @bot.command(aliases=['docs'])

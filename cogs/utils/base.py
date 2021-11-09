@@ -5,6 +5,7 @@ import mystbin
 from discord.ext import commands
 from .ping import Ping
 from .error import Error
+from .context import Context
 from openrobot.api_wrapper import AsyncClient
 from openrobot import discord_activities as discord_activity
 import aioredis
@@ -33,8 +34,8 @@ class Bot(commands.Bot):
         self.spotify_redis: aioredis.Redis = None
         self.tb_pool: asyncpg.Pool = None
 
-    #async def get_context(self, message: discord.Message, *, cls: Context = Context) -> Context:
-        #return await super().get_context(message, cls=cls)
+    async def get_context(self, message: discord.Message, *, cls: Context = Context) -> Context:
+        return await super().get_context(message, cls=cls)
 
     async def __invoke(self, ctx, **kwargs) -> None:
         if ctx.command is not None:

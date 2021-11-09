@@ -4,6 +4,7 @@ import math
 import typing
 import json
 import os
+import time
 from discord.ext import commands
 from jishaku.features.baseclass import Feature
 from cogs.utils.cog import Cog
@@ -12,6 +13,8 @@ from jishaku.features.baseclass import Feature
 from jishaku.flags import Flags
 from jishaku.modules import package_version
 from jishaku.paginators import PaginatorInterface
+from jishaku.models import copy_context_with
+from jishaku.exception_handling import ReplResponseReactor
 
 try:
     import psutil
@@ -167,7 +170,28 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
     #@Feature.Command(parent="jsk_error", name="list", aliases=["show"])
     #async def jsk_error_list(self, ctx: commands.Context, *flags):
         #if '--all' in flags:
-            
+
+    @Feature.Command(parent="jsk", name="debug", aliases=["dbg"])
+    async def jsk_debug(self, ctx: commands.Context, *, command_string: str):
+        """
+        Run a command timing execution and catching exceptions.
+        """
+
+        alt_ctx = await copy_context_with(ctx, content=ctx.prefix + command_string)
+
+        alt_ctx.debug = True # To trigger exceptions and stuff, a.k.a CDM (Command Debug Mode)
+
+        if alt_ctx.command is None:
+            return await ctx.send(f'Command "{alt_ctx.invoked_with}" is not found')
+
+        start = time.perf_counter()
+
+        async with ReplResponseReactor(ctx.message):
+            with self.submit(ctx):
+                returned = await alt_ctx.command.invoke(alt_ctx)
+
+        end = time.perf_counter()
+        return await ctx.send(f"Command `{alt_ctx.command.qualified_name}` finished in `{end - start:.3f}s`, returning `{returned}`")        
 
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))

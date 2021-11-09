@@ -295,7 +295,9 @@ class Music(Cog, emoji="🎵"):
                     if not urls:
                         return await ctx.send('If you don\'t have any Spotify Liked Songs, how can I load them?')
                 except Exception as e:
-                    raise e
+                    if ctx.debug:
+                        raise e
+                        
                     return await ctx.send('Something wen\'t wrong in our back-end, and we aren\'t able to query your Spotify Liked Songs.')
 
                 await m.delete()
@@ -712,7 +714,9 @@ class Music(Cog, emoji="🎵"):
             await ctx.send(embed=discord.Embed(color=self.bot.color, description=f"Skipped **{amount}** track{'s' if amount != 1 else ''}."))
             return
 
-        except commands.CheckAnyFailure:
+        except commands.CheckAnyFailure as e:
+            if ctx.debug:
+                raise e
 
             if ctx.author.id == ctx.voice_client.current.requester.id:
                 await ctx.voice_client.stop()
@@ -780,7 +784,10 @@ class Music(Cog, emoji="🎵"):
             ).set_thumbnail(url=ctx.voice_client.current.thumbnail)
             await ctx.author.send(embed=embed)
             await ctx.send(embed=discord.Embed(color=self.bot.color, description="Saved the current track to our DM's."))
-        except discord.Forbidden:
+        except discord.Forbidden as e:
+            if ctx.debug:
+                raise e
+
             return await ctx.send(embed=discord.Embed(
                 color=self.bot.color,
                 description="I am unable to DM you."

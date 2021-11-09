@@ -165,7 +165,10 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
             async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=5)) as sess:
                 async with sess.get('https://api.openrobot.xyz/_internal/available') as resp:
                     is_available = (await resp.json())['is_available']
-        except:
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
             is_available = False
 
         if is_available is False:
@@ -388,7 +391,10 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
 
                 try:
                     self.lyrics_cached = [k.decode() for k in await self.ctx.bot.redis.execute_command("KEYS *") if not k.decode().startswith('backup')]
-                except:
+                except Exception as e:
+                    if ctx.debug:
+                        raise e
+
                     pass
 
                 if not updated:
@@ -407,6 +413,9 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
                         try:
                             await interaction.message.edit(embed=select.generate_embed(last_selected), view=self)
                         except Exception as e:
+                            if ctx.debug:
+                                raise e
+
                             await interaction.message.edit(view=self)
                     
                     return await interaction.response.send_message('Updated data.', ephemeral=True)
@@ -430,7 +439,10 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
 
         try:
             lyrics_cached = [k.decode() for k in await self.bot.redis.execute_command("KEYS *") if not k.decode().startswith('backup')]
-        except:
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
             lyrics_cached = []
 
         view = View(ctx, db, lyrics_cached)
@@ -473,7 +485,10 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
 
         try:
             msg = await ctx.author.send('You have requested an API token to access OpenRobot API. You will get updates here in this DM! Be sure to keep your DMs Open and not to block me so I can send your API token! Note this can take from seconds to days to get your application accepted.')
-        except discord.Forbidden:
+        except discord.Forbidden as e:
+            if ctx.debug:
+                raise e
+
             return await ctx.send('You either closed your DMs or block me. Please do not close your DMs or Block me so I can send you your API Token.')
 
         while True:
@@ -542,7 +557,10 @@ __**Info:**__
             while True:
                 try:
                     x = await self.bot.pool.fetchrow("DELETE FROM applied_tokens WHERE user_id = $1 RETURNING dm_message_id", user.id)
-                except:
+                except Exception as e:
+                    if ctx.debug:
+                        raise e
+
                     x = {'dm_message_id': None}
                 
                 break
@@ -583,7 +601,10 @@ __**Info:**__
         try:
             try:
                 msg = await user.fetch_message(x['dm_message_id'])
-            except:
+            except Exception as e:
+                if ctx.debug:
+                    raise e
+
                 msg = None
             
             embed = discord.Embed(title="Congratulations!", description=f"Your API token request has been approved! Your API token is `{token}`", color=self.bot.color)
@@ -592,7 +613,10 @@ __**Info:**__
                 await msg.reply(embed=embed)
             else:
                 await user.send(embed=embed)
-        except discord.Forbidden:
+        except discord.Forbidden as e:
+            if ctx.debug:
+                raise e
+
             await ctx.send(f'Cannot send messages to {user}\'s DM, but token has been generated.')
         else:
             await ctx.send(f'Token has been sent to {user}.')
@@ -627,7 +651,10 @@ __**Info:**__
         try:
             try:
                 msg = await user.fetch_message(x['dm_message_id'])
-            except:
+            except Exception as e:
+                if ctx.debug:
+                    raise e
+
                 msg = None
             
             embed = discord.Embed(title="OOF!", description=f"Your API token request has been denied{f' with reason {reason}' if reason is not None else ''} by `{ctx.author}`.", color=self.bot.color)
@@ -636,7 +663,10 @@ __**Info:**__
                 await msg.reply(embed=embed)
             else:
                 await user.send(embed=embed)
-        except discord.Forbidden:
+        except discord.Forbidden as e:
+            if ctx.debug:
+                raise e
+
             await ctx.send(f'Cannot send messages to {user}\'s DM, but user has been denied.')
         else:
             await ctx.send(f'{user} has been denied.')
@@ -738,7 +768,10 @@ __**Info:**__
         
         try:
             await ctx.author.send(f"Your new token is `{token}`.")
-        except discord.Forbidden:
+        except discord.Forbidden as e:
+            if ctx.debug:
+                raise e
+
             if not force:
                 return await ctx.send("I cannot send your new token to you, so I will not regenerate the token.")
             else:
@@ -774,7 +807,10 @@ __**Info:**__
 
         try:
             await ctx.author.send(f'Your API Token: `{db["token"]}`')
-        except:
+        except Exception as e:
+            if ctx.debug:
+                raise e
+                
             return await ctx.send("I cannot send your API token in your DM!")
 
         return await ctx.send("Check your DM for your API token!")
