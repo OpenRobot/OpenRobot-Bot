@@ -17,7 +17,7 @@ class Context(commands.Context):
         self.debug = kwargs.get('debug', False)
 
     async def send(self, content: str = None, **kwargs):
-        if not ctx.interaction:
+        if not self.interaction:
             if not 'mention_author' in kwargs:
                 kwargs['mention_author'] = False
 
