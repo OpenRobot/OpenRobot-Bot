@@ -173,6 +173,7 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
             artist = lyric.artist
             lyrics = lyric.lyrics
             track_image = lyric.images.track
+            artist_image = lyric.images.background
 
             if not lyrics:
                 return None # return await ctx.send(f"Song with query `{query}` not found.")
@@ -184,12 +185,12 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
                 embed.title = f'{q} Search Result:'
 
             if artist and not getattr(artist, 'lower', lambda: artist)() == 'none':
-                embed.set_author(name=f'Artist: {artist}')
+                embed.set_author(name=f'Artist: {artist}', icon_url=artist_image or discord.Embed.Empty)
             else:
                 pass
 
             if track_image:
-                embed.set_thumbnail(url=track_image)
+                embed.set_thumbnail(url=track_image or discord.Embed.Empty)
 
             embed.description = lyrics
 
