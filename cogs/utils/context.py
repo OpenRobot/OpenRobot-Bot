@@ -17,9 +17,10 @@ class Context(commands.Context):
         self.debug = kwargs.get('debug', False)
 
     async def send(self, content: str = None, **kwargs):
-        if not 'mention_author' in kwargs:
-            kwargs['mention_author'] = False
+        if not ctx.interaction:
+            if not 'mention_author' in kwargs:
+                kwargs['mention_author'] = False
 
-        kwargs['reference'] = self.message
+            kwargs['reference'] = self.message
 
         return await super().send(content, **kwargs)
