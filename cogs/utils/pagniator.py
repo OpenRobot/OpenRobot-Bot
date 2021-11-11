@@ -348,11 +348,12 @@ class TextToSpeechDetailsPaginator(ListPageSource):
         c = 1
 
         for page in entries:
-            embed.description = f"""
+            embed.description += f"""
 __**{c})**__
 **Gender:** `{page.gender}`
 **Voice ID:** `{page.id}`
 **Name:** `{page.name}`
             """
+            c += 1
 
         return embed
