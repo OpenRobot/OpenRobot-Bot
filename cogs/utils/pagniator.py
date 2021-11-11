@@ -353,6 +353,5 @@ __**{self.entries.index(page) + 1})**__
 **Voice ID:** `{page.id}`
 **Name:** `{page.name}`
             """
-            self.c += 1
 
         return embed
