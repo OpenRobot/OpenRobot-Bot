@@ -69,7 +69,7 @@ class Speech(Cog):
 
         await menu.start(ctx)
 
-    @commands.group('speech-to-text', aliases=['detect-text-from-speech', 'detect-text-from-audio', 'dtfa', 'dtfs', 'stt', 'speechtotext', 'speech_to_text'], usage='<text> <flags>')
+    @commands.group('speech-to-text', aliases=['detect-text-from-speech', 'detect-text-from-audio', 'dtfa', 'dtfs', 'stt', 'speechtotext', 'speech_to_text'], usage='<text> <flags>', invoke_without_command=True, slash_command=False)
     async def speech_to_text(self, ctx, *, flags = None):
         """
         Performs speech to text.
