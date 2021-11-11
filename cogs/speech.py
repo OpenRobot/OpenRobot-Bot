@@ -59,7 +59,7 @@ class Speech(Cog):
             embed = discord.Embed(title='Text to Speech Supported Languages:', color=self.bot.color)
             embed.description = 'The following languages are supported:\n'
 
-            embed.description += '\n'.join([f'`{lang.code}`' for lang in languages['languages']])
+            embed.description += '\n'.join([f'`{code}`' for code in languages['languages']])
 
             return await ctx.send(embed=embed)
 
