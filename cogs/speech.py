@@ -6,7 +6,7 @@ from cogs.utils import Cog, LegacyFlagConverter, LegacyFlagItems, ViewMenuPages,
 
 class Speech(Cog):
     @commands.group(name='text-to-speech', invoke_without_command=True, aliases=['speak', 'tts', 'text_to_speech', 'texttospeech', 'talk'], usage='<text> <flags>', slash_command=False)
-    async def text_to_speech(self, ctx, *, flags: str):
+    async def text_to_speech(self, ctx: commands.Context, *, flags: str):
         """
         Performs a text to speech.
 
@@ -24,6 +24,10 @@ class Speech(Cog):
             flag = converter.convert(flags)
 
             text = ' '.join(flag.text)
+
+            if not flag.voice:
+                return await ctx.send(f'You must specify a voice ID with the `--voice` flag. To view a list of them, invoke the `{ctx.prefix}text-to-speech details` command.')
+
             voice_id = ''.join(flag.voice)
 
             tts = await self.bot.api.speech.text_to_speech(text, 'en-US', voice_id)
@@ -33,7 +37,7 @@ class Speech(Cog):
                     await ctx.send(f'Requested by {ctx.author.mention} - `{ctx.author}`', file=discord.File(io.BytesIO(await resp.read()), filename='tts.mp3'), allowed_mentions=discord.AllowedMentions(users=False))
 
     @text_to_speech.command(name='details', aliases=['info', 'support'])
-    async def text_to_speech_details(self, ctx):
+    async def text_to_speech_details(self, ctx: commands.Context):
         """
         Shows the details of the available voices.
         """
@@ -62,7 +66,14 @@ class Speech(Cog):
         if not stt.text:
             return await ctx.send('No text detected.')
 
-        embed = discord.Embed(title='Result:', color=self.bot.color).set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        if len(stt.text) > 4000:
+            url = await self.bot.mystbin.post(stt.text, syntax="text")
+            view = discord.ui.View(timeout=None)
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.url, url=str(url), label='Speech To Text Result (View in Mystbin)'))
+
+            return await ctx.send('Content too long to send. Click the button to view the result.', view=view)
+
+        embed = discord.Embed(title='Result:', color=self.bot.color).set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar.url)
 
         embed.description = stt.text
 
