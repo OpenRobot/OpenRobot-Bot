@@ -52,7 +52,7 @@ class Speech(Cog):
         Source can be either a URL, a audio attachment, a message replied to a audio attachment or a messsage replied to a URL.
         """
 
-        source = AudioConverter().convert(ctx, source)
+        source = await AudioConverter().convert(ctx, source)
 
         if source is None:
             return await ctx.send('No source provided.')
