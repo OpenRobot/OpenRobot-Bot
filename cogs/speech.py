@@ -24,7 +24,7 @@ class Speech(Cog):
             flag = converter.convert(flags)
 
             text = ' '.join(flag.text)
-            voice_id = ' '.join(flag.voice)
+            voice_id = ''.join(flag.voice)
 
             tts = await self.bot.api.speech.text_to_speech(text, 'en-US', voice_id)
 
