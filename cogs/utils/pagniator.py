@@ -342,18 +342,22 @@ class QueueHistoryPaginator(ListPageSource):
         return embed
 
 class TextToSpeechDetailsPaginator(ListPageSource):
+    def __init__(self, entries, *, per_page):
+        super().__init__(entries, per_page=per_page)
+
+        self.c = 1
+
     async def format_page(self, menu, entries):
         embed = discord.Embed(color=menu.ctx.bot.color, title=f'Text to speech details for language `{entries[0].language.name}`:')
         embed.description = ''
-        c = 1
 
         for page in entries:
             embed.description += f"""
-__**{c})**__
+__**{self.c})**__
 **Gender:** `{page.gender}`
 **Voice ID:** `{page.id}`
 **Name:** `{page.name}`
             """
-            c += 1
+            self.c += 1
 
         return embed
