@@ -340,3 +340,15 @@ class QueueHistoryPaginator(ListPageSource):
             embed.description = '\n'.join([f"**{index + 1}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(track.length // 1000))} | {track.requester.mention}"])
 
         return embed
+
+class TextToSpeechDetailsPaginator(ListPageSource):
+    async def format_page(self, menu, page):
+        embed = discord.Embed(color=menu.ctx.bot.color, title=f'Text to speech details for language `{page.language.name}`:')
+
+        embed.description = f"""
+**Gender:** {page.gender}
+**Voice ID:** {page.id}
+**Name:** {page.name}
+        """
+
+        return embed

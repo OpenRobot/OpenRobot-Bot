@@ -1,4 +1,5 @@
 import re
+import aiohttp
 import discord
 import datetime
 from discord.ext import commands
@@ -56,6 +57,37 @@ class ImageConverter(Converter):
                     return f'https://cdn.discordapp.com/emojis/{emoji_id}.png'
 
             return ctx.message.reference.resolved.author.avatar.url
+
+        return None
+
+class AudioConverter(Converter):
+    async def convert(self, ctx: Context, argument: str):
+        if argument:
+            x = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', argument)
+            
+            for i in x:
+                async with aiohttp.ClientSession() as session:
+                    async with sess.get(x) as resp:
+                        if resp.content_type.startswith('audio/'):
+                            return i
+        elif ctx.message.reference:
+            x = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', ctx.message.reference.resolved.content)
+
+            for i in x:
+                async with aiohttp.ClientSession() as session:
+                    async with sess.get(x) as resp:
+                        if resp.content_type.startswith('audio/'):
+                            return i
+
+        if ctx.message.attachments:
+            for attachment in ctx.message.attachments:
+                if attachment.content_type.startswith('audio/'):
+                    return attachment.url
+        if ctx.message.reference:
+            if ctx.message.reference.resolved.attachments:
+                for attachment in ctx.message.reference.resolved.attachments:
+                    if attachment.content_type.startswith('audio/'):
+                        return attachment.url
 
         return None
 
