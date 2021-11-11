@@ -38,7 +38,7 @@ class Speech(Cog):
         Shows the details of the available voices.
         """
 
-        voices = await self.bot.api.speech.text_to_speech_support()
+        voices = await self.bot.api.speech.text_to_speech_support('en-US')
 
         menu = ViewMenuPages(TextToSpeechDetailsPaginator(voices, per_page=1))
 
