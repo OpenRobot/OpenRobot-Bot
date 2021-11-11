@@ -54,12 +54,12 @@ class Speech(Cog):
         """
 
         if language_code is None:
-            languages = await self.bot.api.speech.text_to_speech_support(None)
+            languages = await self.bot.api._request('GET', '/api/speech/text-to-speech/supports', params={'engine': 'standard'})
 
             embed = discord.Embed(title='Text to Speech Supported Languages:', color=self.bot.color)
             embed.description = 'The following languages are supported:\n'
 
-            embed.description += '\n'.join([f'`{code}`' for code in languages['languages']])
+            embed.description += '\n'.join([f'`{lang.code}`' for lang in languages['languages']])
 
             return await ctx.send(embed=embed)
 
