@@ -40,7 +40,7 @@ class Speech(Cog):
 
         voices = await self.bot.api.speech.text_to_speech_support('en-US')
 
-        menu = ViewMenuPages(TextToSpeechDetailsPaginator(voices.voices, per_page=1))
+        menu = ViewMenuPages(TextToSpeechDetailsPaginator(voices.voices, per_page=3))
 
         await menu.start(ctx)
 
