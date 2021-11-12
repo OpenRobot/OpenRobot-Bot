@@ -67,7 +67,7 @@ class AudioConverter(Converter):
             
             for i in x:
                 async with aiohttp.ClientSession() as sess:
-                    async with sess.get(x) as resp:
+                    async with sess.get(input) as resp:
                         if resp.content_type.startswith('audio/'):
                             return i
         elif ctx.message.reference:
@@ -75,7 +75,7 @@ class AudioConverter(Converter):
 
             for i in x:
                 async with aiohttp.ClientSession() as sess:
-                    async with sess.get(x) as resp:
+                    async with sess.get(i) as resp:
                         if resp.content_type.startswith('audio/'):
                             return i
 
