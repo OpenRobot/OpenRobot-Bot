@@ -70,7 +70,7 @@ class Speech(Cog, emoji="\U0001f399"):
         await menu.start(ctx)
 
     @commands.group('speech-to-text', aliases=['detect-text-from-speech', 'detect-text-from-audio', 'dtfa', 'dtfs', 'stt', 'speechtotext', 'speech_to_text'], usage='<text> <flags>', invoke_without_command=True, slash_command=False)
-    async def speech_to_text(self, ctx, *, flags = None):
+    async def speech_to_text(self, ctx, *, flags: str = None):
         """
         Performs speech to text.
 
@@ -81,6 +81,11 @@ class Speech(Cog, emoji="\U0001f399"):
         """
 
         if ctx.invoked_subcommand is None:
+            source = await AudioConverter().convert(ctx, flags)
+
+            if source is None:
+                return await ctx.send('No source provided.')
+
             lang_code = None
 
             if flags:
@@ -88,7 +93,7 @@ class Speech(Cog, emoji="\U0001f399"):
                     LegacyFlagItems('--language-code', '-l', '--l', '-lc', '-l-c', '--lc', '--l-c', '--language_code', '--languagecode', default='en-US'),
                 ])
 
-                flag = converter.convert(flags)
+                flag = converter.convert(flags.replace(source, ''))
 
                 lang_code = flag.language_code
 
@@ -104,11 +109,6 @@ class Speech(Cog, emoji="\U0001f399"):
                         pass
 
             lang_code = lang_code or 'en-US'
-
-            source = await AudioConverter().convert(ctx, flags)
-
-            if source is None:
-                return await ctx.send('No source provided.')
 
             stt = await self.bot.api.speech.speech_to_text(source, lang_code)
 
