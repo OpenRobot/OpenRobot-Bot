@@ -120,7 +120,7 @@ async def ping(ctx: commands.Context):
     await ctx.send(embed=embed)
 
 @bot.command(aliases=['act'])
-async def activity(ctx: commands.Context, channel: discord.VoiceChannel = commands.Option(description='The voice channel to start the activity. Defaults to the channel you are in.'), *, activity: typing.Literal['Watch Together', 'Poker Night', 'Chess', 'Doodle Crew', 'Word Snacks', 'Letter Tile', 'Spellcast'] = commands.Option(description='The activity to start.')):
+async def activity(ctx: commands.Context, channel: discord.VoiceChannel = commands.Option(description='The voice channel to start the activity. Defaults to the channel you are in.'), activity: typing.Literal['Watch Together', 'Poker Night', 'Chess', 'Doodle Crew', 'Word Snacks', 'Letter Tile', 'Spellcast', 'Checkers', 'Fishington', 'Betrayal'] = commands.Option(description='The activity to start.')):
     act = getattr(discord_activity.ActivityType, activity.replace(' ', '_').lower())
 
     try:
