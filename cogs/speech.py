@@ -41,7 +41,7 @@ class Speech(Cog, emoji="\U0001f399"):
 
             voice_id = ''.join(flag.voice)
 
-            tts = await self.bot.api.speech.text_to_speech(text, 'en-US', voice_id)
+            tts = await self.bot.api.speech.text_to_speech(text, lang_code, voice_id)
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(tts.url) as resp:
