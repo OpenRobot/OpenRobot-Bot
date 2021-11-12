@@ -84,9 +84,13 @@ async def ping(ctx: commands.Context):
 
     embed = discord.Embed(color=bot.color, timestamp=ctx.message.created_at).set_author(name='Latency/Ping Info:', icon_url=ctx.author.avatar.url).set_footer(icon_url=ctx.author.avatar.url, text=f'Requested by: {ctx.author}')
 
-    embed.add_field(name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:', value=do_ping_string(round(bot.ping.bot_latency() * 1000, 2)))
-    embed.add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value=do_ping_string(round(await bot.ping.typing_latency() * 1000, 2)))
-    embed.add_field(name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', value=do_ping_string(round(await bot.ping.discord_web_ping() * 1000, 2)))
+    web_ping = await bot.ping.discord_web_ping() * 1000
+    typing_ping = await bot.ping.typing_latency() * 1000
+    bot_latency = bot.ping.bot_latency() * 1000
+
+    embed.add_field(name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:', value=do_ping_string(round(bot_latency, 2)))
+    embed.add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value=do_ping_string(round(typing_ping, 2)))
+    embed.add_field(name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', value=do_ping_string(round(web_ping, 2)))
 
     if bot.pool is not None:
         postgresql_ping = await bot.ping.database.postgresql()
@@ -114,7 +118,9 @@ async def ping(ctx: commands.Context):
         if redis_ping:
             embed.add_field(name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:', value=do_ping_string(round(redis_ping * 1000, 2)))
 
-    embed.add_field(name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:', value=do_ping_string(round(await bot.ping.api() * 1000, 2)), inline=False)
+    embed.add_field(name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:', value=do_ping_string(round(await bot.ping.api() * 1000, 2)))
+
+    embed.add_field(name='Average Discord Latency:', value=do_ping_string(round((web_ping + typing_ping + bot_latency) / 3, 2)))
 
     await msg.delete()
     await ctx.send(embed=embed)
