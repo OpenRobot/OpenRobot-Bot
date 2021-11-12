@@ -160,16 +160,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         with open('restart.json', 'w') as f:
             json.dump({'message_id': m.id, 'channel_id': m.channel.id, 'restarted_at': discord.utils.utcnow().timestamp()}, f, indent=4)
 
-        os.system('/usr/bin/sudo /usr/bin/systemctl restart Bot') # Let systemd handle the rest
-
-    #@Feature.Command(parent="jsk", name="error", aliases=["errors", "err"])
-    #async def jsk_error(self, ctx: commands.Context):
-        #if ctx.invoked_subcommand is None:
-            #return await ctx.send_help(ctx.command)
-
-    #@Feature.Command(parent="jsk_error", name="list", aliases=["show"])
-    #async def jsk_error_list(self, ctx: commands.Context, *flags):
-        #if '--all' in flags:
+        os._exit(0) # Let systemd handle the rest
 
     @Feature.Command(parent="jsk", name="debug", aliases=["dbg"])
     async def jsk_debug(self, ctx: commands.Context, *, command_string: str):
