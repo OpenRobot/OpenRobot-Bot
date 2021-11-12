@@ -91,7 +91,7 @@ class Ping:
                 else:
                     return (end - start)
 
-    async def typing(self, format: str = 'seconds') -> typing.Union[int, float]:
+    async def typing_latency(self, format: str = 'seconds') -> typing.Union[int, float]:
         chan = self.bot.get_channel(903282453735678035) # Typing Channel ping test
 
         start = time.perf_counter()
