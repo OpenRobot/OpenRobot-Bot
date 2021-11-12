@@ -87,6 +87,7 @@ async def ping(ctx: commands.Context):
     embed.add_field(name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:', value=do_ping_string(round(bot.ping.bot_latency() * 1000, 2)))
     embed.add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value=do_ping_string(round(await bot.ping.typing() * 1000, 2)))
     embed.add_field(name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', value=do_ping_string(round(await bot.ping.discord_web_ping() * 1000, 2)))
+    embed.add_field(name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:', value=do_ping_string(round(await bot.ping.api() * 1000, 2)), inline=False)
 
     if bot.pool is not None:
         postgresql_ping = await bot.ping.database.postgresql()

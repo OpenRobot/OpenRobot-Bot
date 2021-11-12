@@ -58,6 +58,7 @@ class Ping:
         'bot': '\U0001f916',
         'discord': '<:BlueDiscord:842701102381269022>',
         'typing': '<a:typing:597589448607399949>',
+        'openrobot-api': '<:OpenRobotLogo:901132699241168937>'
     }
 
     def __init__(self, bot: commands.Bot):
@@ -101,3 +102,16 @@ class Ping:
             return (end - start) * 1000
         else:
             return (end - start)
+
+    async def api(self, format: str = 'seconds') -> typing.Union[int, float]:
+        url = "https://api.openrobot.xyz/_internal/available" # API ping test, fastest endpoint to test as it just returns a static JSON.
+
+        async with aiohttp.ClientSession() as sess:
+            start = time.perf_counter()
+            async with sess.get(url) as resp:
+                end = time.perf_counter()
+
+                if format.lower() in ['ms', 'milliseconds', 'millisecond']:
+                    return (end - start) * 1000
+                else:
+                    return (end - start)
