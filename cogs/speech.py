@@ -4,7 +4,7 @@ import io
 from discord.ext import commands
 from cogs.utils import Cog, LegacyFlagConverter, LegacyFlagItems, ViewMenuPages, TextToSpeechDetailsPaginator, AudioConverter
 
-class Speech(Cog):
+class Speech(Cog, emoji="\U0001f399"):
     @commands.group(name='text-to-speech', invoke_without_command=True, aliases=['speak', 'tts', 'text_to_speech', 'texttospeech', 'talk'], usage='<text> <flags>', slash_command=False)
     async def text_to_speech(self, ctx: commands.Context, *, flags: str):
         """
