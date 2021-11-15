@@ -260,20 +260,20 @@ A bingo game has started in this channel.
                 players.append(interaction.user)
 
                 base_content = f"""
-                A bingo game has started in this channel.
+A bingo game has started in this channel.
 
-                **Host:** {ctx.author.mention}
+**Host:** {ctx.author.mention}
 
-                **Note:** It is advised for you to know how to play bingo before playing this game.
+**Note:** It is advised for you to know how to play bingo before playing this game.
 
-                **Players:**
-                """ + '\n'.join([f'- {player.mention}' for player in players])
+**Players:**
+""" + '\n'.join([f'- {player.mention}' for player in players])
 
                 await interaction.message.edit(content=base_content)
 
                 await interaction.response.send_message(f'You have successfully joined the game.', ephemeral=True)
 
-                return await interaction.followup.send(f'{interaction.user.mention} has joined the game.', ephemeral=True, allowed_mentions=discord.AllowedMentions(users=False))
+                return await interaction.followup.send(f'{interaction.user.mention} has joined the game.', allowed_mentions=discord.AllowedMentions(users=False))
 
         class LeaveButton(discord.ui.Button):
             def __init__(self):
@@ -286,20 +286,20 @@ A bingo game has started in this channel.
                 players.remove(interaction.user)
 
                 base_content = f"""
-                A bingo game has started in this channel.
+A bingo game has started in this channel.
 
-                **Host:** {ctx.author.mention}
+**Host:** {ctx.author.mention}
 
-                **Note:** It is advised for you to know how to play bingo before playing this game.
+**Note:** It is advised for you to know how to play bingo before playing this game.
 
-                **Players:**
-                """ + '\n'.join([f'- {player.mention}' for player in players])
+**Players:**
+""" + '\n'.join([f'- {player.mention}' for player in players])
 
                 await interaction.message.edit(content=base_content, allowed_mentions=discord.AllowedMentions(users=False))
 
                 await interaction.response.send_message(f'You have successfully left the game.', ephemeral=True)
 
-                return await interaction.followup.send(f'{interaction.user.mention} has left the game.', ephemeral=True, allowed_mentions=discord.AllowedMentions(users=False))
+                return await interaction.followup.send(f'{interaction.user.mention} has left the game.', allowed_mentions=discord.AllowedMentions(users=False))
 
         class StartButton(discord.ui.Button):
             def __init__(self):
