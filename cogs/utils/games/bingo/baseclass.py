@@ -18,7 +18,7 @@ class Player:
             for x in y:
                 if x is not None:
                     if x.number == number:
-                        return x, y
+                        return x_cords, y_cords
 
                 x_cords += 1
 
