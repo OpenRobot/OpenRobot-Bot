@@ -435,13 +435,15 @@ If you have hit a BINGO, you may go to the original message sent by the bot in {
 
             m = await ctx.send('Rolling...', view=view)
 
+            choice = bingo.roll()
+
             await asyncio.sleep(random.randint(1, 5))
 
-            await m.edit(content=f'Rolled a `{random.randint(1, 100)}`!\nYou have 30 seconds to claim your Bingo card. If you hit a BINGO, click the `Bingo!` button below.')
+            await m.edit(content=f'Rolled a `{choice}`!\nYou have 30 seconds to claim your Bingo card. If you hit a BINGO, click the `Bingo!` button below.')
 
             await asyncio.sleep(30)
 
-            await m.edit(content=f'Rolled a `{random.randint(1, 100)}`!', view=None)
+            await m.edit(content=f'Rolled a `{choice}`!', view=None)
     
 def setup(bot):
     bot.add_cog(Fun(bot))
