@@ -12,16 +12,13 @@ class Player:
         self.board: typing.List[typing.List[Number]] = board
 
     def get_number_coordinates(self, number: int):
-        x_cords, y_cords = None, None
+        x_cords, y_cords = 0, 0
 
         for y in self.board:
-            y_cords = 0
-
             for x in y:
-                x_cords = 0
-
-                if x.number == number:
-                    return x, y
+                if x is not None:
+                    if x.number == number:
+                        return x, y
 
                 x_cords += 1
 
