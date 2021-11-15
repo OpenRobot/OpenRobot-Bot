@@ -43,7 +43,7 @@ class Bingo:
 
                 possible_numbers.remove(choice)
 
-        board[int(self.y / 2) + 1][int(self.x / 2) + 1] = None # Free space
+        board[int(self.y / 2)][int(self.x / 2)] = None # Free space
 
         return Player(member, board)
 

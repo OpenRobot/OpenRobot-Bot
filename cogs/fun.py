@@ -315,7 +315,7 @@ A bingo game has started in this channel.
                 await interaction.message.edit(content=f'__**The game has started!**__\n\n{base_content}', delete_after=10)
 
                 self.view.started = True
-                await self.view.stop()
+                self.view.stop()
 
         class CancelButton(discord.ui.Button):
             def __init__(self):
@@ -328,7 +328,7 @@ A bingo game has started in this channel.
                 await interaction.message.edit(content=f'__**The game has been canceled by the host, {ctx.author.mention}!**__\n\n{base_content}', delete_after=15, allowed_mentions=discord.AllowedMentions(users=False))
 
                 self.view.started = False
-                await self.view.stop()
+                self.view.stop()
 
         view = discord.ui.View()
         view.started = None
@@ -364,13 +364,13 @@ A bingo game has started in this channel.
                     if self.label == 'Free':
                         return await interaction.response.send_message('This is a free space.', ephemeral=True)
 
-                    await bingo.claim(player, int(interaction.label))
+                    await bingo.claim(player, int(self.label))
 
                     self.disabled = True
 
                     await interaction.message.edit(view=self.view)
 
-                    return await interaction.response.send_message(f'Claimed number {interaction.label} on ({self.x}, {self.y})')
+                    return await interaction.response.send_message(f'Claimed number {self.label} on ({self.x}, {self.y})')
 
             class View(discord.ui.View):
                 def __init__(self):
@@ -435,7 +435,7 @@ If you have hit a BINGO, you may go to the original message sent by the bot in {
 
             m = await ctx.send('Rolling...', view=view)
 
-            await asyncio.sleep(random.randint(.5, 5))
+            await asyncio.sleep(random.randint(1, 5))
 
             await m.edit(content=f'Rolled a `{random.randint(1, 100)}`!\nYou have 30 seconds to claim your Bingo card. If you hit a BINGO, click the `Bingo!` button below.')
     
