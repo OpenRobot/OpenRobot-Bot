@@ -414,7 +414,7 @@ If you have hit a BINGO, you may go to the original message sent by the bot in {
                 nonlocal winner
 
                 if interaction.user not in players:
-                    return await ctx.send('You are not in this bingo game!')
+                    return await interaction.response.send_message('You are not in this bingo game!', ephemeral=True)
 
                 if (player := bingo.winner(bingo.get_player(interaction.user))) not in [None, False]:
                     await interaction.response.send_message(', '.join([player.member.mention for player in bingo.players]) + f'\n\n{interaction.user}: BINGO!')
@@ -429,9 +429,27 @@ If you have hit a BINGO, you may go to the original message sent by the bot in {
                 else:
                     return await interaction.response.send_message(f'Stop it, We all know that you didn\'t hit a Bingo.')
 
-        while winner is None:
+        class StopButton(discord.ui.Button):
+            def __init__(self):
+                super().__init__(style=discord.ButtonStyle.red, label='Stop the game', row=0)
+
+            async def callback(self, interaction: discord.Interaction):
+                if interaction.user not in players:
+                    return await interaction.response.send_message('You are not in this bingo game!', ephemeral=True)
+
+                if interaction.user is not ctx.author:
+                    return await interaction.response.send_message('Only the host can stop this game.', ephemeral=True)
+
+                bingo.stopped = True
+
+                await ctx.send(f'The game has been stopped by the host, {ctx.author.mention}.', allowed_mentions=discord.AllowedMentions(users=False))
+
+                self.view.stop()
+
+        while winner is None and not bingo.stopped:
             view = discord.ui.View()
             view.add_item(Button())
+            view.add_item(StopButton())
 
             m = await ctx.send('Rolling...', view=view)
 

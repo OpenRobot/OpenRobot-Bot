@@ -17,6 +17,8 @@ class Bingo:
 
         self.rolls: typing.List[int] = []
 
+        self.stopped: bool = False
+
         self._before_check()
 
         self.generate_players()
