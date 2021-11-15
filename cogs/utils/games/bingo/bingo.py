@@ -33,7 +33,7 @@ class Bingo:
     def generate_player(self, member: discord.Member) -> Player:
         board = []
 
-        possible_numbers = range(self.min, self.min+1)
+        possible_numbers = list(range(self.min, self.min+1))
 
         for y in range(self.y):
             board.append([])
