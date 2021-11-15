@@ -416,7 +416,7 @@ If you have hit a BINGO, you may go to the original message sent by the bot in {
                 if interaction.user not in players:
                     return await ctx.send('You are not in this bingo game!')
 
-                if (player := bingo.winner(interaction.user)) not in [None, False]:
+                if (player := bingo.winner(bingo.get_player(interaction.user))) not in [None, False]:
                     await interaction.response.send_message(', '.join([player.member.mention for player in bingo.players]) + f'\n\n{interaction.user}: BINGO!')
 
                     for player in bingo.players:

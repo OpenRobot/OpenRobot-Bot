@@ -30,7 +30,7 @@ class Player:
         return x, y
 
     def claim(self, number: int):
-        x, y = self.get_number_coordinates(self, number)
+        x, y = self.get_number_coordinates(number)
 
         self.board[y][x].claimed = True
 
