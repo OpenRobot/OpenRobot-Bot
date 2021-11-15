@@ -378,24 +378,26 @@ A bingo game has started in this channel.
 
                     for y in range(len(board)):
                         for x in range(len(board[y])):
-                            self.add_button(Button(board[y][x].number), row=y, x=x, y=y)
+                            self.add_item(Button(board[y][x].number), row=y, x=x, y=y)
 
                 async def on_error(self, error: Exception, item: discord.ui.Item, interaction: discord.Interaction) -> None:
                     if isinstance(error, games.bingo.BingoError):
                         return await interaction.response.send_message(f'{error}', ephemeral=True)
 
+                    raise error
+
             view = View()
 
             await player.member.send(f"""
-            You have been assigned a bingo card with a size of 5x5.
+You have been assigned a bingo card with a size of 5x5.
 
-            If the number rolled is in your card, you may click that specific button.
+If the number rolled is in your card, you may click that specific button.
 
-            You have 30 seconds before the next roll number hits.
+You have 30 seconds before the next roll number hits.
 
-            To view what number has been rolled, you can go to {ctx.channel.mention} and see the bot's roll history.
+To view what number has been rolled, you can go to {ctx.channel.mention} and see the bot's roll history.
 
-            If you have hit a BINGO, you may go to the original message sent by the bot in {ctx.channel.mention} and click the "Bingo" button.
+If you have hit a BINGO, you may go to the original message sent by the bot in {ctx.channel.mention} and click the "Bingo" button.
             """)
 
             await player.member.send(f'Here are your bingo cards:', view=view)
