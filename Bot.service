@@ -1,0 +1,13 @@
+[Unit]
+Description=OpenRobot Bot
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ubuntu/Bot
+ExecStart=/home/ubuntu/Bot/venv/bin/python3 /home/ubuntu/Bot/launcher.py
+User=ubuntu
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
