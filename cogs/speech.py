@@ -36,6 +36,10 @@ class Speech(Cog, emoji="\U0001f399"):
 
             text = ' '.join(flag.text)
 
+            if lang_code == 'en-US':
+                if not flag.voice:
+                    flag.voice = 'Matthew'
+
             if not flag.voice:
                 return await ctx.send(f'You must specify a voice ID with the `--voice` flag. To view a list of them, invoke the `{ctx.prefix}text-to-speech details` command.')
 
