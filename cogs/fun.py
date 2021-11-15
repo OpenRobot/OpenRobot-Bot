@@ -427,7 +427,7 @@ If you have hit a BINGO, you may go to the original message sent by the bot in {
 
                     self.view.stop()
                 else:
-                    return await interaction.response.send_message(f'Stop it, We all know that you didn\'t hit a Bingo.')
+                    return await interaction.response.send_message(f'Stop it, We all know that you didn\'t hit a Bingo.', ephemeral=True)
 
         class StopButton(discord.ui.Button):
             def __init__(self):

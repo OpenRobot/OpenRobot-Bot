@@ -12,25 +12,28 @@ class Player:
         self.board: typing.List[typing.List[Number]] = board
 
     def get_number_coordinates(self, number: int):
-        x, y = None, None
+        x_cords, y_cords = None, None
 
         for y in self.board:
-            y = 0
+            y_cords = 0
 
             for x in y:
-                x = 0
+                x_cords = 0
 
                 if x.number == number:
                     return x, y
 
-                x += 1
+                x_cords += 1
 
-            y += 1
+            y_cords += 1
 
-        return x, y
+        return x_cords, y_cords
 
     def claim(self, number: int):
         x, y = self.get_number_coordinates(number)
+
+        if x is None or y is None:
+            return
 
         self.board[y][x].claimed = True
 
