@@ -437,7 +437,7 @@ If you have hit a BINGO, you may go to the original message sent by the bot in {
                 if interaction.user not in players:
                     return await interaction.response.send_message('You are not in this bingo game!', ephemeral=True)
 
-                if interaction.user is not ctx.author:
+                if interaction.user != ctx.author:
                     return await interaction.response.send_message('Only the host can stop this game.', ephemeral=True)
 
                 bingo.stopped = True
