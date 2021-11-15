@@ -24,7 +24,7 @@ class Player:
 
             y_cords += 1
 
-        return x_cords, y_cords
+        return None, None
 
     def claim(self, number: int):
         x, y = self.get_number_coordinates(number)

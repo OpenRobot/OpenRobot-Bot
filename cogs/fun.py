@@ -364,7 +364,7 @@ A bingo game has started in this channel.
                     if self.label == 'Free':
                         return await interaction.response.send_message('This is a free space.', ephemeral=True)
 
-                    await bingo.claim(player, int(self.label))
+                    bingo.claim(player, int(self.label))
 
                     self.disabled = True
 
