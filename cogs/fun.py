@@ -378,7 +378,7 @@ A bingo game has started in this channel.
 
                     for y in range(len(board)):
                         for x in range(len(board[y])):
-                            self.add_item(Button(board[y][x].number, row=y, x=x, y=y))
+                            self.add_item(Button(getattr(board[y][x], 'number', None), row=y, x=x, y=y))
 
                 async def on_error(self, error: Exception, item: discord.ui.Item, interaction: discord.Interaction) -> None:
                     if isinstance(error, games.bingo.BingoError):
