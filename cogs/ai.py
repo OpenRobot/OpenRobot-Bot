@@ -28,7 +28,7 @@ Human: What is 5 times 6?
 AI: 5 times 6 is 30"""
 
         with open('cogs/utils/math_train.jsonl', 'r') as f:
-            l = [json.dumps(x) for x in f.read().splitlines()]
+            l = [list(json.loads(x).values()) for x in f.read().splitlines()]
 
         for question, answer in l:
             ai_text += f"\nHuman: {question}\nAI: {answer}"
