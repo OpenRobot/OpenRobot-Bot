@@ -269,7 +269,7 @@ A bingo game has started in this channel.
 **Players:**
 """ + '\n'.join([f'- {player.mention}' for player in players])
 
-                await interaction.message.edit(content=base_content)
+                await interaction.message.edit(content=base_content, allowed_mentions=discord.AllowedMentions(users=False))
 
                 await interaction.response.send_message(f'You have successfully joined the game.', ephemeral=True)
 
@@ -312,7 +312,10 @@ A bingo game has started in this channel.
                 if len(players) < 2:
                     return await interaction.response.send_message(f'You need at least 2 players to start the game.', ephemeral=True)
 
-                await interaction.message.edit(content=f'__**The game has started!**__\n\n{base_content}', delete_after=10)
+                for child in self.view.children:
+                    child.disabled = True
+
+                await interaction.message.edit(content=f'__**The game has started!**__\n\n{base_content}', delete_after=10, view=self.view, allowed_mentions=discord.AllowedMentions(users=False))
 
                 self.view.started = True
                 self.view.stop()
@@ -325,7 +328,10 @@ A bingo game has started in this channel.
                 if interaction.user != ctx.author:
                     return await interaction.response.send_message(f'Only the host, {ctx.author.mention} can start the game.', ephemeral=True)
 
-                await interaction.message.edit(content=f'__**The game has been canceled by the host, {ctx.author.mention}!**__\n\n{base_content}', delete_after=15, allowed_mentions=discord.AllowedMentions(users=False))
+                for child in self.view.children:
+                    child.disabled = True
+
+                await interaction.message.edit(content=f'__**The game has been canceled by the host, {ctx.author.mention}!**__\n\n{base_content}', allowed_mentions=discord.AllowedMentions(users=False), view=self.view, allowed_mentions=discord.AllowedMentions(users=False))
 
                 self.view.started = False
                 self.view.stop()
@@ -337,11 +343,16 @@ A bingo game has started in this channel.
         view.add_item(StartButton())
         view.add_item(CancelButton())
 
-        await ctx.send(base_content, view=view, allowed_mentions=discord.AllowedMentions(users=False))
+        m = await ctx.send(base_content, view=view, allowed_mentions=discord.AllowedMentions(users=False))
 
         await view.wait()
 
         if view.started is None:
+            for child in view.children:
+                child.disabled = True
+
+            await m.edit(view=view)
+
             return await ctx.send('Game timed out, no one joined and the game didn\'t start in the last 3 minutes.')
         elif view.started is False:
             return
@@ -367,6 +378,7 @@ A bingo game has started in this channel.
                     bingo.claim(player, int(self.label))
 
                     self.disabled = True
+                    self.style = discord.ButtonStyle.green
 
                     await interaction.message.edit(view=self.view)
 
@@ -393,7 +405,7 @@ You have been assigned a bingo card with a size of 5x5.
 
 If the number rolled is in your card, you may click that specific button.
 
-You have 30 seconds before the next roll number hits.
+You have 20 seconds before the next roll number hits.
 
 To view what number has been rolled, you can go to {ctx.channel.mention} and see the bot's roll history.
 
@@ -459,7 +471,10 @@ If you have hit a BINGO, you may go to the original message sent by the bot in {
 
             await m.edit(content=f'Rolled a `{choice}`!\nYou have 30 seconds to claim your Bingo card. If you hit a BINGO, click the `Bingo!` button below.')
 
-            await asyncio.sleep(30)
+            for player in bingo.players:
+                await player.member.send(f'Rolled a `{choice}`!')
+
+            await asyncio.sleep(20)
 
             await m.edit(content=f'Rolled a `{choice}`!', view=None)
     
