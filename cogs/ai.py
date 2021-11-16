@@ -11,16 +11,7 @@ from openrobot.api_wrapper import error
 openai.api_key = OPENAI_KEY
 
 class AI(Cog, emoji="🤖"):
-    @commands.command('chat', aliases=['assistant'])
-    async def chat(self, ctx: commands.Context):
-        """
-        Makes a OpenRobot Chat Session with you and OpenRobot.
-
-        Powered by [OpenAI](https://openai.com/).
-
-        You can say `stop`, `goodbye` or `end` to end the chat.
-        """
-        
+    def get_ai_text(self):
         ai_text = """The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.
 
 Human: Hello
@@ -34,8 +25,27 @@ AI: My GitHub organization can be found at <https://github.com/OpenRobot/>.
 Human: What is 1+1?
 AI: 1+1 is 2
 Human: What is 5 times 6?
-AI: 5 times 6 is 30
-Human:"""
+AI: 5 times 6 is 30"""
+
+        with open('cogs/utils/math_train.jsonl', 'r') as f:
+            l = [json.dumps(x) for x in f.read().splitlines()]
+
+        for question, answer in l:
+            ai_text += f"\nHuman: {question}\nAI: {answer}"
+
+        return ai_text
+
+    @commands.command('chat', aliases=['assistant'])
+    async def chat(self, ctx: commands.Context):
+        """
+        Makes a OpenRobot Chat Session with you and OpenRobot.
+
+        Powered by [OpenAI](https://openai.com/).
+
+        You can say `stop`, `goodbye` or `end` to end the chat.
+        """
+
+        ai_text = self.get_ai_text()
 
         await ctx.send('OpenRobot Chat Session has started. Note that chats *can* be collected. Say `stop`, `goodbye` or `end` to end the chat.')
 
