@@ -33,6 +33,8 @@ AI: 5 times 6 is 30"""
         for question, answer in l:
             ai_text += f"\nHuman: {question}\nAI: {answer}"
 
+        ai_text += "\nHuman: "
+
         return ai_text
 
     @commands.command('chat', aliases=['assistant'])
@@ -55,7 +57,7 @@ AI: 5 times 6 is 30"""
             if msg.content.lower() in ['goodbye', 'stop', 'end']:
                 return await ctx.send('OpenRobot Chat Session has ended.')
 
-            ai_text += f'{msg}\nAI: '
+            ai_text += f'{msg}\nAI:'
             
             response = openai.Completion.create(
                 engine="davinci",
