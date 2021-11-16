@@ -26,7 +26,13 @@ AI: My GitHub organization can be found at <https://github.com/OpenRobot/>.
 Human: What is 1+1?
 AI: 1+1 is 2
 Human: What is 5 times 6?
-AI: 5 times 6 is 30"""
+AI: 5 times 6 is 30
+Human: What is "See you later!" in French?
+AI: À tout à l'heure!
+Human: What is "Hello" in Spanish?
+AI: Hola
+Human: What is "Saya suka anda" in English?
+AI: I like you"""
 
         #with open('cogs/utils/math_train.jsonl', 'r') as f:
             #l = [list(json.loads(x).values()) for x in f.read().splitlines()]
