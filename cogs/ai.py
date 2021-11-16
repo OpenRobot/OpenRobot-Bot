@@ -2,6 +2,7 @@ import discord
 import openai
 import json
 import aiohttp
+import random
 from io import StringIO, BytesIO
 from config import OPENAI_KEY
 from discord.ext import commands
@@ -30,7 +31,7 @@ AI: 5 times 6 is 30"""
         with open('cogs/utils/math_train.jsonl', 'r') as f:
             l = [list(json.loads(x).values()) for x in f.read().splitlines()]
 
-        for question, answer in l:
+        for question, answer in random.choices(l, k=random.randint(10, 30)):
             ai_text += f"\nHuman: {question}\nAI: {answer}"
 
         ai_text += "\nHuman: "
@@ -57,7 +58,7 @@ AI: 5 times 6 is 30"""
             if msg.content.lower() in ['goodbye', 'stop', 'end']:
                 return await ctx.send('OpenRobot Chat Session has ended.')
 
-            ai_text += f'{msg}\nAI:'
+            ai_text += f'{msg}\nAI: '
             
             response = openai.Completion.create(
                 engine="davinci",
