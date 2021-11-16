@@ -11,7 +11,7 @@ from openrobot.api_wrapper import error
 openai.api_key = OPENAI_KEY
 
 class AI(Cog, emoji="🤖"):
-    @commands.command('chat', aliases=['assistant', 'talk'])
+    @commands.command('chat', aliases=['assistant'])
     async def chat(self, ctx: commands.Context):
         """
         Makes a OpenRobot Chat Session with you and OpenRobot.
