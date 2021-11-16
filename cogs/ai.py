@@ -44,7 +44,7 @@ Human:"""
             ai_text += f'{msg}\nAI: '
             
             response = openai.Completion.create(
-                engine="davinci-codex",
+                engine="davinci",
                 prompt=ai_text,
                 temperature=0.9,
                 max_tokens=150,
