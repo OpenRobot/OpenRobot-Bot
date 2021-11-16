@@ -48,11 +48,14 @@ class AI(Cog, emoji="🤖"):
                 stop=["\n", " Human:", " AI:"]
             )
 
+            if ctx.debug:
+                await ctx.send(StringIO(json.dumps(response, indent=4)), filename='response.json')
+
             ai_response = response['choices'][0]['text']
 
             ai_text += f'{ai_response}\nHuman: '
 
-            await ctx.send(ai_text)
+            await ctx.send(ai_response)
 
     @commands.command('nsfw-check', aliases=['nsfwcheck', 'nsfw_check', 'check'])
     async def nsfw_check(self, ctx: commands.Context, *, image = commands.Option(None, description='The image. This can be a URL or a image attached.')):
