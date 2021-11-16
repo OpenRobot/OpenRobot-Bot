@@ -60,16 +60,24 @@ AI: 5 times 6 is 30"""
 
             ai_text += f'{msg}\nAI: '
             
-            response = openai.Completion.create(
-                engine="davinci",
-                prompt=ai_text,
-                temperature=0.9,
-                max_tokens=150,
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0.6,
-                stop=["\n", " Human:", " AI:"]
-            )
+            try:
+                response = openai.Completion.create(
+                    engine="davinci",
+                    prompt=ai_text,
+                    temperature=0.9,
+                    max_tokens=150,
+                    top_p=1,
+                    frequency_penalty=0,
+                    presence_penalty=0.6,
+                    stop=["\n", " Human:", " AI:"]
+                )
+            except Exception as e:
+                if ctx.debug:
+                    raise e
+
+                ai_text = ai_text.replace(f'{msg}\nAI: ', '')
+                await ctx.send('Sorry, I did not understand.')
+                continue                
 
             if ctx.debug:
                 await ctx.send(file=discord.File(StringIO(json.dumps(response, indent=4)), filename='response.json'))
