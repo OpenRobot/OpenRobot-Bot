@@ -51,11 +51,12 @@ class AI(Cog, emoji="🤖"):
             if ctx.debug:
                 await ctx.send(file=discord.File(StringIO(json.dumps(response, indent=4)), filename='response.json'))
 
+            ai_response = response['choices'][0]['text']
+
             if not ai_response:
                 ai_text = ai_text.replace(f'{msg}\nAI: ', '')
                 await ctx.send('Sorry, I did not understand.')
-
-            ai_response = response['choices'][0]['text']
+                continue
 
             ai_text += f'{ai_response}\nHuman: '
 
