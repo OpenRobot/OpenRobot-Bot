@@ -411,7 +411,7 @@ async def nsfw_check(ctx: commands.Context, *, image = commands.Option(None, des
     unsafe_score = round(check.score * 100, 2)
     unsafe_score = int(unsafe_score) if unsafe_score % 1 == 0 else unsafe_score
 
-    is_safe = safe_score > unsafe_score or not bool(check.labels)
+    is_safe = not bool(check.labels) or safe_score > unsafe_score
 
     newline = '\n' # Python won't let backstrings in f-strings, so yeah.
 
