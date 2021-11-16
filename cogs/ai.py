@@ -50,12 +50,12 @@ AI: 5 times 6 is 30"""
 
         ai_text = self.get_ai_text()
 
-        await ctx.send('OpenRobot Chat Session has started. Note that chats *can* be collected. Say `stop`, `goodbye` or `end` to end the chat.')
+        await ctx.send('OpenRobot Chat Session has started. Note that chats *can* be collected. Say `stop`, `goodbye`, `end` or `exit` to end the chat.')
 
         while True:
             msg: discord.Message = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
 
-            if msg.content.lower() in ['goodbye', 'stop', 'end']:
+            if msg.content.lower() in ['goodbye', 'stop', 'end', 'exit']:
                 return await ctx.send('OpenRobot Chat Session has ended.')
 
             ai_text += f'{msg}\nAI: '
