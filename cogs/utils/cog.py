@@ -21,8 +21,13 @@ class Cog(commands.Cog):
     def _inject(self, bot):
         super()._inject(bot)
         self.cog_load()
+        self.bot.dispatch('cog_load', self)
 
         return self
+
+    def _eject(self, bot):
+        super()._eject(bot)
+        self.bot.dispatch('cog_unload', self)
 
     def __init_subclass__(cls, **kwargs):
         cls.emoji = kwargs.pop('emoji', None)
