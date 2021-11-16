@@ -23,9 +23,15 @@ class AI(Cog, emoji="🤖"):
         
         ai_text = """The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.
 
-        Human: Hello, who are you?
-        AI: I am a Robot made by OpenRobot. How can I help you?
-        Human: """
+Human: Hello
+AI: Hello! How are you doing today?
+Human: Who are you?
+AI: I am a Robot made by OpenRobot. How can I help you?
+Human: What is 1+1?
+AI: 1+1 is 2
+Human: What is 5 times 6?
+AI: 5 times 6 is 30
+Human:"""
 
         await ctx.send('OpenRobot Chat Session has started. Note that chats *can* be collected. Say `stop`, `goodbye` or `end` to end the chat.')
 
@@ -38,13 +44,13 @@ class AI(Cog, emoji="🤖"):
             ai_text += f'{msg}\nAI: '
             
             response = openai.Completion.create(
-                engine="davinci",
+                engine="davinci-codex",
                 prompt=ai_text,
-                temperature=0.9,
-                max_tokens=100,
+                temperature=0,
+                max_tokens=250,
                 top_p=1,
-                frequency_penalty=0.0,
-                presence_penalty=0.6,
+                frequency_penalty=0.2,
+                presence_penalty=0,
                 stop=["\n", " Human:", " AI:"]
             )
 
@@ -60,7 +66,7 @@ class AI(Cog, emoji="🤖"):
 
             ai_text += f'{ai_response}\nHuman: '
 
-            await ctx.send(ai_response)
+            await msg.reply(ai_response, mention_author=False)
 
     @commands.command('nsfw-check', aliases=['nsfwcheck', 'nsfw_check', 'check'])
     async def nsfw_check(self, ctx: commands.Context, *, image = commands.Option(None, description='The image. This can be a URL or a image attached.')):
