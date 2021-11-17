@@ -146,7 +146,7 @@ AI: 5 times 6 is 30"""
 
         embed = discord.Embed(color=self.bot.color)
 
-        embed.set_author(name=f'Study Notes for {topic.title()}:', icon_url=ctx.author.avatar_url)
+        embed.set_author(name=f'Study Notes for {topic.title()}:', icon_url=ctx.author.avatar.url)
 
         s = "1."
 
