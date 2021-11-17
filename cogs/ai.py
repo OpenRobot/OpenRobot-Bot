@@ -156,6 +156,9 @@ AI: 5 times 6 is 30"""
             else:
                 s += f'{line}\n'
 
+        if s == "1.":
+            return await ctx.send('Could not find any study notes.')
+
         embed.description = s
 
         await ctx.send(embed=embed)
