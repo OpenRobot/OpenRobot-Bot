@@ -26,13 +26,14 @@ AI: My GitHub organization can be found at <https://github.com/OpenRobot/>.
 Human: What is 1+1?
 AI: 1+1 is 2
 Human: What is 5 times 6?
-AI: 5 times 6 is 30
-Human: What is "See you later!" in French?
-AI: "See you later" in Englis is "À tout à l'heure!" in French.
-Human: What is "Hello" in Spanish?
-AI: "Hello" in English is "Hola" in Spanish.
-Human: What is "Saya suka anda" in English?
-AI: "Saya suka anda" in English is "I like you" in Indonesian language."""
+AI: 5 times 6 is 30"""
+
+        # Human: What is "See you later!" in French?
+        # AI: "See you later" in Englis is "À tout à l'heure!" in French.
+        # Human: What is "Hello" in Spanish?
+        # AI: "Hello" in English is "Hola" in Spanish.
+        # Human: What is "Saya suka anda" in English?
+        # AI: "Saya suka anda" in English is "I like you" in Indonesian language.
 
         #with open('cogs/utils/math_train.jsonl', 'r') as f:
             #l = [list(json.loads(x).values()) for x in f.read().splitlines()]
@@ -98,6 +99,66 @@ AI: "Saya suka anda" in English is "I like you" in Indonesian language."""
             ai_text += f'{ai_response}\nHuman: '
 
             await msg.reply(ai_response, mention_author=False)
+
+    @commands.command('create-study-notes', aliases=['study-notes', 'create-study-note', 'study-note', 'createstudynote', 'createstudynotes', 'studynotes', 'studynote'])
+    async def create_study_notes(self, ctx: commands.Context, *, topic: str):
+        """
+        Creates study notes from the topic provided.
+
+        Powered by [OpenAI](https://openai.com/).
+
+        Examples of some topics can be:
+        - `Ancient Rome`
+        - `Python`
+        - `Javascript`
+        - `Math Algebra`
+        ...
+        """
+
+        ai_str = f"""What are some key points I should know when studying {topic.title()}?
+
+1.
+        """
+
+        try:
+            response = openai.Completion.create(
+                engine="davinci-instruct-beta",
+                prompt=ai_str,
+                temperature=1,
+                max_tokens=100,
+                top_p=1.0,
+                frequency_penalty=0.0,
+                presence_penalty=0.0
+            )
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
+            return await ctx.send('Failed to get study notes.')
+
+        if ctx.debug:
+            await ctx.send(file=discord.File(StringIO(json.dumps(response, indent=4)), filename='response.json'))
+
+        ai_response = response['choices'][0]['text']
+
+        if not ai_response:
+            return await ctx.send('Could not find any study notes.')
+
+        embed = discord.Embed(color=self.bot.color)
+
+        embed.set_author(name=f'Study Notes for {topic.title()}:', icon_url=ctx.author.avatar_url)
+
+        s = "1."
+
+        for line in ai_response.split('\n'):
+            if line.replace('. ', '').replace('.', '').isdigit():
+                continue
+            else:
+                s += f'\n{line}'
+
+        embed.description = s
+
+        await ctx.send(embed=embed)
 
     @commands.command('nsfw-check', aliases=['nsfwcheck', 'nsfw_check', 'check'])
     async def nsfw_check(self, ctx: commands.Context, *, image = commands.Option(None, description='The image. This can be a URL or a image attached.')):
