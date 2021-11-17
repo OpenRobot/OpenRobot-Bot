@@ -396,7 +396,7 @@ async def spotify(ctx: commands.Context):
     if ctx.invoked_subcommand is None:
         return await ctx.send_help(ctx.command)
 
-@spotify.command('login')
+#@spotify.command('login')
 async def spotify_login(ctx: commands.Context, *, flags: str = commands.Option(None, description='Flags: [--interactive]')):
     """
     Pair your spotify account to OpenRobot x Spotify.
@@ -554,7 +554,7 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
         await ctx.author.send('Removed your spotify pair from this account. Please redo the command again.')
 
-@spotify.command('logout')
+#@spotify.command('logout')
 async def spotify_logout(ctx: commands.Context):
     while True:
         try:
@@ -785,10 +785,10 @@ def start(**kwargs):
             bot.redis = None
         else:
             bot.pool = await asyncpg.create_pool(config.DATABASE)
-            bot.spotify_pool = await asyncpg.create_pool(config.SPOTIFY_DATABASE)
+            #bot.spotify_pool = await asyncpg.create_pool(config.SPOTIFY_DATABASE)
             bot.redis = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS)
             bot.spotify_redis = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=1)
-            bot.tb_pool = await asyncpg.create_pool(config.TRACEBACK_DATABASE)
+            #bot.tb_pool = await asyncpg.create_pool(config.TRACEBACK_DATABASE)
 
             bot.cache = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=2)
 
@@ -837,7 +837,10 @@ def start(**kwargs):
 
         bot.owner = bot.get_user(699839134709317642)
 
-        return await bot.cogs['Music'].initiate_node()
+        try:
+            await bot.cogs['Music'].initiate_node()
+        except KeyError: # Cog isnt loaded
+            pass
 
     async def do_restart_message():
         await bot.wait_until_ready()
