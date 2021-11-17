@@ -13,7 +13,7 @@ openai.api_key = OPENAI_KEY
 
 class AI(Cog, emoji="🤖"):
     def get_ai_text(self):
-        ai_text = """The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.
+        ai_text = """The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, intelligent and very friendly.
 
 Human: Hello
 AI: Hello! How are you doing today?
@@ -28,11 +28,11 @@ AI: 1+1 is 2
 Human: What is 5 times 6?
 AI: 5 times 6 is 30
 Human: What is "See you later!" in French?
-AI: À tout à l'heure!
+AI: "See you later" in Englis is "À tout à l'heure!" in French.
 Human: What is "Hello" in Spanish?
-AI: Hola
+AI: "Hello" in English is "Hola" in Spanish.
 Human: What is "Saya suka anda" in English?
-AI: I like you"""
+AI: "Saya suka anda" in English is "I like you" in Indonesian language."""
 
         #with open('cogs/utils/math_train.jsonl', 'r') as f:
             #l = [list(json.loads(x).values()) for x in f.read().splitlines()]
