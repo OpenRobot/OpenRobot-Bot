@@ -45,7 +45,7 @@ AI: 5 times 6 is 30"""
 
         return ai_text
 
-    @commands.command('chat', aliases=['assistant'])
+    #@commands.command('chat', aliases=['assistant'])
     async def chat(self, ctx: commands.Context):
         """
         Makes a OpenRobot Chat Session with you and OpenRobot.
@@ -100,7 +100,7 @@ AI: 5 times 6 is 30"""
 
             await msg.reply(ai_response, mention_author=False)
 
-    @commands.command('create-study-notes', aliases=['study-notes', 'create-study-note', 'study-note', 'createstudynote', 'createstudynotes', 'studynotes', 'studynote'])
+    #@commands.command('create-study-notes', aliases=['study-notes', 'create-study-note', 'study-note', 'createstudynote', 'createstudynotes', 'studynotes', 'studynote'])
     async def create_study_notes(self, ctx: commands.Context, *, topic: str):
         """
         Creates study notes from the topic provided.
