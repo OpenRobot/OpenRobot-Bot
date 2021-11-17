@@ -154,7 +154,7 @@ AI: 5 times 6 is 30"""
             if line.replace('. ', '').replace('.', '').isdigit():
                 continue
             else:
-                s += f'\n{line}'
+                s += f'{line}'
 
         embed.description = s
 
