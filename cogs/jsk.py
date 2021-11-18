@@ -207,15 +207,6 @@ Available: {available_mem}
 Used: {used_mem}
 Percentage: {mem_perc}```
             """)
-            
-            disk_io = psutil.disk_io_counters()
-            disk_io_bytes_read = f"{get_size(disk_io.read_bytes)}"
-            disk_io_bytes_send = f"{get_size(disk_io.write_bytes)}"
-
-            embed.add_field(name="Disk:", value=f"""```yml
-Bytes read: {disk_io_bytes_read}
-Bytes send: {disk_io_bytes_send}```
-            """)
 
             line_count = self.bot.line_count()
 
@@ -226,6 +217,15 @@ Classes: {line_count.classes}
 Functions: {line_count.functions}
 Coroutines: {line_count.coroutines}
 Comments: {line_count.comments}```
+            """)
+            
+            disk_io = psutil.disk_io_counters()
+            disk_io_bytes_read = f"{get_size(disk_io.read_bytes)}"
+            disk_io_bytes_send = f"{get_size(disk_io.write_bytes)}"
+
+            embed.add_field(name="Disk:", value=f"""```yml
+Bytes read: {disk_io_bytes_read}
+Bytes send: {disk_io_bytes_send}```
             """)
             
             s = speedtest.Speedtest()
