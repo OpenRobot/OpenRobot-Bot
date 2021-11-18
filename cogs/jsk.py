@@ -295,14 +295,14 @@ Bytes Recieved: {round(data['bytes_received'], 5)}
 
                     l.append(ss)
 
-                server = l[0].replace('Server: ', '').replace('\n', '\\n')
-                isp = l[1].replace('ISP: ', '').replace('\n', '\\n')
-                ping = l[2].replace('Latency: ', '').replace('\n', '\\n')
-                download = l[3].replace('Download: ', '').replace('\n', '\\n')
-                upload = l[4].replace('Upload: ', '').replace('\n', '\\n')
-                packet_loss = l[5].replace('Packet Loss: ', '').replace('\n', '\\n')
+                server = l[0].replace('Server: ', '')
+                isp = l[1].replace('ISP: ', '')
+                ping = l[2].replace('Latency: ', '')
+                download = l[3]
+                upload = l[4]
+                packet_loss = l[5].replace('Packet Loss: ', '')
                 packet_loss = '0.0%' if packet_loss == 'Not available.' else packet_loss
-                url = l[6].replace('Result URL: ', '').replace('\n', '\\n')
+                url = l[6].replace('Result URL: ', '')
 
                 embed.add_field(name="Speedtest:", value=f"""`{isp}` --> `{server}`:
 ```yml
