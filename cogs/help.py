@@ -134,15 +134,24 @@ class OpenRobotHelp(commands.HelpCommand):
     async def send_cog_help(self, cog: Cog):
         ctx = self.ctx
 
-        if not await self.filter_commands(cog.get_commands()):
+        if cog is None:
+            filtered = await self.filter_commands(list(ctx.bot.commands))
+        else:
+            filtered = await self.filter_commands(cog.get_commands())
+
+        if not filtered:
             return await self.send('You have no permission to view this category!')
 
         embed = self.generate_embed()
 
-        embed.title = cog.qualified_name
+        if cog is None:
+            embed.title = self.no_category
+        else:
+            embed.title = cog.qualified_name
+
         embed.title += ' Category'
 
-        embed.description = ', '.join([f'`{command}`' for command in await self.filter_commands(cog.get_commands())])
+        embed.description = ', '.join([f'`{command.qualified_name}`' for command in filtered])
 
         return await self.send(embed=embed)
 
@@ -162,6 +171,12 @@ class OpenRobotHelp(commands.HelpCommand):
     # Embed error message
     async def send_error_message(self, error):
         return await self.send(embed=discord.Embed(color=self.ctx.bot.color, description=error))
+
+    async def command_callback(self, ctx, *, command=None):
+        if command == self.no_category:
+            return await self.send_cog_help(None)
+            
+        return await super().command_callback(ctx, command=command)
 
 class Help(Cog, emoji='<:help:901151299284922369>'):
     """
