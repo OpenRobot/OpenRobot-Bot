@@ -196,11 +196,10 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
                 embed.set_author(name=f'Artist: {artist}', icon_url=artist_image or discord.Embed.Empty)
             else:
                 pass
+            
+            embed.set_thumbnail(url=track_image or discord.Embed.Empty)
 
-            if track_image:
-                embed.set_thumbnail(url=track_image or discord.Embed.Empty)
-
-            embed.description = lyrics
+            embed.description = discord.utils.escape_markdown(lyrics)
 
             embed.set_footer(text=f'Invoked by: {ctx.author}')
 
@@ -278,8 +277,8 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
 
                     if not l:
                         msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
-
-                    msg = await ctx.send(embed=l)
+                    else:
+                        msg = await ctx.send(embed=l)
 
                 await msg.add_reaction('\U000023f9')
             elif await msgIsNew(msg):
@@ -302,8 +301,8 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
 
                     if not l:
                         msg = await msg.edit(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
-
-                    msg = await msg.edit(embed=l)
+                    else:
+                        msg = await msg.edit(embed=l)
             else:
                 await msg.delete()
                 if not activity:
@@ -325,8 +324,8 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
 
                     if not l:
                         msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
-
-                    msg = await ctx.send(embed=l)
+                    else:
+                        msg = await ctx.send(embed=l)
 
                     await msg.add_reaction('\U000023f9')
 
@@ -357,7 +356,7 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
             return
 
         if not l:
-            msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
+            return await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
 
         msg = await ctx.send(embed=l)
 
