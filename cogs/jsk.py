@@ -166,7 +166,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         machine = uname.machine
         processor = uname.processor
 
-        embed.add_field(name="System", value=f"""```yml
+        embed.add_field(name="System:", value=f"""```yml
 Name: {system_name}
 Node: {node_name}
 Machine: {machine}
@@ -181,7 +181,7 @@ Processor: {processor}```
 
         cpu_usage = f"{psutil.cpu_percent()}%" 
 
-        embed.add_field(name="CPU", value=f"""```yml
+        embed.add_field(name="CPU:", value=f"""```yml
 Physical cores: {physical_cores}
 Total cores: {total_cores}
 Frequency: {current_cpu_freq}
@@ -194,7 +194,7 @@ Usage: {cpu_usage}```
         used_mem = f"{get_size(svmem.used)}"
         mem_perc = f"{svmem.percent}%"
 
-        embed.add_field(name="Memory", value=f"""```yml
+        embed.add_field(name="Memory:", value=f"""```yml
 Total: {total_mem}
 Available: {available_mem}
 Used: {used_mem}
@@ -205,7 +205,7 @@ Percentage: {mem_perc}```
         disk_io_bytes_read = f"{get_size(disk_io.read_bytes)}"
         disk_io_bytes_send = f"{get_size(disk_io.write_bytes)}"
 
-        embed.add_field(name="Disk", value=f"""```yml
+        embed.add_field(name="Disk:", value=f"""```yml
 Bytes read: {disk_io_bytes_read}
 Bytes send: {disk_io_bytes_send}```
         """)
@@ -217,15 +217,15 @@ Bytes send: {disk_io_bytes_send}```
 
         data = s.results.dict()
 
-        embed.add_field(name="Speedtest", value=f"""`{data['client']['isp']}, {data['client']['country']}` --> `{data['server']['sponsor']} - {data['server']['name']}, {data['server']['cc']}`:
+        embed.add_field(name="Speedtest:", value=f"""`{data['client']['isp']}, {data['client']['country']}` --> `{data['server']['sponsor']} - {data['server']['name']}, {data['server']['cc']}`:
 ```yml
-Download: `{round(data['download'] / 1000000, 2)} Mbps`
-Upload: `{round(data['upload'] / 1000000, 2)} Mbps`
-Ping: `{round(data['ping'], 2)}ms`
+Download: {round(data['download'] / 1000000, 2)} Mbps
+Upload: {round(data['upload'] / 1000000, 2)} Mbps
+Ping: {round(data['ping'], 2)}ms
 
-Bytes Sent: `{round(data['bytes_sent'], 5)}`
-Bytes Recieved: `{round(data['bytes_received'], 5)}`
-```Result URL: {'https://' + s.results.share().replace('http://', '')}
+Bytes Sent: {round(data['bytes_sent'], 5)}
+Bytes Recieved: {round(data['bytes_received'], 5)}
+```Result URL: {'https://' + s.results.share().replace('http://', '').replace('.png', '')}
         """, inline=False)
 
         await ctx.send(embed=embed)
