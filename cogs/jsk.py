@@ -243,7 +243,7 @@ Bytes send: {disk_io_bytes_send}```
                 await ctx.send('Stderr: ' + (stderr.decode() or 'Empty.'))
                 await ctx.send('Return Code: ' + str(proc.returncode))
 
-            if stdout or proc.returncode != 0 or not stderr:
+            if not stdout or proc.returncode != 0 or stderr:
                 s = speedtest.Speedtest()
                 s.get_best_server()
                 s.download()
