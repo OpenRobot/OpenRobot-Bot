@@ -620,10 +620,6 @@ def codeblock(code: str, *, language = ''):
 
 bot.codeblock = codeblock
 
-@bot.command()
-async def load(ctx):
-    bot.load_extension('cogs.jsk')
-
 @bot.command(aliases=['src'])
 async def source(ctx: commands.Context, *, command: str = commands.Option(None, description='The command name/cog/event to get the source code')):
     """

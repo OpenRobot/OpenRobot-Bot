@@ -156,7 +156,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
 
         await ctx.send(embed=embed)
 
-    @Feature.command(parent="jsk", name="system", aliases=["sys"])
+    @Feature.Command(parent="jsk", name="system", aliases=["sys"])
     async def system(self, ctx: commands.Context):
         embed = discord.Embed(color=self.bot.color)
 
