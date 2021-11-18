@@ -135,7 +135,7 @@ class OpenRobotHelp(commands.HelpCommand):
         ctx = self.ctx
 
         if cog is None:
-            filtered = await self.filter_commands(list(ctx.bot.commands))
+            filtered = await self.filter_commands(filter(lambda c: c.cog is None, ctx.bot.commands))
         else:
             filtered = await self.filter_commands(cog.get_commands())
 
@@ -175,7 +175,7 @@ class OpenRobotHelp(commands.HelpCommand):
     async def command_callback(self, ctx, *, command=None):
         if command == self.no_category:
             return await self.send_cog_help(None)
-            
+
         return await super().command_callback(ctx, command=command)
 
 class Help(Cog, emoji='<:help:901151299284922369>'):
