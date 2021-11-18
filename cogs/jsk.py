@@ -239,8 +239,8 @@ Bytes send: {disk_io_bytes_send}```
             stdout, stderr = await proc.communicate()
 
             if ctx.debug:
-                await ctx.send('Stdout: ' + (stdout or 'Empty.'))
-                await ctx.send('Stderr: ' + (stderr or 'Empty.'))
+                await ctx.send('Stdout: ' + (stdout.decode() or 'Empty.'))
+                await ctx.send('Stderr: ' + (stderr.decode() or 'Empty.'))
                 await ctx.send('Return Code: ' + str(proc.returncode))
 
             if stdout or proc.returncode != 0 or not stderr:
