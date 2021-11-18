@@ -57,7 +57,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         except:
             pass
 
-    @Feature.Command(name="jishaku", aliases=["jsk", "jishakum", "admin", "dev"], invoke_without_command=True, ignore_extra=False)
+    @Feature.Command(name="jishaku", aliases=["jsk", "jishakum", "admin", "dev"], invoke_without_command=True, ignore_extra=False, slash_command=False)
     async def jsk(self, ctx: commands.Context):
         """
         The Jishaku debug and diagnostic commands.
@@ -245,7 +245,10 @@ Bytes send: {disk_io_bytes_send}```
 
                 if data['download'] < data2['download'] and data['upload'] < data2['upload']:
                     data = data2
-            except:
+            except Exception as e:
+                if ctx.debug:
+                    raise e
+
                 pass
 
             embed.add_field(name="Speedtest:", value=f"""`{data['client']['isp']}, {data['client']['country']}` --> `{data['server']['sponsor']} - {data['server']['name']}, {data['server']['cc']}`: 
