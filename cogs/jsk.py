@@ -306,8 +306,7 @@ Bytes Recieved: {round(data['bytes_received'], 5)}
 
                 embed.add_field(name="Speedtest:", value=f"""`{isp}` --> `{server}`:
 ```yml
-{download}
-{upload}
+{download}{upload}
 Ping: {ping}
 
 Packet Loss: {packet_loss}
