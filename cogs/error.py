@@ -40,7 +40,7 @@ class Error(Cog):
         lines = traceback.format_exception(etype, error, trace)
         original_traceback = ''.join(lines)
 
-        print(colored_tb)
+        #print(colored_tb)
 
         pretty_traceback = '\n'.join(OpenRobotFormatter(no_color=True).format_exception(etype, error, trace))
 
@@ -92,6 +92,8 @@ class Error(Cog):
             await report_channel.send(embed=embed)
 
         await ctx.send(f'Something wen\'t wrong, try again later.' + (f'\nError ID: `{error_id}`\nError: <https://traceback.openrobot.xyz/{error_id}>' if self.bot.tb_pool else ''))
+
+        raise error
 
 def setup(bot):
     bot.add_cog(Error(bot))
