@@ -271,7 +271,7 @@ Bytes send: {disk_io_bytes_send}```
 ```yml
 Download: {round(data['download'] / 1000000, 2)} Mbps
 Upload: {round(data['upload'] / 1000000, 2)} Mbps
-Ping: {round(data['ping'], 2)}ms
+Ping: {round(data['ping'], 2)} ms
 
 Bytes Sent: {round(data['bytes_sent'], 5)}
 Bytes Recieved: {round(data['bytes_received'], 5)}
@@ -295,22 +295,22 @@ Bytes Recieved: {round(data['bytes_received'], 5)}
 
                     l.append(ss)
 
-                server = l[0].replace('Server: ', '')
-                isp = l[1].replace('ISP: ', '')
-                ping = l[2].replace('Latency: ', '')
-                download = l[3].replace('Download: ', '')
-                upload = l[4].replace('Upload: ', '')
-                packet_loss = l[5].replace('Packet Loss: ', '')
+                server = l[0].replace('Server: ', '').replace('\n', '')
+                isp = l[1].replace('ISP: ', '').replace('\n', '')
+                ping = l[2].replace('Latency: ', '').replace('\n', '')
+                download = l[3].replace('Download: ', '').replace('\n', '')
+                upload = l[4].replace('Upload: ', '').replace('\n', '')
+                packet_loss = l[5].replace('Packet Loss: ', '').replace('\n', '')
                 packet_loss = '0.0%' if packet_loss == 'Not available.' else packet_loss
-                url = l[6].replace('Result URL: ', '')
+                url = l[6].replace('Result URL: ', '').replace('\n', '')
 
                 embed.add_field(name="Speedtest:", value=f"""`{isp}` --> `{server}`:
 ```yml
-Download: {download} Mbps
-Upload: {upload} Mbps
-Ping: {ping}ms
+Download: {download}
+Upload: {upload}
+Ping: {ping}
 
-Packet Loss: {packet_loss}%
+Packet Loss: {packet_loss}
 ```Result URL: {url}
                 """, inline=False)
 
