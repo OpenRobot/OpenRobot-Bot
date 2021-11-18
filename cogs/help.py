@@ -29,7 +29,7 @@ class OpenRobotHelp(commands.HelpCommand):
         )
 
         self.no_category = self.options.get('no_category') or 'Miscellaneous'
-        self.no_category_description = self.options.get('no_category_description') or 'Commands with no category'
+        self.no_category_description = self.options.get('no_category_description')
         self.no_category_emoji = self.options.get('no_category_emoji') or ''
         
     async def send(self, *args, **kwargs):
