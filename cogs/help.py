@@ -145,13 +145,18 @@ class OpenRobotHelp(commands.HelpCommand):
         embed = self.generate_embed()
 
         if cog is None:
-            embed.title = self.no_category
+            embed.title = self.no_category_emoji + ' ' + self.no_category
         else:
-            embed.title = cog.qualified_name
+            embed.title = cog.full_name
 
         embed.title += ' Category'
 
-        embed.description = ', '.join([f'`{command.qualified_name}`' for command in filtered])
+        if cog is None:
+            embed.description = self.no_category_description + '\n\n' if self.no_category_description else ''
+        else:
+            embed.description = cog.description + '\n\n' if cog.description else ''
+
+        embed.description += ', '.join([f'`{command.qualified_name}`' for command in filtered])
 
         return await self.send(embed=embed)
 
