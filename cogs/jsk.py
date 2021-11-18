@@ -7,6 +7,8 @@ import os
 import time
 import platform
 import speedtest
+import asyncio
+import re
 from discord.ext import commands
 from humanize import naturalsize as get_size
 from jishaku.features.baseclass import Feature
@@ -228,30 +230,39 @@ Bytes read: {disk_io_bytes_read}
 Bytes send: {disk_io_bytes_send}```
             """)
             
-            s = speedtest.Speedtest()
-            s.get_best_server()
-            s.download()
-            s.upload(pre_allocate=False)
+            proc = await asyncio.create_subprocess_shell(
+                'speedtest',
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
 
-            data = s.results.dict()
+            stdout, stderr = await proc.communicate()
 
-            try:
-                s.get_servers([23373, 37568])
-
+            if stdout or proc.returncode != 0 or not stderr:
+                s = speedtest.Speedtest()
+                s.get_best_server()
                 s.download()
                 s.upload(pre_allocate=False)
 
-                data2 = s.results.dict()
+                data = s.results.dict()
 
-                if data['download'] < data2['download'] and data['upload'] < data2['upload']:
-                    data = data2
-            except Exception as e:
-                if ctx.debug:
-                    raise e
+                try:
+                    s.get_servers([23373, 37568])
 
-                pass
+                    s.download()
+                    s.upload(pre_allocate=False)
 
-            embed.add_field(name="Speedtest:", value=f"""`{data['client']['isp']}, {data['client']['country']}` --> `{data['server']['sponsor']} - {data['server']['name']}, {data['server']['cc']}`: 
+                    data2 = s.results.dict()
+
+                    if data['download'] < data2['download'] and data['upload'] < data2['upload']:
+                        data = data2
+                except Exception as e:
+                    if ctx.debug:
+                        raise e
+
+                    pass
+
+                embed.add_field(name="Speedtest:", value=f"""`{data['client']['isp']}, {data['client']['country']}` --> `{data['server']['sponsor']} - {data['server']['name']}, {data['server']['cc']}`: 
 ```yml
 Download: {round(data['download'] / 1000000, 2)} Mbps
 Upload: {round(data['upload'] / 1000000, 2)} Mbps
@@ -260,7 +271,43 @@ Ping: {round(data['ping'], 2)}ms
 Bytes Sent: {round(data['bytes_sent'], 5)}
 Bytes Recieved: {round(data['bytes_received'], 5)}
 ```Result URL: {'https://' + '.'.join(s.results.share().replace('http://', '').split('.')[:-1])}
-            """, inline=False)
+                """, inline=False)
+            else:
+                l = []
+                
+                for x in re.findall('.*:.*', stdout.decode()):
+                    ss = x
+
+                    ss = re.sub(r'   ', '', x)
+
+                    ss = re.sub(r'  ', ' ', ss)
+
+                    ss = re.sub(r'^ ', '', ss)
+
+                    ss = re.sub(r'\(.*\)', '', ss)
+
+                    ss = re.sub(r' $', '', ss)
+
+                    l.append(ss)
+
+                server = l[0].replace('Server: ', '')
+                isp = l[1].replace('ISP: ', '')
+                ping = l[2].replace('Latency: ', '')
+                download = l[3].replace('Download: ', '')
+                upload = l[4].replace('Upload: ', '')
+                packet_loss = l[5].replace('Packet Loss: ', '')
+                packet_loss = '0.0%' if packet_loss == 'Not available.' else packet_loss
+                url = l[6].replace('Result URL: ', '')
+
+                embed.add_field(name="Speedtest:", value=f"""`{isp}` --> `{server}`:
+```yml
+Download: {download} Mbps
+Upload: {upload} Mbps
+Ping: {ping}ms
+
+Packet Loss: {packet_loss}%
+```Result URL: {url}
+                """, inline=False)
 
             await ctx.send(embed=embed)
 
