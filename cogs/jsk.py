@@ -236,7 +236,7 @@ Bytes send: {disk_io_bytes_send}```
             data = s.results.dict()
 
             try:
-                s.get_servers([23373])
+                s.get_servers([23373, 37568])
 
                 s.download()
                 s.upload(pre_allocate=False)
