@@ -235,6 +235,19 @@ Bytes send: {disk_io_bytes_send}```
 
             data = s.results.dict()
 
+            try:
+                s.get_servers([23373])
+
+                s.download()
+                s.upload(pre_allocate=False)
+
+                data2 = s.results.dict()
+
+                if data['download'] < data2['download'] and data['upload'] < data2['upload']:
+                    data = data2
+            except:
+                pass
+
             embed.add_field(name="Speedtest:", value=f"""`{data['client']['isp']}, {data['client']['country']}` --> `{data['server']['sponsor']} - {data['server']['name']}, {data['server']['cc']}`: 
 ```yml
 Download: {round(data['download'] / 1000000, 2)} Mbps
