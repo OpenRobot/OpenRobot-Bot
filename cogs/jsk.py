@@ -243,7 +243,7 @@ Ping: {round(data['ping'], 2)}ms
 
 Bytes Sent: {round(data['bytes_sent'], 5)}
 Bytes Recieved: {round(data['bytes_received'], 5)}
-```Result URL: {'https://' + s.results.share().replace('http://', '').split('.')[0]}
+```Result URL: {'https://' + '.'.join(s.results.share().replace('http://', '').split('.')[:-1])}
             """, inline=False)
 
             await ctx.send(embed=embed)
