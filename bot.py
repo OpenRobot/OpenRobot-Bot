@@ -690,16 +690,20 @@ async def source(ctx: commands.Context, *, command: str = commands.Option(None, 
         module = inspect.getfile(src)
     else: # Command processing
         if command == 'help':
-            return await ctx.send('Could not find command.')
+            if isinstance(bot.help_command, (commands.DefaultHelpCommand, commands.MinimalHelpCommand)):
+                return await ctx.send('I cannot get the source code of the help command as of now. Sorry!')
+                
+            src = type(bot.help_command)
+            module = src.__module__
+        else:
+            obj = bot.get_command(command.replace('.', ' '))
+            if obj is None:
+                return await ctx.send('Could not find command.')
 
-        obj = bot.get_command(command.replace('.', ' '))
-        if obj is None:
-            return await ctx.send('Could not find command.')
-
-        # since we found the command we're looking for, presumably anyway, let's
-        # try to access the code itself
-        src = obj.callback.__code__
-        module = obj.callback.__module__
+            # since we found the command we're looking for, presumably anyway, let's
+            # try to access the code itself
+            src = obj.callback.__code__
+            module = obj.callback.__module__
 
     if not code:
         lines, firstlineno = inspect.getsourcelines(src)
