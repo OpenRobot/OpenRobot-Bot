@@ -154,6 +154,16 @@ async def ping(ctx: commands.Context):
     await msg.delete()
     await ctx.send(embed=embed)
 
+@bot.command("system", aliases=["sys"], slash_command=False)
+async def system(ctx: commands.Context):
+    """
+    Gets systen information e.g CPU, Memory, Disk, etc.
+
+    Most of the code is inspired by [Ami#7836](https://discord.com/users/801742991185936384).
+    """
+
+    return await bot.get_command('jishaku system')(ctx) # yes i am too lazy to move the code here, sorry!
+
 @bot.command(aliases=['act'])
 async def activity(ctx: commands.Context, channel: discord.VoiceChannel = commands.Option(description='The voice channel to start the activity. Defaults to the channel you are in.'), activity: typing.Literal['Watch Together', 'Poker Night', 'Chess', 'Doodle Crew', 'Word Snacks', 'Letter Tile', 'Spellcast', 'Checkers', 'Fishington', 'Betrayal'] = commands.Option(description='The activity to start.')):
     act = getattr(discord_activity.ActivityType, activity.replace(' ', '_').lower())
