@@ -226,8 +226,8 @@ Comments: {line_count.comments}```
             disk_io_bytes_send = f"{get_size(disk_io.write_bytes)}"
 
             embed.add_field(name="Disk:", value=f"""```yml
-Bytes read: {disk_io_bytes_read}
-Bytes send: {disk_io_bytes_send}```
+Read: {disk_io_bytes_read}
+Send: {disk_io_bytes_send}```
             """)
             
             proc = await asyncio.create_subprocess_shell(
