@@ -5,6 +5,7 @@ git+https://github.com/OpenRobot-Packages/Python-Discord-Activities
 git+https://github.com/Axelware/slate
 git+https://github.com/Gorialis/jishaku
 git+https://github.com/ShineyDev/prettify.py
+git+https://github.com/sivel/speedtest-cli
 traceback-with-variables
 asyncpg >= 0.24.0
 psutil >= 5.8.0
