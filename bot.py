@@ -154,13 +154,16 @@ async def ping(ctx: commands.Context):
     await msg.delete()
     await ctx.send(embed=embed)
 
-@bot.command("system", aliases=["sys"], slash_command=False)
+@bot.command("system", aliases=["sys"])
 async def system(ctx: commands.Context):
     """
     Gets systen information e.g CPU, Memory, Disk, etc.
 
     Most of the code is inspired by [Ami#7836](https://discord.com/users/801742991185936384).
     """
+
+    if ctx.interaction is not None:
+        await ctx.interaction.response.defer()
 
     return await bot.get_command('jishaku system')(ctx) # yes i am too lazy to move the code here, sorry!
 
