@@ -5,7 +5,10 @@ import typing
 import json
 import os
 import time
+import platform
+import speedtest
 from discord.ext import commands
+from humanize import naturalsize as get_size
 from jishaku.features.baseclass import Feature
 from cogs.utils.cog import Cog
 from jishaku.cog import STANDARD_FEATURES, OPTIONAL_FEATURES
@@ -64,7 +67,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         """
 
         summary = [
-            f"Jishaku `v{package_version('jishaku')}`, discord.py `{package_version('discord.py')}`, "
+            f"OpenRobot-Jishaku `v{package_version('jishaku')}`, discord.py `{package_version('discord.py')}`, "
             f"`Python {sys.version}` on `{sys.platform}`".replace("\n", ""),
             f"Module was loaded <t:{self.load_time.timestamp():.0f}:R>, "
             f"cog was loaded <t:{self.start_time.timestamp():.0f}:R>.",
@@ -150,6 +153,80 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         embed.timestamp = discord.utils.utcnow()
         embed.set_author(name='Jishaku', icon_url=self.bot.get_emoji(901355736850890813).url)
         embed.set_footer(text=f'Requested By: {ctx.author}', icon_url=ctx.author.avatar.url)
+
+        await ctx.send(embed=embed)
+
+    @Feature.command(parent="jsk", name="system", aliases=["sys"])
+    async def system(self, ctx: commands.Context):
+        embed = discord.Embed(color=self.bot.color)
+
+        uname = platform.uname()
+        system_name = uname.system
+        node_name = uname.node
+        machine = uname.machine
+        processor = uname.processor
+
+        embed.add_field(name="System", value=f"""```yml
+Name: {system_name}
+Node: {node_name}
+Machine: {machine}
+Processor: {processor}```
+        """)
+
+        physical_cores = psutil.cpu_count(logical=False)
+        total_cores = psutil.cpu_count(logical=True)
+
+        cpufreq = psutil.cpu_freq()
+        current_cpu_freq = f"{cpufreq.current:.2f}Mhz"
+
+        cpu_usage = f"{psutil.cpu_percent()}%" 
+
+        embed.add_field(name="CPU", value=f"""```yml
+Physical cores: {physical_cores}
+Total cores: {total_cores}
+Frequency: {current_cpu_freq}
+Usage: {cpu_usage}```
+        """)
+
+        svmem = psutil.virtual_memory()
+        total_mem = f"{get_size(svmem.total)}"
+        available_mem = f"{get_size(svmem.available)}"
+        used_mem = f"{get_size(svmem.used)}"
+        mem_perc = f"{svmem.percent}%"
+
+        embed.add_field(name="Memory", value=f"""```yml
+Total: {total_mem}
+Available: {available_mem}
+Used: {used_mem}
+Percentage: {mem_perc}```
+        """)
+        
+        disk_io = psutil.disk_io_counters()
+        disk_io_bytes_read = f"{get_size(disk_io.read_bytes)}"
+        disk_io_bytes_send = f"{get_size(disk_io.write_bytes)}"
+
+        embed.add_field(name="Disk", value=f"""```yml
+Bytes read: {disk_io_bytes_read}
+Bytes send: {disk_io_bytes_send}```
+        """)
+        
+        s = speedtest.Speedtest()
+        s.get_best_server()
+        s.download()
+        s.upload(pre_allocate=False)
+
+        data = s.results.dict()
+
+        embed.add_field(name="Speedtest", value=f"""`{data['client']['isp']}, {data['client']['country']}` --> `{data['server']['sponsor']} - {data['server']['name']}, {data['server']['cc']}`:
+```yml
+Download: `{round(data['download'] / 1000000, 2)} Mbps`
+Upload: `{round(data['upload'] / 1000000, 2)} Mbps`
+Ping: `{round(data['ping'], 2)}ms`
+
+Bytes Sent: `{round(data['bytes_sent'], 5)}`
+Bytes Recieved: `{round(data['bytes_received'], 5)}`
+```Result URL: {'https://' + s.results.share().replace('http://', '')}
+        """, inline=False)
 
         await ctx.send(embed=embed)
 

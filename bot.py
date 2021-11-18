@@ -11,6 +11,7 @@ import inspect
 import os
 import textwrap
 import mystbin
+import pathlib
 import typing
 from discord.ext import commands
 from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator, Context, Ping
@@ -21,7 +22,7 @@ from openrobot import discord_activities as discord_activity
 import aioredis
 import aiospotify
 import async_timeout
-from cogs.utils.base import Bot
+from cogs.utils.base import Bot as BaseBot
 
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).
@@ -29,6 +30,34 @@ I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API
 GitHub: <https://github.com/OpenRobot>
 Website: <https://openrobot.xyz/>
 """
+
+class LineCount:
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+class Bot(BaseBot):
+    def line_count(self, directory: str = './') -> LineCount:
+        p = pathlib.Path(directory)
+        cm = cr = fn = cl = ls = fc = 0
+        for f in p.rglob('*.py'):
+            if str(f).startswith("venv"):
+                continue
+            fc += 1
+            with f.open() as of:
+                for l in of.readlines():
+                    l = l.strip()
+                    if l.startswith('class'):
+                        cl += 1
+                    if l.startswith('def'):
+                        fn += 1
+                    if l.startswith('async def'):
+                        cr += 1
+                    if '#' in l:
+                        cm += 1
+                    ls += 1
+
+        return LineCount(files=fc, lines=ls, classes=cl, functions=fn, coroutines=cr, comments=cm)
 
 bot = Bot(
     command_prefix=commands.when_mentioned_or(*config.PREFIXES),
