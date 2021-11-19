@@ -283,11 +283,11 @@ Bytes Recieved: {round(data['bytes_received'], 5)}
                 embed.add_field(name="Speedtest:", value=f"""`{data['isp']}` --> `{data['server']['name']} - {data['server']['location']}, {data['server']['country']}`:
 ```yml
 Download:
-- Banwidth: {round(data['download']['banwidth'] / 1000000, 2)}
+- Bandwidth: {round(data['download']['bandwidth'] / 1000000, 2)}
 - Result: {round(data['download']['bytes'] / 1000000, 2)} Mbps
 
 Upload:
-- Banwidth: {round(data['upload']['banwidth'] / 1000000, 2)}
+- Banwidth: {round(data['upload']['bandwidth'] / 1000000, 2)}
 - Result: {round(data['upload']['bytes'] / 1000000, 2)} Mbps
 
 Ping:
