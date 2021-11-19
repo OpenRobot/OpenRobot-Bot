@@ -283,16 +283,18 @@ Bytes Recieved: {round(data['bytes_received'], 5)}
                 embed.add_field(name="Speedtest:", value=f"""`{data['isp']}` --> `{data['server']['name']} - {data['server']['location']}, {data['server']['country']}`:
 ```yml
 Download: 
-- Result: {round(data['download']['bytes'] / 1000000, 2)} Mbps
+- Result: {round(data['download']['bandwidth'] / 125000, 2)} Mbps
+- Data Used: {get_size(data['download']['bytes'])}
 
 Upload:
-- Result: {round(data['upload']['bytes'] / 1000000, 2)} Mbps
+- Result: {round(data['upload']['bandwidth'] / 125000, 2)} Mbps
+- Data Used: {get_size(data['upload']['bytes'])}
 
 Ping:
 - Jitter: {round(data['ping']['jitter'], 2)} ms
 - Latency: {round(data['ping']['latency'], 2)} ms
 
-Packet Loss: {round(data['packetLoss'], 2) + '%' if 'packetLoss' in data else 'Not available.'}
+Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data else 'Not available.'}
 ```Result URL: {data['result']['url']}
                 """, inline=False)
 
