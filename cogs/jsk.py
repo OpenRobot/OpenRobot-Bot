@@ -231,7 +231,7 @@ Send: {disk_io_bytes_send}```
             """)
             
             proc = await asyncio.create_subprocess_shell(
-                'speedtest',
+                'speedtest -f json',
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
@@ -278,39 +278,24 @@ Bytes Recieved: {round(data['bytes_received'], 5)}
 ```Result URL: {'https://' + '.'.join(s.results.share().replace('http://', '').split('.')[:-1])}
                 """, inline=False)
             else:
-                l = []
-                
-                for x in re.findall('.*:.*', stdout.decode()):
-                    ss = x
+                data = json.loads(stdout.decode())
 
-                    ss = re.sub(r'   ', '', x)
-
-                    ss = re.sub(r'  ', ' ', ss)
-
-                    ss = re.sub(r'^ ', '', ss)
-
-                    ss = re.sub(r'\(.*\)', '', ss)
-
-                    ss = re.sub(r' $', '', ss)
-
-                    l.append(ss)
-
-                server = l[0].replace('Server: ', '')
-                isp = l[1].replace('ISP: ', '')
-                ping = l[2].replace('Latency: ', '')
-                download = l[3]
-                upload = l[4].replace(' Upload:', 'Upload:')
-                packet_loss = l[5].replace('Packet Loss: ', '')
-                packet_loss = '0.0%' if packet_loss == 'Not available.' else packet_loss
-                url = l[6].replace('Result URL: ', '')
-
-                embed.add_field(name="Speedtest:", value=f"""`{isp}` --> `{server}`:
+                embed.add_field(name="Speedtest:", value=f"""`{data['isp']}` --> `{data['server']['name']} - {data['server']['location']}, {data['server']['country']}`:
 ```yml
-{download}{upload}
-Ping: {ping}
+Download:
+- Banwidth: {round(data['download']['banwidth'] / 1000000, 2)}
+- Result: {round(data['download']['bytes'] / 1000000, 2)} Mbps
 
-Packet Loss: {packet_loss}
-```Result URL: {url}
+Upload:
+- Banwidth: {round(data['upload']['banwidth'] / 1000000, 2)}
+- Result: {round(data['upload']['bytes'] / 1000000, 2)} Mbps
+
+Ping:
+- Jitter: {round(data['ping']['jitter'], 2)} ms
+- Latency: {round(data['ping']['latency'], 2)} ms
+
+Packet Loss: {round(data['packet_loss'], 2)}%
+```Result URL: {data['result']['url']}
                 """, inline=False)
 
             await ctx.send(embed=embed)
