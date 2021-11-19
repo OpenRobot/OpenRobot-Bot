@@ -294,7 +294,7 @@ Ping:
 - Jitter: {round(data['ping']['jitter'], 2)} ms
 - Latency: {round(data['ping']['latency'], 2)} ms
 
-Packet Loss: {round(data['packet_loss'], 2)}%
+Packet Loss: {round(data['packetLoss'], 2) + '%' if 'packetLoss' in data else 'Not available.'}
 ```Result URL: {data['result']['url']}
                 """, inline=False)
 
