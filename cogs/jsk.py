@@ -176,8 +176,8 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
             processor = uname.processor
 
             embed.add_field(name="System:", value=f"""```yml
-Name: {system_name}
-Node: {node_name}
+OS: {system_name}
+Name: {node_name}
 Machine: {machine}
 Processor: {processor}```
             """)
@@ -297,6 +297,8 @@ Ping:
 Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data else 'Not available.'}
 ```Result URL: {data['result']['url']}
                 """, inline=False)
+
+            embed.set_footer(text=f'PID: {os.getpid()}')
 
             await ctx.send(embed=embed)
 
