@@ -458,14 +458,14 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
         await ctx.message.add_reaction('<a:openrobot_searching_gif:899928367799885834>')
 
     try:
-        buffer = await bot.screenshot(url, delay=delay)
+        buffer: BytesIO = await bot.screenshot(url, delay=delay)
     except Exception as e:
         if ctx.debug:
             raise e
 
         return await ctx.send(f'Error: {e}')
 
-    render_msg = await bot.get_channel(847804286933925919).send(file=discord.File(fp=buffer, filename='screenshot.png'))
+    render_msg = await bot.get_channel(847804286933925919).send(file=discord.File(fp=BytesIO(buffer.getvalue()), filename='screenshot.png'))
 
     check = await bot.api.nsfw_check(render_msg.attachments[0].url)
 
@@ -480,7 +480,7 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
 
     embed.description = f'[`{url}`]({url})'
 
-    #embed.set_image(url='attachment://screenshot.png')
+    embed.set_image(url='attachment://screenshot.png')
 
     embed.set_footer(text=f'Requested by: {ctx.author} | Delay: {delay}s.')
 
