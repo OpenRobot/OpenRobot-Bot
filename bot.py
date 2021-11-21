@@ -464,9 +464,13 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
 
         return await ctx.send(f'Error: {e}')
 
+    await ctx.send('ok!')
+
     render_msg = await bot.get_channel(847804286933925919).send(file=discord.File(fp=buffer, filename='screenshot.png'))
 
     check = await bot.api.nsfw_check(render_msg.attachments[0].url)
+
+    await ctx.send('ok 2!')
 
     await ctx.message.remove_reaction('<a:openrobot_searching_gif:899928367799885834>', bot.user)
 
@@ -489,7 +493,7 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
             await interaction.message.delete()
             self.stop()
 
-    return await ctx.send(embed=embed, view=View(timeout=None))
+    return await ctx.send(embed=embed, view=View(timeout=None), file=discord.File(fp=buffer, filename='screenshot.png'))
 
 @bot.group()
 async def spotify(ctx: commands.Context):
