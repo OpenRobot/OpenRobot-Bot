@@ -62,7 +62,7 @@ class Bot(BaseBot):
 
     @executor()
     def screenshot(self, url: str, *, delay: int = None, proxy: bool = False):
-        if sleep <= 0:
+        if delay <= 0:
             delay = None
 
         with bot.driver(use_proxy=proxy or False) as driver:
