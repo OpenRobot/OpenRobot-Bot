@@ -1,6 +1,6 @@
 import sys
-import random
 import os
+import jishaku
 from discord import Colour
 from bot import start
 
@@ -30,9 +30,9 @@ elif list(filter(lambda i: i.startswith('--colour-'), args)):
     kwargs['colour'] = list(filter(lambda i: i.startswith('--colour-'), args))[0].replace('--colour-', '')
 
 if 'without-jishaku' not in kwargs:
-    os.environ['JISHAKU_NO_UNDERSCORE'] = 'True'
-    os.environ['JISHAKU_FORCE_PAGINATOR'] = 'True'
-    os.environ['JISHAKU_NO_DM_TRACEBACK'] = 'True'
+    jishaku.Flags.NO_UNDERSCORE = True
+    jishaku.Flags.FORCE_PAGINATOR = False
+    jishaku.Flags.NO_DM_TRACEBACK = True
 
 if '--traceback-color' in args:
     os.environ['NO_COLOR'] = 'False'
