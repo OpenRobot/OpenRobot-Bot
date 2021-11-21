@@ -61,16 +61,16 @@ class Bot(BaseBot):
         return LineCount(files=fc, lines=ls, classes=cl, functions=fn, coroutines=cr, comments=cm)
 
     @executor()
-    def screenshot(self, url: str, *, sleep: int = None, proxy: bool = False):
-        if sleep >= 0:
-            sleep = None
+    def screenshot(self, url: str, *, delay: int = None, proxy: bool = False):
+        if sleep <= 0:
+            delay = None
 
         with bot.driver(use_proxy=proxy or False) as driver:
             driver.get(url)
             driver.set_window_size(1920, 1080)
 
-            if sleep:
-                time.sleep(sleep)
+            if delay:
+                time.sleep(delay)
 
             buffer = BytesIO(driver.get_screenshot_as_png())
 
@@ -457,7 +457,7 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
         await ctx.message.add_reaction('<a:openrobot_searching_gif:899928367799885834>')
 
     try:
-        buffer = await bot.screenshot(url, sleep=delay)
+        buffer = await bot.screenshot(url, delay=delay)
     except Exception as e:
         if ctx.debug:
             raise e
