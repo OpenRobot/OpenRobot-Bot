@@ -480,7 +480,7 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
 
     embed.description = f'[`{url}`]({url})'
 
-    embed.set_image(url='attachment://screenshot.png')
+    #embed.set_image(url='attachment://screenshot.png')
 
     embed.set_footer(text=f'Requested by: {ctx.author} | Delay: {delay}s.')
 
@@ -490,7 +490,7 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
             await interaction.message.delete()
             self.stop()
 
-    return await ctx.send(embed=embed, view=View(timeout=None), file=discord.File(fp=buffer, filename='screenshot.png'))
+    return await ctx.send(embed=embed, view=View(timeout=None), file=discord.File(buffer, filename='screenshot.png'))
 
 @bot.group()
 async def spotify(ctx: commands.Context):
