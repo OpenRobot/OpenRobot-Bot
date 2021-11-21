@@ -15,3 +15,5 @@ mystbin.py
 aioredis
 humanize
 openai
+http-request-randomizer
+selenium

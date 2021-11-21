@@ -7,6 +7,7 @@ import asyncpg
 import jishaku
 import aiohttp
 import json
+import time
 import inspect
 import os
 import textwrap
@@ -14,7 +15,7 @@ import mystbin
 import pathlib
 import typing
 from discord.ext import commands
-from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator, Context, Ping
+from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator, Context, Ping, executor
 from io import BytesIO, StringIO
 from PIL import Image
 from openrobot.api_wrapper import AsyncClient, error
@@ -58,6 +59,22 @@ class Bot(BaseBot):
                     ls += 1
 
         return LineCount(files=fc, lines=ls, classes=cl, functions=fn, coroutines=cr, comments=cm)
+
+    @executor()
+    def screenshot(self, url: str, *, sleep: int = None, proxy: bool = False):
+        if sleep >= 0:
+            sleep = None
+
+        with bot.driver(use_proxy=proxy or False) as driver:
+            driver.get(url)
+            driver.set_window_size(1920, 1080)
+
+            if sleep:
+                time.sleep(sleep)
+
+            buffer = BytesIO(bot.chrome.get_screenshot_as_png())
+
+        return buffer
 
 bot = Bot(
     command_prefix=commands.when_mentioned_or(*config.PREFIXES),
@@ -428,6 +445,52 @@ async def publishCdn(fp : BytesIO, filename : str = "uwu.png", from_aiohttp=True
 
 bot.publishCdn = publishCdn
 
+@bot.command(aliases=['ss'])
+async def screenshot(ctx: commands.Context, url: str = commands.Option(description='The website URL to screenshot.'), delay: int = commands.Option(None, description='Waits for x seconds before taking the screenshot.')):
+    """
+    Screenshots a URL.
+    """
+
+    if ctx.interaction is not None:
+        await ctx.interaction.response.defer()
+    else:
+        await ctx.message.add_reaction('<a:openrobot_searching_gif:899928367799885834>')
+
+    try:
+        buffer = await bot.screenshot(url, sleep=delay)
+    except Exception as e:
+        if ctx.debug:
+            raise e
+
+        return await ctx.send(f'Error: {e}')
+
+    render_msg = await bot.get_channel(847804286933925919).send(file=discord.File(fp=buffer, filename='screenshot.png'))
+
+    check = await bot.api.nsfw_check(render_msg.attachments[0].url)
+
+    await ctx.message.remove_reaction('<a:openrobot_searching_gif:899928367799885834>', bot.user)
+
+    is_unsafe = check.score > 50 or bool(check.labels)
+
+    if is_unsafe and not ctx.channel.is_nsfw():
+        return await ctx.send('This website seems to be NSFW/Innapropriate. I am sorry, but I may not be able to send the screenshot result in this channel.')
+
+    embed = discord.Embed(color=bot.color)
+
+    embed.description = f'[`{url}`]({url})'
+
+    embed.set_image(url='attachment://screenshot.png')
+
+    embed.set_footer(text=f'Requested by: {ctx.author} | Delay: {delay}s.')
+
+    class View(discord.ui.View):
+        @discord.ui.button(label='Delete', emoji='<:trash:911955690644447273>', style=discord.ButtonStyle.red)
+        async def delete(self, button: discord.ui.Button, interaction: discord.Interaction):
+            await interaction.message.delete()
+            self.stop()
+
+    return await ctx.send(embed=embed, view=View(timeout=None))
+
 @bot.group()
 async def spotify(ctx: commands.Context):
     """
@@ -692,7 +755,7 @@ async def source(ctx: commands.Context, *, command: str = commands.Option(None, 
         if command == 'help':
             if isinstance(bot.help_command, (commands.DefaultHelpCommand, commands.MinimalHelpCommand)):
                 return await ctx.send('I cannot get the source code of the help command as of now. Sorry!')
-                
+
             src = type(bot.help_command)
             module = src.__module__
         else:

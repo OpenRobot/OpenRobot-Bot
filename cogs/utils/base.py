@@ -6,6 +6,7 @@ from discord.ext import commands
 from .ping import Ping
 from .error import Error
 from .context import Context
+from .driver import Driver
 from openrobot.api_wrapper import AsyncClient
 from openrobot import discord_activities as discord_activity
 import aioredis
@@ -26,6 +27,7 @@ class Bot(commands.Bot):
         self.ping: Ping = Ping(self)
         self.error: Error = Error(self)
         self.discord_activity: discord_activity.DiscordActivity = discord_activity.DiscordActivity(config.TOKEN)
+        self.driver = Driver
 
         # Databases
         self.pool: asyncpg.Pool = None
