@@ -13,12 +13,7 @@ from cogs.utils import Cog
 class OpenRobotHelp(commands.HelpCommand):
     def __init__(self, **options):
         self.options = {
-            'command_attrs': {
-                'help': 'The help command',
-                'aliases': [
-                    'cooldown'
-                ]
-            },
+            'command_attrs': {},
             'verify_checks': True,
             'show_hidden': True
         }
@@ -28,9 +23,9 @@ class OpenRobotHelp(commands.HelpCommand):
             **self.options
         )
 
-        self.no_category = self.options.get('no_category') or 'Miscellaneous'
-        self.no_category_description = self.options.get('no_category_description')
-        self.no_category_emoji = self.options.get('no_category_emoji') or ''
+        self.no_category = self.options.get('no_category', 'Miscellaneous')
+        self.no_category_description = self.options.get('no_category_description', 'No description provided.')
+        self.no_category_emoji = self.options.get('no_category_emoji', '')
         
     async def send(self, *args, **kwargs):
         return await self.get_destination().send(*args, **kwargs)
@@ -140,7 +135,7 @@ class OpenRobotHelp(commands.HelpCommand):
             filtered = await self.filter_commands(cog.get_commands())
 
         if not filtered:
-            return await self.send('You have no permission to view this category!')
+            return await self.send('You don\'t have perms to view the help for this category!')
 
         embed = self.generate_embed()
 
@@ -165,7 +160,7 @@ class OpenRobotHelp(commands.HelpCommand):
             await command.can_run(self.context)
             return await self.get_command_help(command)
 
-        return await self.ctx.send('Youu don\'t have perms to view the help for this command!')
+        return await self.ctx.send('You don\'t have perms to view the help for this command!')
 
     async def send_group_help(self, group: commands.Group):
         return await self.handle_help(group)
@@ -190,7 +185,15 @@ class Help(Cog, emoji='<:help:901151299284922369>'):
     
     def cog_load(self):
         self._original_help_command = self.bot.help_command
-        self.bot.help_command = OpenRobotHelp()
+        self.bot.help_command = OpenRobotHelp(
+            command_attrs={
+                'help': 'Shows this help command message.',
+                'aliases': [
+                    'h',
+                    '?'
+                ],
+            }
+        )
         self.bot.help_command.cog = self
 
     def cog_unload(self) -> None:
