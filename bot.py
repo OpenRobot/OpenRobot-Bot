@@ -467,14 +467,15 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
 
     render_msg = await bot.get_channel(847804286933925919).send(file=discord.File(fp=BytesIO(buffer.getvalue()), filename='screenshot.png'))
 
-    check = await bot.api.nsfw_check(render_msg.attachments[0].url)
-
     await ctx.message.remove_reaction('<a:openrobot_searching_gif:899928367799885834>', bot.user)
 
-    is_unsafe = check.score > 50 or bool(check.labels)
+    if not ctx.channel.is_nsfw():
+        check = await bot.api.nsfw_check(render_msg.attachments[0].url)
 
-    if is_unsafe and not ctx.channel.is_nsfw():
-        return await ctx.send('This website seems to be NSFW/Innapropriate. I am sorry, but I may not be able to send the screenshot result in this channel.')
+        is_unsafe = check.score > 50 or bool(check.labels)
+
+        if is_unsafe:
+            return await ctx.send('This website seems to be NSFW/Innapropriate. I am sorry, but I may not be able to send the screenshot result in this channel.')
 
     embed = discord.Embed(color=bot.color)
 
