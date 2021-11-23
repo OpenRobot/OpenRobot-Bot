@@ -694,9 +694,9 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
     params = {
         'title': spotify.title,
         'cover_url': spotify.album_cover_url,
-        'duration_seconds': spotify.duration.total_seconds(),
+        'duration_seconds': spotify.duration.seconds,
         'start_timestamp': spotify.start.timestamp(),
-        'artists': spotify.artists
+        'artists': ', '.join(spotify.artists)
     }
 
     async with aiohttp.ClientSession() as session:
