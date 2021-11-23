@@ -62,16 +62,14 @@ class Error(Cog):
         end = None
         spaces = 0
 
-        if ctx.debug:
-            await ctx.send(sig_split)
-            await ctx.send(signature)
-            await ctx.send(end)
-            await ctx.send(spaces)
+        await ctx.send(sig_split)
+        await ctx.send(signature)
+        await ctx.send(end)
+        await ctx.send(spaces)
 
         for arg in sig_split:
             if param_name in re.sub(r'<|>|\[|\]', '', arg) or param_name in arg[1:-1]:
-                if ctx.debug:
-                    await ctx.send(f'yes, {arg}')
+                await ctx.send(f'yes, {arg}')
 
                 end = spaces + len(arg)
                 break
