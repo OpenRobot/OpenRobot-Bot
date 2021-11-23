@@ -70,6 +70,9 @@ class Error(Cog):
 
         for arg in sig_split:
             if param_name in re.sub(r'<|>|\[|\]', '', arg) or param_name in arg[1:-1]:
+                if ctx.debug:
+                    await ctx.send(f'yes, {arg}')
+
                 end = spaces + len(arg)
                 break
 
