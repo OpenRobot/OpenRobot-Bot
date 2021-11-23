@@ -733,7 +733,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
         async with session.get('https://api.jeyy.xyz/discord/spotify', params=params) as response:
             buf = BytesIO(await response.read())
 
-    url = await bot.publish_cdn(buf, f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}')
+    url = await bot.publish_cdn(buf, f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png')
 
     artists = ', '.join(spotify.artists)
 
