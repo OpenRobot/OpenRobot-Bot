@@ -63,7 +63,7 @@ class Error(Cog):
         spaces = 0
 
         for arg in sig_split:
-            if regex := re.findall(rf'{param_name}', arg):
+            if param_name in re.sub(r'<|>|\[|\]', '', arg) or param_name in arg[1:-1]:
                 end = spaces + len(arg)
                 break
 
