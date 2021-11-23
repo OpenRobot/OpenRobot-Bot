@@ -223,8 +223,8 @@ async def ping(ctx: commands.Context):
 
     embed.add_field(name='Average Discord Latency:', value=do_ping_string(round((web_ping + typing_ping + bot_latency) / 3, 2)))
 
-    await msg.delete()
-    await ctx.send(embed=embed)
+    #await msg.delete()
+    await msg.edit(embed=embed, content=None, allowed_mentions=discord.AllowedMentions.none())
 
 @bot.command("system", aliases=["sys"])
 async def system(ctx: commands.Context):
@@ -733,7 +733,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
         async with session.get('https://api.jeyy.xyz/discord/spotify', params=params) as response:
             buf = BytesIO(await response.read())
 
-    url = await bot.publish_cdn(buf, f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png')
+    url = await bot.publish_cdn(buf, f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png') # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
 
     artists = ', '.join(spotify.artists)
 
