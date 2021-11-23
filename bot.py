@@ -743,7 +743,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 
     embed.set_author(name=f'{member}\'s Spotify:', icon_url=member.avatar.url)
 
-    embed.description = f'> **{member}** is listening to [**{spotify.title}** by **{artists}**]({spotify.track_url})\n\n> Started Listening at: {discord.utils.format_dt(spotify.start, style="R")}'
+    embed.description = f'> **{member}** is listening to [**{spotify.title}** by **{artists}**]({spotify.track_url})\n> \n> **Started Listening at:** {discord.utils.format_dt(spotify.start, style="R")}\n> \n> **Lyrics:** moved to `{ctx.prefix}lyrics --from-spotify`/`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`'
 
     embed.set_thumbnail(url=spotify.album_cover_url)
 
