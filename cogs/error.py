@@ -57,20 +57,13 @@ class Error(Cog):
         param_name = error.param.name
         
         signature = command.signature
-        sig_split = signature.split(' ')[1:]
+        sig_split = signature.split(' ')
 
         end = None
         spaces = 0
 
-        await ctx.send(sig_split)
-        await ctx.send(signature)
-        await ctx.send(end)
-        await ctx.send(spaces)
-
         for arg in sig_split:
             if param_name in re.sub(r'<|>|\[|\]', '', arg) or param_name in arg[1:-1]:
-                await ctx.send(f'yes, {arg}')
-
                 end = spaces + len(arg)
                 break
 
