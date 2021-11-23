@@ -130,6 +130,28 @@ class Bot(BaseBot):
         else:
             return response
 
+    async def close(self):
+        if self.redis:
+            await self.redis.close()
+        
+        if self.pool:
+            await self.pool.close()
+
+        if self.spotify_pool:
+            await self.spotify_pool.close()
+
+        if self.spotify_redis:
+            await self.spotify_redis.close()
+
+        if self.tb_pool:
+            await self.tb_pool.close()
+
+        await self.spotify.close()
+
+        await self.session.close()
+        
+        return await super().close()
+
 bot = Bot(
     command_prefix=commands.when_mentioned_or(*config.PREFIXES),
     help_command=commands.MinimalHelpCommand(no_category="Miscellaneous"), # For old help command purposes only. This is used whenever the help cog fails.
@@ -960,7 +982,7 @@ def start(**kwargs):
             bot.spotify_redis = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=1)
             #bot.tb_pool = await asyncpg.create_pool(config.TRACEBACK_DATABASE)
 
-            bot.cache = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=2)
+            #bot.cache = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=2)
 
         if kwargs.get('cogs') is not None and 'cogs' not in kwargs:
             l = list(filter(lambda i: i[0].startswith('without-') and i[1], kwargs.items()))

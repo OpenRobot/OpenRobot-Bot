@@ -308,7 +308,7 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
         with open('restart.json', 'w') as f:
             json.dump({'message_id': m.id, 'channel_id': m.channel.id, 'restarted_at': discord.utils.utcnow().timestamp()}, f, indent=4)
 
-        os._exit(0) # Let systemd handle the rest
+        await self.bot.close() # Let systemd handle the rest
 
     @Feature.Command(parent="jsk", name="debug", aliases=["dbg"])
     async def jsk_debug(self, ctx: commands.Context, *, command_string: str):
