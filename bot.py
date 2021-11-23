@@ -698,24 +698,24 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
         'start_timestamp': spotify.start.timestamp(),
         'artists': spotify.artists
     }
-    
+
     async with aiohttp.ClientSession() as session:
         async with session.get('https://api.jeyy.xyz/discord/spotify', params=params) as response:
             buf = BytesIO(await response.read())
-    
-    artists = ', '.join(spotify.artists)
 
-    embed = discord.Embed(color=spotify.colour)
+            artists = ', '.join(spotify.artists)
 
-    embed.set_image(url='attachment://spotify.png')
+            embed = discord.Embed(color=spotify.colour)
 
-    embed.set_author(name=f'{member}\'s Spotify:', icon_url=member.avatar.url)
+            embed.set_image(url='attachment://spotify.png')
 
-    embed.description = f'> **{member}** is listening to [**{spotify.title}** by **{artists}**]({spotify.track_url})\n\n> Started Listening at: {discord.utils.format_dt(spotify.start, style="R")}'
+            embed.set_author(name=f'{member}\'s Spotify:', icon_url=member.avatar.url)
 
-    embed.set_thumbnail(url=spotify.album_cover_url)
-    
-    await ctx.send(embed=embed, file=discord.File(buf, 'spotify.png'))
+            embed.description = f'> **{member}** is listening to [**{spotify.title}** by **{artists}**]({spotify.track_url})\n\n> Started Listening at: {discord.utils.format_dt(spotify.start, style="R")}'
+
+            embed.set_thumbnail(url=spotify.album_cover_url)
+
+            await ctx.send(embed=embed, file=discord.File(buf, 'spotify.png'))
 
 @bot.command(aliases=['docs'])
 async def documentation(ctx: commands.Context):
