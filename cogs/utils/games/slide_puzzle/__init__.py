@@ -1,7 +1,6 @@
 # Inspired by zootest#9949
 
 import random
-import typing
 import time
 
 from .error import *
@@ -10,12 +9,12 @@ from .enums import *
 
 class SlidePuzzle:
     def __init__(self, **options):
-        self.options: typing.Dict[str, str] = options
+        self.options: dict[str, str] = options
 
         self.x: int = options.pop('x', 3)
         self.y: int = options.pop('y', 3)
 
-        self.position: typing.List[typing.List[int]] = self.generate_random()
+        self.position: list[list[int]] = self.generate_random()
 
         self.tries = 0
 
@@ -65,7 +64,7 @@ Switching Numbers:
         else:
             return self._switch_attempts.total
 
-    def generate_random(self) -> typing.List[typing.Union[int, None]]:
+    def generate_random(self) -> list[int | None]:
         position = []
 
         temp = []
@@ -87,7 +86,7 @@ Switching Numbers:
 
         return position
 
-    def get_location(self, item: typing.Union[int, None]) -> Location:
+    def get_location(self, item: int | None) -> Location:
         location = Location()
 
         for row in self.position:
@@ -101,7 +100,7 @@ Switching Numbers:
 
                 return location
 
-    def possible_moves(self) -> typing.List[int]:
+    def possible_moves(self) -> list[int]:
         l = []
 
         none_location = self.get_location(None)
@@ -143,7 +142,7 @@ Switching Numbers:
     def can_move(self, number: int) -> bool:
         return int(number) in self.possible_moves()
 
-    def move_to(self, number: int) -> typing.Union[MoveToEnum, None]:
+    def move_to(self, number: int) -> MoveToEnum | None:
         none_location: Location = self.get_location(None)
         number_location: Location = self.get_location(number)
 
@@ -167,7 +166,7 @@ Switching Numbers:
 
         self.tries += 1
 
-        #move_to: typing.Union[MoveToEnum, None] = self.move_to(number) # From number perspective, not None.
+        #move_to: MoveToEnum | None = self.move_to(number) # From number perspective, not None.
 
         #if not move_to:
             #raise CannotBeMoved(number)
@@ -216,7 +215,7 @@ Switching Numbers:
     def switch_attempts(self):
         return self._switch_attempts
 
-    def switch(self, num1: typing.Union[int, None], num2: typing.Union[int, None]):
+    def switch(self, num1: int | None, num2: int | None):
         if not self._switch_attempts.left:
             raise SwitchAttemptExhausted()
         

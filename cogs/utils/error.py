@@ -1,6 +1,4 @@
 import os
-import typing
-import asyncpg
 import prettify_exceptions
 
 class OpenRobotFormatter(prettify_exceptions.DefaultFormatter):
@@ -69,7 +67,7 @@ class Error:
             original_tb,
         )))
 
-    async def get(self, **kwargs) -> typing.Union[typing.List[ErrorResult], ErrorResult]:
+    async def get(self, **kwargs) -> list[ErrorResult] | ErrorResult:
         if not kwargs:
             return [ErrorResult(dict(x)) for x in await self.bot.tb_pool.fetch('SELECT * FROM tracebacks')]
 

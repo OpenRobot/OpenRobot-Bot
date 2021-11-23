@@ -1,7 +1,6 @@
 import discord
 import sys
 import math
-import typing
 import json
 import os
 import time

@@ -1,4 +1,3 @@
-import typing
 import discord
 import asyncio
 import random
@@ -6,7 +5,7 @@ from discord.ext import commands
 from cogs.utils import Cog, games
 
 class Fun(Cog, emoji=""): # TODO: Put fun emoji
-    bingo_instances: typing.List[games.Bingo] = []
+    bingo_instances: list[games.Bingo] = []
 
     @commands.command('slide-puzzle', aliases=['slidepuzzle', 'slide_puzzle'])
     async def slide_puzzle(self, ctx: commands.Context, *, size: str = None):

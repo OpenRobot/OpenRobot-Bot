@@ -3,7 +3,6 @@ import discord
 import aiohttp
 import asyncpg
 import json
-import typing
 import datetime
 import humanize
 from secrets import token_urlsafe as generate_token
@@ -203,7 +202,7 @@ class API(Cog, emoji='<:OpenRobotLogo:901132699241168937>'):
     @api.command('stats', aliases=['statistics'])
     async def api_stats(self, ctx: commands.Context):
         class SelectOption(discord.SelectOption):
-            def __init__(self, *, name: str, endpoint: str, docs_url: str = None, emoji: typing.Optional[typing.Union[str, discord.Emoji, discord.PartialEmoji]] = None, default: bool = False) -> None:
+            def __init__(self, *, name: str, endpoint: str, docs_url: str = None, emoji: discord.Emoji | discord.PartialEmoji | str | None = None, default: bool = False) -> None:
                 if endpoint:
                     x = f' - {endpoint}'
                 else:

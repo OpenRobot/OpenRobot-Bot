@@ -1,15 +1,14 @@
-import typing
 import discord
 
 class Number:
     def __init__(self, number, claimed=False):
-        self.number: typing.Union[int, None] = number
+        self.number: int | None = number
         self.claimed: bool = claimed
 
 class Player:
     def __init__(self, member, board):
         self.member: discord.Member = member
-        self.board: typing.List[typing.List[Number]] = board
+        self.board: list[list[Number]] = board
 
     def get_number_coordinates(self, number: int):
         x_cords, y_cords = 0, 0

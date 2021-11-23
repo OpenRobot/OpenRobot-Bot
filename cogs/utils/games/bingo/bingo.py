@@ -1,21 +1,20 @@
 import discord
-import typing
 import random
 from .error import BingoError
 from .baseclass import Player, Number, Winner
 
 class Bingo:
-    def __init__(self, players: typing.List[discord.Member], *, min: int = 1, max: int = 75):
+    def __init__(self, players: list[discord.Member], *, min: int = 1, max: int = 75):
         self.x = 5
         self.y = 5
         self._players = players
 
-        self.players: typing.List[Player] = []
+        self.players: list[Player] = []
 
         self.min: int = min
         self.max: int = max
 
-        self.rolls: typing.List[int] = []
+        self.rolls: list[int] = []
 
         self.stopped: bool = False
 
@@ -53,7 +52,7 @@ class Bingo:
         for player in self._players:
             self.players.append(self.generate_player(player))
 
-    def winner(self, player: Player = None) -> typing.Union[Winner, bool, None]:
+    def winner(self, player: Player = None) -> Winner | bool | None:
         if player:
             board = player.board
 
@@ -132,5 +131,5 @@ class Bingo:
 
         player.claim(number)
 
-    def get_cords(self, player: Player, number: int) -> typing.Tuple[typing.Union[int, None], typing.Union[int, None]]:
+    def get_cords(self, player: Player, number: int) -> tuple[int | None, int | None]:
         return player.get_number_coordinates(number)

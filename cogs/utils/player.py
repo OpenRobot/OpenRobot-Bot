@@ -1,7 +1,6 @@
 # Thanks to https://github.com/Axelware/Life-bot/blob/main/bot/utilities/custom/player.py
 
 from __future__ import annotations
-import typing
 
 import discord
 import asyncio
@@ -117,7 +116,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
 
         return await text_channel.send(embed=embed)
 
-    async def set_volume(self, volume: typing.Union[int, float]):
+    async def set_volume(self, volume: int | float):
         await self.set_filter(
             slate.obsidian.Filter(self.filter, volume=volume)
         )

@@ -146,7 +146,7 @@ class Music(Cog, emoji="🎵"):
             return await ctx.send_help(ctx.command)
 
     @music.command('connect', aliases=['join', 'summon'])
-    async def connect(self, ctx: commands.Context, *, channel: typing.Union[discord.VoiceChannel, discord.StageChannel] = commands.Option(None, description='The channel to join to.')):
+    async def connect(self, ctx: commands.Context, *, channel: discord.VoiceChannel | discord.StageChannel = commands.Option(None, description='The channel to join to.')):
         """
         Connects to a channel.
         """

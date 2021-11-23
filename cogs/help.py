@@ -5,7 +5,6 @@
 # - LyricMaster#9688 (My old bot) Help Command
 
 import discord
-import typing
 import contextlib
 from discord.ext import commands
 from cogs.utils import Cog
@@ -56,7 +55,7 @@ class OpenRobotHelp(commands.HelpCommand):
 
         return embed
 
-    async def send_bot_help(self, mapping: typing.Dict[typing.Optional[Cog], commands.Command]):
+    async def send_bot_help(self, mapping: dict[Cog | None, commands.Command]):
         ctx = self.ctx
 
         embed = self.generate_embed()

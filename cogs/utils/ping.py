@@ -1,5 +1,3 @@
-import typing
-import discord
 import time
 import asyncpg
 import aiohttp
@@ -9,7 +7,7 @@ class DatabasePing:
     def __init__(self, ping):
         self._ping = ping
 
-    async def postgresql(self, format: str = 'seconds', spotify: bool = False) -> typing.Union[int, float, None]:
+    async def postgresql(self, format: str = 'seconds', spotify: bool = False) -> int | float | None:
         try:
             start = time.perf_counter()
 
@@ -33,7 +31,7 @@ class DatabasePing:
         except:
             return None
 
-    async def redis(self, format: str = 'seconds', spotify: bool = False) -> typing.Union[int, float, None]:
+    async def redis(self, format: str = 'seconds', spotify: bool = False) -> int | float | None:
         try:
             start = time.perf_counter()
 
@@ -72,13 +70,13 @@ class Ping:
     def db(self) -> DatabasePing:
         return self.database
 
-    def bot_latency(self, format: str = 'seconds') -> typing.Union[int, float]:
+    def bot_latency(self, format: str = 'seconds') -> int | float:
         if format.lower() in ['ms', 'milliseconds', 'millisecond']:
             return self.bot.latency * 1000
         else:
             return self.bot.latency
 
-    async def discord_web_ping(self, format: str = 'seconds') -> typing.Union[int, float]:
+    async def discord_web_ping(self, format: str = 'seconds') -> int | float:
         url = "https://discordapp.com/"
 
         async with aiohttp.ClientSession() as sess:
@@ -91,7 +89,7 @@ class Ping:
                 else:
                     return (end - start)
 
-    async def typing_latency(self, format: str = 'seconds') -> typing.Union[int, float]:
+    async def typing_latency(self, format: str = 'seconds') -> int | float:
         chan = self.bot.get_channel(903282453735678035) # Typing Channel ping test
 
         start = time.perf_counter()
@@ -103,7 +101,7 @@ class Ping:
         else:
             return (end - start)
 
-    async def api(self, format: str = 'seconds') -> typing.Union[int, float]:
+    async def api(self, format: str = 'seconds') -> int | float:
         url = "https://api.openrobot.xyz/_internal/available" # API ping test, fastest endpoint to test as it just returns a static JSON.
 
         async with aiohttp.ClientSession() as sess:

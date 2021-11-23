@@ -1,6 +1,5 @@
 import argparse
 import shlex
-import typing
 from discord.ext import commands
 
 class FlagConverter(commands.FlagConverter, prefix='--', delimiter=' ', case_insensitive=True):
@@ -16,7 +15,7 @@ class LegacyFlagItems:
         self.kwargs = kwargs
 
 class LegacyFlagConverter:
-    def __init__(self, l: typing.List[LegacyFlagItems]):
+    def __init__(self, l: list[LegacyFlagItems]):
         self.data = l
         self.parser = _Arguments(add_help=False, allow_abbrev=False)
 
