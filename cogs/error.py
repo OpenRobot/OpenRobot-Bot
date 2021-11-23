@@ -52,7 +52,7 @@ class Error(Cog):
         if self.bot.tb_pool:
             await self.bot.error.initiate()
 
-    def generate_missing_required_argument(self, ctx: commands.Context, error: commands.MissingRequiredArgument):
+    async def generate_missing_required_argument(self, ctx: commands.Context, error: commands.MissingRequiredArgument):
         command = ctx.command
         param_name = error.param.name
         
@@ -61,6 +61,12 @@ class Error(Cog):
 
         end = None
         spaces = 0
+
+        if ctx.debug:
+            await ctx.send(sig_split)
+            await ctx.send(signature)
+            await ctx.send(end)
+            await ctx.send(spaces)
 
         for arg in sig_split:
             if param_name in re.sub(r'<|>|\[|\]', '', arg) or param_name in arg[1:-1]:
@@ -95,7 +101,7 @@ class Error(Cog):
         elif isinstance(error, commands.CheckFailure) and ctx.cog == self.bot.get_cog('API'):
             return
         elif isinstance(error, commands.MissingRequiredArgument):
-            signature = self.generate_missing_required_argument(ctx, error)
+            signature = await self.generate_missing_required_argument(ctx, error)
 
             if signature is None:
                 return await ctx.send(f'Missing required argument: `{error.param.name}`. Maybe take a look at the help command by doing `{ctx.prefix}help {ctx.command.qualified_name}`.')
