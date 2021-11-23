@@ -77,6 +77,30 @@ class Bot(BaseBot):
 
         return buffer
 
+    async def publishCdn(self, fp : BytesIO, filename : str = "uwu.png", from_aiohttp=True, file_type = None):
+        fileType = file_type or f"{filename.split('.')[-1:]}"
+
+        if from_aiohttp:
+            original = fp.close
+            fp.close = lambda: None
+
+        data = aiohttp.FormData()
+        data.add_field('file', fp)
+
+        url = f"https://cdn.ayomerdeka.com/upload?Authorization={config.CDN_TOKEN}&File-Type={fileType}"
+
+        try:
+            async with aiohttp.ClientSession() as sess:
+                async with sess.post(url, data=data) as resps:
+                    if resps.status == 200:
+                        d = await resps.json()
+                        return d['url']
+                    else:
+                        return None
+        finally:
+            if from_aiohttp:
+                fp.close = original
+
 bot = Bot(
     command_prefix=commands.when_mentioned_or(*config.PREFIXES),
     help_command=commands.MinimalHelpCommand(no_category="Miscellaneous"), # For old help command purposes only. This is used whenever the help cog fails.
@@ -420,32 +444,6 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
 
         msg = await ctx.send(embed=l)
 
-async def publishCdn(fp : BytesIO, filename : str = "uwu.png", from_aiohttp=True, file_type = None):
-    fileType = file_type or f"{filename.split('.')[-1:]}"
-
-    if from_aiohttp:
-        original = fp.close
-        fp.close = lambda: None
-
-    data = aiohttp.FormData()
-    data.add_field('file', fp)
-
-    url = f"https://cdn.ayomerdeka.com/upload?Authorization={config.CDN_TOKEN}&File-Type={fileType}"
-
-    try:
-        async with aiohttp.ClientSession() as sess:
-            async with sess.post(url, data=data) as resps:
-                if resps.status == 200:
-                    d = await resps.json()
-                    return d['url']
-                else:
-                    return None
-    finally:
-        if from_aiohttp:
-            fp.close = original
-
-bot.publishCdn = publishCdn
-
 @bot.command(aliases=['ss'])
 async def screenshot(ctx: commands.Context, url: str = commands.Option(description='The website URL to screenshot.'), delay: int = commands.Option(None, description='Waits for x seconds before taking the screenshot.')):
     """
@@ -493,7 +491,7 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
 
     return await ctx.send(embed=embed, view=View(timeout=None), file=discord.File(buffer, filename='screenshot.png'))
 
-@bot.group()
+#@bot.group()
 async def spotify(ctx: commands.Context):
     """
     OpenRobot Spotify (OpenRobot x Spotify)
@@ -684,6 +682,40 @@ async def spotify_logout(ctx: commands.Context):
             break
     
     await ctx.send('Logged out successfully!')
+
+@bot.command(aliases=['sp'])
+async def spotify(ctx: commands.Context, *, member: discord.Member = None):
+    member = member or ctx.author
+
+    spotify = discord.utils.find(lambda a: isinstance(a, discord.Spotify), member.activities)
+    if spotify is None:
+        return await ctx.send(f"**{member}** is not listening or connected to Spotify.")
+
+    params = {
+        'title': spotify.title,
+        'cover_url': spotify.album_cover_url,
+        'duration_seconds': spotify.duration.total_seconds(),
+        'start_timestamp': spotify.start.timestamp(),
+        'artists': spotify.artists
+    }
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://api.jeyy.xyz/discord/spotify', params=params) as response:
+            buf = BytesIO(await response.read())
+    
+    artists = ', '.join(spotify.artists)
+
+    embed = discord.Embed(color=spotify.colour)
+
+    embed.set_image(url='attachment://spotify.png')
+
+    embed.set_author(name=f'{member}\'s Spotify:', icon_url=member.avatar.url)
+
+    embed.description = f'> **{member}** is listening to [**{spotify.title}** by **{artists}**]({spotify.track_url})\n\n> Started Listening at: {discord.utils.format_dt(spotify.start, style="R")}'
+
+    embed.set_thumbnail(url=spotify.album_cover_url)
+    
+    await ctx.send(embed=embed, file=discord.File(buf, 'spotify.png'))
 
 @bot.command(aliases=['docs'])
 async def documentation(ctx: commands.Context):
