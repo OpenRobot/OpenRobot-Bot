@@ -63,7 +63,7 @@ class Error(Cog):
         spaces = 0
 
         for arg in sig_split:
-            if param_name in re.sub(r'<|>|\[|\]', '', arg) or param_name in arg[1:-1]:
+            if param_name == re.sub(r'<|>|\[|\]', '', arg) or param_name == arg[1:-1]:
                 end = spaces + len(arg)
                 break
 
@@ -72,7 +72,7 @@ class Error(Cog):
         if end is None:
             return None
 
-        signature += '\n' + ' '*spaces + '^'*end
+        signature += '\n' + '\u200b '*len(f'{ctx.prefix}{command.qualified_name} ') + '\u200b '*spaces + '^'*end
 
         final_signature = f'{ctx.prefix}{command.qualified_name} {signature}'
 
@@ -106,7 +106,7 @@ class Error(Cog):
 
             embed.set_footer(text=f'Command invoked by: {ctx.author}', icon_url=ctx.author.avatar.url)
 
-            embed.description += f'**Errored At:** ```prolog\n{signature}```'
+            embed.description += f'\n\n**Errored At:** ```prolog\n{signature}```'
 
             view = View(timeout=60)
             view.add_item(MissingButton(error, embed, ctx=ctx, style=discord.ButtonStyle.green, label=f'Enter required argument for \'{error.param.name}\''))
