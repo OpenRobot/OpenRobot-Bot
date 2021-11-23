@@ -63,7 +63,7 @@ class Error(Cog):
         spaces = 0
 
         for arg in sig_split:
-            if regex := re.findall(rf'^[\<|\[]{param_name}[\>|\]]$', arg):
+            if regex := re.findall(rf'{param_name}', arg):
                 end = spaces + len(arg)
                 break
 
