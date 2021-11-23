@@ -2,6 +2,7 @@ import discord
 import config
 import asyncpg
 import mystbin
+import boto3
 from discord.ext import commands
 from .ping import Ping
 from .error import Error
@@ -28,6 +29,7 @@ class Bot(commands.Bot):
         self.error: Error = Error(self)
         self.discord_activity: discord_activity.DiscordActivity = discord_activity.DiscordActivity(config.TOKEN)
         self.driver = Driver
+        self.cdn = boto3.client('s3', **config.AWS_CRIDENTIALS)
 
         # Databases
         self.pool: asyncpg.Pool = None

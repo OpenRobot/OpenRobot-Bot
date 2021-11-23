@@ -14,6 +14,8 @@ import textwrap
 import mystbin
 import pathlib
 import typing
+import random
+import string
 from discord.ext import commands
 from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator, Context, Ping, executor
 from io import BytesIO, StringIO
@@ -38,6 +40,8 @@ class LineCount:
             setattr(self, k, v)
 
 class Bot(BaseBot):
+    CDN_BUCKET = 'cdn.openrobot.xyz'
+
     def line_count(self, directory: str = './') -> LineCount:
         p = pathlib.Path(directory)
         cm = cr = fn = cl = ls = fc = 0
@@ -66,7 +70,7 @@ class Bot(BaseBot):
             if delay <= 0:
                 delay = None
 
-        with bot.driver(use_proxy=proxy or False) as driver:
+        with self.driver(use_proxy=proxy or False) as driver:
             driver.get(url)
             driver.set_window_size(1920, 1080)
 
@@ -100,6 +104,32 @@ class Bot(BaseBot):
         finally:
             if from_aiohttp:
                 fp.close = original
+
+    @executor() # CDN may be blocking, so lets just use an executor just in case
+    def publish_cdn(self, fp: BytesIO | bytes, filename: str, *, raw: bool = False) -> str | dict | typing.Any:
+        hash = ''.join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))
+
+        file_type = filename.split('.')
+        file_type = file_type[len(file_type) - 1]
+
+        with open(f'./cdn-images/{hash}.{file_type}', 'wb') as f:
+            f.write(getattr(fp, 'getvalue', lambda: fp)())
+
+        response = self.cdn.upload_file(
+            f'./cdn-images/{hash}.{file_type}',
+            self.CDN_BUCKET,
+            filename
+        )
+
+        try:
+            os.remove(f'./cdn-images/{hash}.{file_type}')
+        except:
+            pass
+
+        if not raw:
+            return 'https://' + self.CDN_BUCKET + '/' + filename
+        else:
+            return response
 
 bot = Bot(
     command_prefix=commands.when_mentioned_or(*config.PREFIXES),
@@ -703,11 +733,13 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
         async with session.get('https://api.jeyy.xyz/discord/spotify', params=params) as response:
             buf = BytesIO(await response.read())
 
+    url = await bot.publish_cdn(buf, f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}')
+
     artists = ', '.join(spotify.artists)
 
     embed = discord.Embed(color=spotify.colour)
 
-    embed.set_image(url='attachment://spotify.png')
+    embed.set_image(url=url)
 
     embed.set_author(name=f'{member}\'s Spotify:', icon_url=member.avatar.url)
 
@@ -715,7 +747,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 
     embed.set_thumbnail(url=spotify.album_cover_url)
 
-    await ctx.send(embed=embed, file=discord.File(buf, 'spotify.png'))
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['docs'])
 async def documentation(ctx: commands.Context):
