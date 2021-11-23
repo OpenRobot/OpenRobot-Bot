@@ -1,4 +1,5 @@
 import os
+from traceback import format_exception
 import prettify_exceptions
 
 class OpenRobotFormatter(prettify_exceptions.DefaultFormatter):
@@ -6,6 +7,12 @@ class OpenRobotFormatter(prettify_exceptions.DefaultFormatter):
         kwargs['theme'] = {'_ansi_enabled': True if (not os.environ.get('OPENROBOT-FORMATTER_NO_COLOR', 'True').lower() == 'true') or (not kwargs.pop('no_color', True)) else False}
 
         super().__init__(**kwargs)
+
+    def format_exception(self, exc, *args, **kwargs):
+        etype = type(exc)
+        trace = exc.__traceback__
+
+        return super().format_exception(etype, exc, trace, *args, **kwargs)
 
 class ErrorResult:
     def __init__(self, **kwargs):
