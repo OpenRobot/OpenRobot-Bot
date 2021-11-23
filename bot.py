@@ -1037,10 +1037,17 @@ def start(**kwargs):
                 except:
                     pass
 
+    async def send_online_msg():
+        await bot.wait_until_ready()
+
+        webhook = discord.Webhook.from_url(config.UPTIME_WEBHOOK, session=bot.session)
+        await webhook.send(embed=discord.Embed(description='<:status_online:596576749790429200> OpenRobot is going online and up!', color=bot.color))
+
     def start_tasks():
         bot.loop.create_task(parse_flags(**kwargs))
         bot.loop.create_task(do_on_ready())
         bot.loop.create_task(do_restart_message())
+        bot.loop.create_task(send_online_msg())
 
         try:
             bot.loop.create_task(bot.cogs['Music'].renew())
@@ -1054,4 +1061,8 @@ def start(**kwargs):
 
     start_tasks()
 
-    bot.run(config.TOKEN)
+    try:
+        bot.run(config.TOKEN)
+    finally:
+        webhook = discord.SyncWebhook.from_url(config.UPTIME_WEBHOOK)
+        webhook.send(embed=discord.Embed(description='<:status_offline:596576752013279242> OpenRobot is going offline and shutting down!', color=bot.color))
