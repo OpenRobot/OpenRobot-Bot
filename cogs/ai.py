@@ -243,14 +243,12 @@ AI: 5 times 6 is 30"""
         if not url:
             return await ctx.send('No image provided.')
         
-        async with aiohttp.ClientSession() as sess:
-            async with sess.get(url) as resp:
-                img_bytes = BytesIO(await resp.read())
+        async with self.bot.session.get(url) as resp:
+            img_bytes = BytesIO(await resp.read())
 
         try:
-            async with aiohttp.ClientSession() as sess:
-                async with sess.get('https://api.openrobot.xyz/api/celebrity', params={'url': url}, headers={'Authorization': self.bot.api.token}) as resp:
-                    js = await resp.json()
+            async with self.bot.session.get('https://api.openrobot.xyz/api/celebrity', params={'url': url}, headers={'Authorization': self.bot.api.token}) as resp:
+                js = await resp.json()
 
             try:
                 if '--raw' in image.split(' '):

@@ -94,13 +94,12 @@ class Bot(BaseBot):
         url = f"https://cdn.ayomerdeka.com/upload?Authorization={config.CDN_TOKEN}&File-Type={fileType}"
 
         try:
-            async with aiohttp.ClientSession() as sess:
-                async with sess.post(url, data=data) as resps:
-                    if resps.status == 200:
-                        d = await resps.json()
-                        return d['url']
-                    else:
-                        return None
+            async with self.session.post(url, data=data) as resps:
+                if resps.status == 200:
+                    d = await resps.json()
+                    return d['url']
+                else:
+                    return None
         finally:
             if from_aiohttp:
                 fp.close = original
@@ -617,12 +616,11 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
             spotify = aiospotify.Client()
 
-            async with aiohttp.ClientSession() as sess:
-                async with sess.get('https://api.spotify.com/v1/me', headers={'Authorization': f'Bearer {spotify_db_res["access_token"]}'}) as resp:
-                    js = await resp.json()
+            async with bot.session.get('https://api.spotify.com/v1/me', headers={'Authorization': f'Bearer {spotify_db_res["access_token"]}'}) as resp:
+                js = await resp.json()
 
-                    username = js['display_name']
-                    url = js['uri']
+                username = js['display_name']
+                url = js['uri']
         else:
             await bot.spotify_redis.delete(str(ctx.author.id))
     
@@ -660,12 +658,11 @@ Now, sign in to the correct spotify account and click the `Agree` button.
             else:
                 break
 
-        async with aiohttp.ClientSession() as sess:
-            async with sess.get('https://api.spotify.com/v1/me', headers={'Authorization': f'Bearer {spotify_db_res["access_token"]}'}) as resp:
-                js = await resp.json()
+        async with bot.session.get('https://api.spotify.com/v1/me', headers={'Authorization': f'Bearer {spotify_db_res["access_token"]}'}) as resp:
+            js = await resp.json()
 
-                username = js['display_name']
-                url = js['uri']
+            username = js['display_name']
+            url = js['uri']
 
     embed = discord.Embed(color=bot.color)
 
@@ -729,9 +726,8 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
         'artists': spotify.artists[0]
     }
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get('https://api.jeyy.xyz/discord/spotify', params=params) as response:
-            buf = BytesIO(await response.read())
+    async with bot.session.get('https://api.jeyy.xyz/discord/spotify', params=params) as response:
+        buf = BytesIO(await response.read())
 
     url = await bot.publish_cdn(buf, f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png') # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
 

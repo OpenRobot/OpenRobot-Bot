@@ -84,30 +84,29 @@ class Music(Cog, emoji="🎵"):
                 pass
 
         try:
-            async with aiohttp.ClientSession() as sess:
-                async with sess.post('https://accounts.spotify.com/api/token', headers={'Authorization': (b'Basic ' + base64.urlsafe_b64encode(f'{SPOTIFY_CRIENDTIALS["client_id"]}:{SPOTIFY_CRIENDTIALS["client_secret"]}'.encode())).decode(), 'Content-Type': 'application/x-www-form-urlencoded'}, params = {'grant_type': 'refresh_token', 'refresh_token': res['refresh_token']}) as resp:
-                    js = await resp.json()
+            async with self.bot.session.post('https://accounts.spotify.com/api/token', headers={'Authorization': (b'Basic ' + base64.urlsafe_b64encode(f'{SPOTIFY_CRIENDTIALS["client_id"]}:{SPOTIFY_CRIENDTIALS["client_secret"]}'.encode())).decode(), 'Content-Type': 'application/x-www-form-urlencoded'}, params = {'grant_type': 'refresh_token', 'refresh_token': res['refresh_token']}) as resp:
+                js = await resp.json()
 
-                    if 'expires_in' not in js and 'access_token' not in js:
+                if 'expires_in' not in js and 'access_token' not in js:
+                    await self.bot.spotify_pool.execute("""
+                    DELETE FROM spotify_auth
+                    WHERE user_id = $1
+                    """, user_id)
+                    return
+
+                while True:
+                    try:
                         await self.bot.spotify_pool.execute("""
-                        DELETE FROM spotify_auth
+                        UPDATE spotify_auth
+                        SET access_token = $2,
+                            expires_at = $3,
+                            expires_in = $4
                         WHERE user_id = $1
-                        """, user_id)
-                        return
-
-                    while True:
-                        try:
-                            await self.bot.spotify_pool.execute("""
-                            UPDATE spotify_auth
-                            SET access_token = $2,
-                                expires_at = $3,
-                                expires_in = $4
-                            WHERE user_id = $1
-                            """, user_id, js['access_token'], (datetime.datetime.utcnow() + datetime.timedelta(seconds=js['expires_in'])), js['expires_in'])
-                        except asyncpg.exceptions._base.InterfaceError:
-                            pass
-                        else:
-                            pass
+                        """, user_id, js['access_token'], (datetime.datetime.utcnow() + datetime.timedelta(seconds=js['expires_in'])), js['expires_in'])
+                    except asyncpg.exceptions._base.InterfaceError:
+                        pass
+                    else:
+                        pass
         except Exception as e:
             raise e
 
@@ -274,23 +273,22 @@ class Music(Cog, emoji="🎵"):
                         return await ctx.send('Please Sign-In to OpenRobot Spotify using `or.spotify login`.')
 
                     while True:
-                        async with aiohttp.ClientSession() as sess:
-                            async with sess.get('https://api.spotify.com/v1/me/tracks', params={'limit': 50, 'offset': offset, 'market': 'US'}, headers={'Authorization': f'Bearer {access_token}'}) as resp:
-                                js = await resp.json()
+                        async with self.bot.session.get('https://api.spotify.com/v1/me/tracks', params={'limit': 50, 'offset': offset, 'market': 'US'}, headers={'Authorization': f'Bearer {access_token}'}) as resp:
+                            js = await resp.json()
 
-                                #import json
+                            #import json
 
-                                #await ctx.send(file=discord.File(io.StringIO(json.dumps(js, indent=4)), filename='result.json'))
+                            #await ctx.send(file=discord.File(io.StringIO(json.dumps(js, indent=4)), filename='result.json'))
 
-                                if not js['items']:
-                                    break
+                            if not js['items']:
+                                break
 
-                                for item in js['items']:
-                                    urls.append(item['track']['name'] + item['track']['artists'][0]['name'])
+                            for item in js['items']:
+                                urls.append(item['track']['name'] + item['track']['artists'][0]['name'])
 
-                                offset += 50
+                            offset += 50
 
-                                await asyncio.sleep(.75)
+                            await asyncio.sleep(.75)
 
                     if not urls:
                         return await ctx.send('If you don\'t have any Spotify Liked Songs, how can I load them?')

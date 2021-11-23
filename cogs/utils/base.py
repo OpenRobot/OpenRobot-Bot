@@ -3,15 +3,16 @@ import config
 import asyncpg
 import mystbin
 import boto3
-from discord.ext import commands
-from .ping import Ping
-from .error import Error
-from .context import Context
-from .driver import Driver
-from openrobot.api_wrapper import AsyncClient
-from openrobot import discord_activities as discord_activity
 import aioredis
 import aiospotify
+import aiohttp
+from .ping import Ping
+from .error import Error
+from .driver import Driver
+from .context import Context
+from discord.ext import commands
+from openrobot.api_wrapper import AsyncClient
+from openrobot import discord_activities as discord_activity
 
 class Bot(commands.Bot):
     def __init__(self, *args, **options):
@@ -20,11 +21,12 @@ class Bot(commands.Bot):
         self.running_commands = {}
 
         # Some other attrs that can be used
-        self.spotify: aiospotify.Client = aiospotify.Client(**config.AIOSPOTIFY_CRIDENTIALS)
+        self.session = aiohttp.ClientSession(loop=self.loop)
+        self.spotify: aiospotify.Client = aiospotify.Client(**config.AIOSPOTIFY_CRIDENTIALS, session=self.session)
         self.color: discord.Colour = None
         self.config = config
-        self.mystbin: mystbin.Client = mystbin.Client()
-        self.api: AsyncClient = AsyncClient(config.API_TOKEN, ignore_warning=True)
+        self.mystbin: mystbin.Client = mystbin.Client(session=self.session)
+        self.api: AsyncClient = AsyncClient(config.API_TOKEN, ignore_warning=True, session=self.session)
         self.ping: Ping = Ping(self)
         self.error: Error = Error(self)
         self.discord_activity: discord_activity.DiscordActivity = discord_activity.DiscordActivity(config.TOKEN)

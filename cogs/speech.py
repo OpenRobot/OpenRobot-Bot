@@ -47,9 +47,8 @@ class Speech(Cog, emoji="\U0001f399"):
 
             tts = await self.bot.api.speech.text_to_speech(text, lang_code, voice_id)
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(tts.url) as resp:
-                    await ctx.send(f'Requested by {ctx.author.mention} - `{ctx.author}`', file=discord.File(io.BytesIO(await resp.read()), filename='tts.mp3'), allowed_mentions=discord.AllowedMentions(users=False))
+            async with self.bot.session.get(tts.url) as resp:
+                await ctx.send(f'Requested by {ctx.author.mention} - `{ctx.author}`', file=discord.File(io.BytesIO(await resp.read()), filename='tts.mp3'), allowed_mentions=discord.AllowedMentions(users=False))
 
     @text_to_speech.command(name='details', aliases=['info', 'support'])
     async def text_to_speech_details(self, ctx: commands.Context, language_code: str = None):

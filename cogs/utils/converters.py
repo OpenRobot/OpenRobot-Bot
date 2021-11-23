@@ -66,18 +66,16 @@ class AudioConverter(Converter):
             x = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', argument)
             
             for i in x:
-                async with aiohttp.ClientSession() as sess:
-                    async with sess.get(i) as resp:
-                        if resp.content_type.startswith('audio/'):
-                            return i
+                async with ctx.bot.session.get(i) as resp:
+                    if resp.content_type.startswith('audio/'):
+                        return i
         elif ctx.message.reference:
             x = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', ctx.message.reference.resolved.content)
 
             for i in x:
-                async with aiohttp.ClientSession() as sess:
-                    async with sess.get(i) as resp:
-                        if resp.content_type.startswith('audio/'):
-                            return i
+                async with ctx.bot.session.get(i) as resp:
+                    if resp.content_type.startswith('audio/'):
+                        return i
 
         if ctx.message.attachments:
             for attachment in ctx.message.attachments:

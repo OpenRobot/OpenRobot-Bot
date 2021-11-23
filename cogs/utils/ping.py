@@ -79,15 +79,14 @@ class Ping:
     async def discord_web_ping(self, format: str = 'seconds') -> int | float:
         url = "https://discordapp.com/"
 
-        async with aiohttp.ClientSession() as sess:
-            start = time.perf_counter()
-            async with sess.get(url) as resp:
-                end = time.perf_counter()
+        start = time.perf_counter()
+        async with self.bot.session.get(url) as resp:
+            end = time.perf_counter()
 
-                if format.lower() in ['ms', 'milliseconds', 'millisecond']:
-                    return (end - start) * 1000
-                else:
-                    return (end - start)
+            if format.lower() in ['ms', 'milliseconds', 'millisecond']:
+                return (end - start) * 1000
+            else:
+                return (end - start)
 
     async def typing_latency(self, format: str = 'seconds') -> int | float:
         chan = self.bot.get_channel(903282453735678035) # Typing Channel ping test
@@ -104,12 +103,11 @@ class Ping:
     async def api(self, format: str = 'seconds') -> int | float:
         url = "https://api.openrobot.xyz/_internal/available" # API ping test, fastest endpoint to test as it just returns a static JSON.
 
-        async with aiohttp.ClientSession() as sess:
-            start = time.perf_counter()
-            async with sess.get(url) as resp:
-                end = time.perf_counter()
+        start = time.perf_counter()
+        async with self.bot.session.get(url) as resp:
+            end = time.perf_counter()
 
-                if format.lower() in ['ms', 'milliseconds', 'millisecond']:
-                    return (end - start) * 1000
-                else:
-                    return (end - start)
+            if format.lower() in ['ms', 'milliseconds', 'millisecond']:
+                return (end - start) * 1000
+            else:
+                return (end - start)
