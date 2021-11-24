@@ -760,46 +760,52 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 
     artists = []
 
-    try:
-        async with bot.session.post('https://accounts.spotify.com/api/token', params={'grant_type': 'client_credentials'}, headers={'Authorization': f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}', 'Content-Type': 'application/x-www-form-urlencoded'}) as resp:
-            auth_js = await resp.json()
-    except Exception as e:
-        if ctx.debug:
-            raise e
+    do_spotify_api = False
 
-        artists = ', '.join(spotify.artists)
-        album = spotify.album
-    else:
+    if do_spotify_api:
         try:
-            for artist in spotify.artists:
-                try:
-                    async with bot.session.get('https://api.spotify.com/v1/search', params={'q': artist, 'type': 'artist', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {auth_js["access_token"]}'}) as resp:
-                        js = await resp.json()
-
-                    artists.append(f'[{js["artists"]["items"][0]["name"]}]({js["artists"]["items"][0]["external_urls"]["spotify"]})')
-                except Exception as e:
-                    if ctx.debug:
-                        raise e
-
-                    artists.append(artist)
-
-            artists = ', '.join(artists)
+            async with bot.session.post('https://accounts.spotify.com/api/token', params={'grant_type': 'client_credentials'}, headers={'Authorization': f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}', 'Content-Type': 'application/x-www-form-urlencoded'}) as resp:
+                auth_js = await resp.json()
         except Exception as e:
             if ctx.debug:
                 raise e
 
             artists = ', '.join(spotify.artists)
-
-        try:
-            async with bot.session.get('https://api.spotify.com/v1/search', params={'q': spotify.album, 'type': 'album', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {auth_js["access_token"]}'}) as resp:
-                js = await resp.json()
-
-            album = f'[{js["albums"]["items"][0]["name"]}]({js["albums"]["items"][0]["external_urls"]["spotify"]})'
-        except Exception as e:
-            if ctx.debug:
-                raise e
-
             album = spotify.album
+        else:
+            try:
+                for artist in spotify.artists:
+                    try:
+                        async with bot.session.get('https://api.spotify.com/v1/search', params={'q': artist, 'type': 'artist', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {auth_js["access_token"]}'}) as resp:
+                            js = await resp.json()
+
+                        artists.append(f'[{js["artists"]["items"][0]["name"]}]({js["artists"]["items"][0]["external_urls"]["spotify"]})')
+                    except Exception as e:
+                        if ctx.debug:
+                            raise e
+
+                        artists.append(artist)
+
+                artists = ', '.join(artists)
+            except Exception as e:
+                if ctx.debug:
+                    raise e
+
+                artists = ', '.join(spotify.artists)
+
+            try:
+                async with bot.session.get('https://api.spotify.com/v1/search', params={'q': spotify.album, 'type': 'album', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {auth_js["access_token"]}'}) as resp:
+                    js = await resp.json()
+
+                album = f'[{js["albums"]["items"][0]["name"]}]({js["albums"]["items"][0]["external_urls"]["spotify"]})'
+            except Exception as e:
+                if ctx.debug:
+                    raise e
+
+                album = spotify.album
+    else:
+        artists = ', '.join(spotify.artists)
+        album = spotify.album
 
     embed.set_author(name=f'{member}\'s Spotify:', icon_url=member.avatar.url)
 
