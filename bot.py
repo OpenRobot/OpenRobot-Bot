@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+from aiospotify.objects.enums import SearchType
 import discord
 import config
 import re
@@ -149,7 +150,7 @@ class Bot(BaseBot):
         await self.spotify.close()
 
         await self.session.close()
-        
+
         return await super().close()
 
 bot = Bot(
@@ -753,15 +754,32 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 
     url = await bot.publish_cdn(buf, f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png') # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
 
-    artists = ', '.join(spotify.artists)
-
     embed = discord.Embed(color=spotify.colour)
 
     embed.set_image(url=url)
 
+    artists = []
+
+    for artist in spotify.artists:
+        search = await bot.spotify.search(search_types=[SearchType.ARTIST], market='US', limit=1, q=artist)
+
+        try:
+            artists.append(f'[{search.artists[0].name}]({search.artists[0].external_urls["spotify"]})')
+        except:
+            artists.append(artist)
+
+    artists = ', '.join(artists)
+
     embed.set_author(name=f'{member}\'s Spotify:', icon_url=member.avatar.url)
 
-    embed.description = f'> **{member}** is listening to [**{spotify.title}** by **{artists}**]({spotify.track_url})\n> \n> **Started Listening at:** {discord.utils.format_dt(spotify.start, style="R")}\n> \n> **Lyrics:** moved to `{ctx.prefix}lyrics --from-spotify`/`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`'
+    embed.description = f"""
+> **{member}** is listening to [{spotify.title}]({spotify.track_url}) by {artists}
+> 
+> **Album:** [{spotify.album}]({spotify.album_url})
+> **Duration:** {spotify.duration}
+> **Artists:** {artists}
+> **Lyrics:** moved to `{ctx.prefix}lyrics --from-spotify`/`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
+    """
 
     embed.set_thumbnail(url=spotify.album_cover_url)
 
