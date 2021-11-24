@@ -3,7 +3,7 @@ from . import (
     cog, 
     flg, 
     views, 
-    pagniator, 
+    paginator, 
     converters, 
     context, 
     player, 
@@ -20,7 +20,7 @@ from . import (
 from .cog import *
 from .flg import *
 from .views import *
-from .pagniator import *
+from .paginator import *
 from .converters import *
 from .context import *
 from .player import *
