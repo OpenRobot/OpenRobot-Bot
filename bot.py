@@ -733,8 +733,6 @@ async def spotify_logout(ctx: commands.Context):
     
     await ctx.send('Logged out successfully!')
 
-do_spotify_api = True
-
 @bot.command(aliases=['sp'])
 async def spotify(ctx: commands.Context, *, member: discord.Member = None):
     member = member or ctx.author
@@ -762,6 +760,8 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 
     artists = []
 
+    do_spotify_api = True
+
     if do_spotify_api:
         try:
             async with bot.session.post('https://accounts.spotify.com/api/token', params={'grant_type': 'client_credentials'}, headers={'Authorization': f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}', 'Content-Type': 'application/x-www-form-urlencoded'}) as resp:
@@ -779,7 +779,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
                         async with bot.session.get('https://api.spotify.com/v1/search', params={'q': artist, 'type': 'artist', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {auth_js["access_token"]}'}) as resp:
                             js = await resp.json()
 
-                        artists.append(f'[{js["artists"]["items"][0]["name"]}]({js["artists"]["items"][0]["external_urls"]["spotify"]})')
+                        artists.append(f'[`{js["artists"]["items"][0]["name"]}`]({js["artists"]["items"][0]["external_urls"]["spotify"]})')
                     except Exception as e:
                         if ctx.debug:
                             raise e
@@ -797,23 +797,23 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
                 async with bot.session.get('https://api.spotify.com/v1/search', params={'q': spotify.album, 'type': 'album', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {auth_js["access_token"]}'}) as resp:
                     js = await resp.json()
 
-                album = f'[{js["albums"]["items"][0]["name"]}]({js["albums"]["items"][0]["external_urls"]["spotify"]})'
+                album = f'[`{js["albums"]["items"][0]["name"]}`]({js["albums"]["items"][0]["external_urls"]["spotify"]})'
             except Exception as e:
                 if ctx.debug:
                     raise e
 
                 album = spotify.album
     else:
-        artists = ', '.join(spotify.artists)
-        album = spotify.album
+        artists = ', '.join([f'`{x}`' for x in spotify.artists])
+        album = '`' + spotify.album + '`'
 
     embed.set_author(name=f'{member}\'s Spotify:', icon_url=member.avatar.url)
 
     embed.description = f"""
-> **{member}** is listening to [{spotify.title}]({spotify.track_url}) by {artists}
+> **{member}** is listening to [`{spotify.title}`]({spotify.track_url}) by {artists}
 > 
 > **Album:** {album}
-> **Duration:** {spotify.duration}
+> **Duration:** {str(spotify.duration).split('.')[0]} | 
 > **Artists:** {artists}
 > **Lyrics:** moved to `{ctx.prefix}lyrics --from-spotify`/`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
     """
