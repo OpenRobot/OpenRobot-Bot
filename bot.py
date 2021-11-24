@@ -762,10 +762,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 
     try:
         async with bot.session.post('https://accounts.spotify.com/api/token', params={'grant_type': 'client_credentials'}, headers={'Authorization': f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}', 'Content-Type': 'application/x-www-form-urlencoded'}) as resp:
-            js = await resp.json()
-
-        if ctx.debug:
-            await ctx.send(js)
+            auth_js = await resp.json()
     except Exception as e:
         if ctx.debug:
             raise e
@@ -776,7 +773,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
         try:
             for artist in spotify.artists:
                 try:
-                    async with bot.session.get('https://api.spotify.com/v1/search', params={'q': artist, 'type': 'artist', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {js["access_token"]}'}) as resp:
+                    async with bot.session.get('https://api.spotify.com/v1/search', params={'q': artist, 'type': 'artist', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {auth_js["access_token"]}'}) as resp:
                         js = await resp.json()
 
                     artists.append(f'[{js["artists"]["items"][0]["name"]}]({js["artists"]["items"][0]["external_urls"]["spotify"]})')
@@ -794,7 +791,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
             artists = ', '.join(spotify.artists)
 
         try:
-            async with bot.session.get('https://api.spotify.com/v1/search', params={'q': spotify.album, 'type': 'album', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {js["access_token"]}'}) as resp:
+            async with bot.session.get('https://api.spotify.com/v1/search', params={'q': spotify.album, 'type': 'album', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {auth_js["access_token"]}'}) as resp:
                 js = await resp.json()
 
             album = f'[{js["albums"]["items"][0]["name"]}]({js["albums"]["items"][0]["external_urls"]["spotify"]})'
