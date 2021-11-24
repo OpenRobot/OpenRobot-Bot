@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-from aiospotify.objects.enums import SearchType
 import discord
 import config
 import re
@@ -17,6 +16,7 @@ import pathlib
 import typing
 import random
 import string
+import base64
 from discord.ext import commands
 from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator, Context, Ping, executor
 from io import BytesIO, StringIO
@@ -760,26 +760,50 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 
     artists = []
 
-    for artist in spotify.artists:
+    try:
+        async with bot.session.get('https://accounts.spotify.com/api/token', params={'grant_type': 'client_credentials'}, headers={'Authorization': f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode())}'}) as resp:
+            js = await resp.json()
+    except:
+        artists = ', '.join(spotify.artists)
+        album = spotify.album
+    else:
         try:
-            async with bot.session.get('https://api.spotify.com/v1/search', params={'q': artist, 'type': 'artist', 'market': 'US', 'limit': 1, 'offset': 0}) as resp:
-                js = await resp.json()
+            for artist in spotify.artists:
+                try:
+                    async with bot.session.get('https://api.spotify.com/v1/search', params={'q': artist, 'type': 'artist', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {js["access_token"]}'}) as resp:
+                        js = await resp.json()
 
-            artists.append(f'[{js["artists"]["items"][0]["name"]}]({js["artists"]["items"][0]["external_urls"]["spotify"]})')
+                    artists.append(f'[{js["artists"]["items"][0]["name"]}]({js["artists"]["items"][0]["external_urls"]["spotify"]})')
+                except Exception as e:
+                    if ctx.debug:
+                        raise e
+
+                    artists.append(artist)
+
+            artists = ', '.join(artists)
         except Exception as e:
             if ctx.debug:
                 raise e
 
-            artists.append(artist)
+            artists = ', '.join(spotify.artists)
 
-    artists = ', '.join(artists)
+        try:
+            async with bot.session.get('https://api.spotify.com/v1/search', params={'q': spotify.album, 'type': 'album', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {js["access_token"]}'}) as resp:
+                js = await resp.json()
+
+            album = f'[{js["albums"]["items"][0]["name"]}]({js["albums"]["items"][0]["external_urls"]["spotify"]})'
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
+            album = spotify.album
 
     embed.set_author(name=f'{member}\'s Spotify:', icon_url=member.avatar.url)
 
     embed.description = f"""
 > **{member}** is listening to [{spotify.title}]({spotify.track_url}) by {artists}
 > 
-> **Album:** [{spotify.album}]({spotify.album_url})
+> **Album:** {album}
 > **Duration:** {spotify.duration}
 > **Artists:** {artists}
 > **Lyrics:** moved to `{ctx.prefix}lyrics --from-spotify`/`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
