@@ -761,11 +761,15 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
     artists = []
 
     for artist in spotify.artists:
-        search = await bot.spotify.search(artist, search_types=[SearchType.ARTIST], market='US', limit=1)
-
         try:
-            artists.append(f'[{search.artists[0].name}]({search.artists[0].external_urls["spotify"]})')
-        except:
+            async with bot.session.get('https://api.spotify.com/v1/search', params={'q': artist, 'type': 'artist', 'market': 'US', 'limit': 1, 'offset': 0}) as resp:
+                js = await resp.json()
+
+            artists.append(f'[{js["artists"]["items"][0]["name"]}]({js["artists"]["items"][0]["external_urls"]["spotify"]})')
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
             artists.append(artist)
 
     artists = ', '.join(artists)
