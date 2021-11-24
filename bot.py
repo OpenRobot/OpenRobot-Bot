@@ -761,7 +761,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
     artists = []
 
     for artist in spotify.artists:
-        search = await bot.spotify.search(search_types=[SearchType.ARTIST], market='US', limit=1, q=artist)
+        search = await bot.spotify.search(artist, search_types=[SearchType.ARTIST], market='US', limit=1)
 
         try:
             artists.append(f'[{search.artists[0].name}]({search.artists[0].external_urls["spotify"]})')
