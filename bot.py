@@ -814,7 +814,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 > **{member}** is listening to [`{spotify.title}`]({spotify.track_url}) by {artists}
 > 
 > **Album:** {album}
-> **Duration:** `{str(spotify.duration).split('.')[0]}` | `{humanize.naturaldelta(spotify.duration)}`
+> **Duration:** `{str(spotify.duration).split('.')[0]}` | `{humanize.naturaldelta(spotify.duration, minimum_unit="milliseconds")}`
 > **Artists:** {artists}
 > **Lyrics:** moved to `{ctx.prefix}lyrics --from-spotify`/`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
     """
