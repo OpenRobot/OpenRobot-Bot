@@ -733,6 +733,8 @@ async def spotify_logout(ctx: commands.Context):
     
     await ctx.send('Logged out successfully!')
 
+do_spotify_api = True
+
 @bot.command(aliases=['sp'])
 async def spotify(ctx: commands.Context, *, member: discord.Member = None):
     member = member or ctx.author
@@ -759,8 +761,6 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
     embed.set_image(url=url)
 
     artists = []
-
-    do_spotify_api = False
 
     if do_spotify_api:
         try:
