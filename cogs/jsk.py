@@ -330,7 +330,135 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
                 returned = await alt_ctx.command.invoke(alt_ctx)
 
         end = time.perf_counter()
-        return await ctx.send(f"Command `{alt_ctx.command.qualified_name}` finished in `{end - start:.3f}s`, returning `{returned}`")        
+        return await ctx.send(f"Command `{alt_ctx.command.qualified_name}` finished in `{end - start:.3f}s`, returning `{returned}`")  
+
+    @Feature.Command(parent="jsk", name="sync", aliases=["pull"])
+    async def jsk_sync(self, ctx: commands.Context, *, extra: str = None):
+        """
+        Syncs the bot with GitHub.
+
+        This will ask you if you want to:
+        - `Restart the Bot`
+        - `Reload pulled cogs (try to)`
+        - `Do Nothing`
+        """
+
+        extra = f' {extra}' if extra else ''
+
+        proc = await asyncio.create_subprocess_shell(
+            f'git pull{extra}',
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+
+        stdout, stderr = await proc.communicate()
+
+        embed = discord.Embed(color=self.bot.color)
+
+        embed.description = f"""```bash
+{stdout.decode()}
+{stderr.decode()}
+
+Exited with code {proc.returncode}.```
+        """
+
+        embed.set_author(name='Sync', icon_url=ctx.author.avatar.url)
+
+        await ctx.send(embed=embed)
+
+        if proc.returncode == 0 and not stderr and stdout != 'Already up to date.':
+            class View(discord.ui.View):
+                def __init__(self, *, timeout: float | None = 180):
+                    self.message = None
+                    self.value = None
+
+                    super().__init__(timeout=timeout)
+
+                @discord.ui.button(label='Restart', style=discord.ButtonStyle.blurple)
+                async def restart(self, button: discord.ui.Button, interaction: discord.Interaction):
+                    self.value = 'restart'
+                    
+                    for child in self.children:
+                        child.disabled = True
+
+                    await interaction.message.edit(view=self)
+
+                    self.stop()
+
+                @discord.ui.button(label='Reload', style=discord.ButtonStyle.blurple)
+                async def restart(self, button: discord.ui.Button, interaction: discord.Interaction):
+                    self.value = 'reload'
+                    
+                    for child in self.children:
+                        child.disabled = True
+
+                    await interaction.message.edit(view=self)
+
+                    self.stop()
+
+                @discord.ui.button(label='Do Nothing', style=discord.ButtonStyle.blurple)
+                async def restart(self, button: discord.ui.Button, interaction: discord.Interaction):
+                    self.value = 'do_nothing'
+                    
+                    for child in self.children:
+                        child.disabled = True
+
+                    await interaction.message.edit(view=self)
+
+                    self.stop()
+
+                async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                    if interaction.user != ctx.author:
+                        await interaction.response.send_message('This is not your interaction!', ephemeral=True)
+                        return False
+                    
+                    return True
+
+                async def on_timeout(self):
+                    for child in self.children:
+                        child.disabled = True
+
+                    await self.message.edit(view=self, content='Timed out.')
+
+            view = View()
+
+            view.message = await ctx.send('Please select an option.', view=view)
+
+            val = await view.wait()
+
+            if val or not view.value or view.value == 'do_nothing' or view.value not in ['do_nothing', 'restart', 'reload']:
+                return
+
+            if view.value == 'restart':
+                return await self.jsk_restart(ctx)
+            
+            if view.value == 'reload':
+                cogs_found = [
+                    x.split(' | ')[0][:-3].replace('/', '.') 
+                    for x in re.findall(r'cogs\/.*', stdout.decode()) 
+                    if x.split(' | ')[0].endswith('.py') and \
+                        len(r'\/', re.findall(x.split(' | ')[0])) == 1
+                ]
+
+                if not cogs_found:
+                    return await ctx.send('No cogs found to reload.')
+
+                warning_sign = '\U000026a0'
+                inbox_tray = '\U0001f4e5'
+
+                l = []
+
+                for cog in cogs_found:
+                    try:
+                        self.bot.reload_extension(cog)
+                    except Exception as e:
+                        l.append(f'{warning_sign} {cog}: {e}')
+                    else:
+                        l.append(f'{inbox_tray} {cog}')
+
+                return await ctx.send('\n'.join(l))
+        else:
+            return
 
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))
