@@ -763,6 +763,9 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
     try:
         async with bot.session.post('https://accounts.spotify.com/api/token', params={'grant_type': 'client_credentials'}, headers={'Authorization': f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}', 'Content-Type': 'application/x-www-form-urlencoded'}) as resp:
             js = await resp.json()
+
+        if ctx.debug:
+            await ctx.send(js)
     except Exception as e:
         if ctx.debug:
             raise e
