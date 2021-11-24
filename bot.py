@@ -761,9 +761,12 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
     artists = []
 
     try:
-        async with bot.session.get('https://accounts.spotify.com/api/token', params={'grant_type': 'client_credentials'}, headers={'Authorization': f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode())}'}) as resp:
+        async with bot.session.get('https://accounts.spotify.com/api/token', params={'grant_type': 'client_credentials'}, headers={'Authorization': f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}', 'Content-Type': 'application/x-www-form-urlencoded'}) as resp:
             js = await resp.json()
-    except:
+    except Exception as e:
+        if ctx.debug:
+            raise e
+
         artists = ', '.join(spotify.artists)
         album = spotify.album
     else:
