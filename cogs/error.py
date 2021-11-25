@@ -109,6 +109,16 @@ class Error(Cog):
             embed.description += f'\n\n**Errored At:** ```prolog\n{signature}```'
 
             view = View(timeout=60)
+
+            async def interaction_check(interaction: discord.Interaction):
+                if interaction.user != ctx.author:
+                    await interaction.response.send_message('This is not your interaction!', ephemeral=True)
+                    return False
+
+                return True
+
+            view.interaction_check = interaction_check
+
             view.add_item(MissingButton(error, embed, ctx=ctx, style=discord.ButtonStyle.green, label=f'Enter required argument for \'{error.param.name}\''))
 
             view.message = await ctx.send(embed=embed, view=view)
