@@ -1,33 +1,45 @@
-import asyncio
-import datetime
 import discord
+from discord.ext import commands
+
 import config
+
 import re
+import os
+import json
+import time
+import typing
+import random
+import string
+import base64
+import asyncio
 import asyncpg
 import jishaku
 import aiohttp
-import json
-import time
 import inspect
-import os
-import textwrap
 import mystbin
 import pathlib
-import typing
-import random
 import humanize
-import string
-import base64
-from discord.ext import commands
-from cogs.utils import ImageConverter, CelebrityPaginator, MenuPages, LegacyFlagItems, LegacyFlagConverter, TranslateLanguagesPagniator, CodePaginator, Context, Ping, executor
-from io import BytesIO, StringIO
-from PIL import Image
-from openrobot.api_wrapper import AsyncClient, error
-from openrobot import discord_activities as discord_activity
 import aioredis
+import datetime
+import textwrap
 import aiospotify
 import async_timeout
-from cogs.utils.base import Bot as BaseBot
+
+from io import (
+    BytesIO, 
+    StringIO
+)
+
+from openrobot import (
+    discord_activities as discord_activity
+)
+
+from cogs.utils import (
+    MenuPages, 
+    CodePaginator, 
+    executor, 
+    Bot as BaseBot
+)
 
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).
