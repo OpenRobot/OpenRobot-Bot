@@ -439,7 +439,8 @@ Exited with code {proc.returncode}.```
                 return
 
             if view.value == 'restart':
-                return await self.jsk_restart(ctx)
+                await self.jsk_restart(ctx)
+                return
             
             if view.value == 'reload':
                 cogs_found = [
@@ -466,8 +467,6 @@ Exited with code {proc.returncode}.```
                         l.append(f'{inbox_tray} {cog}')
 
                 return await ctx.send('\n'.join(l))
-        else:
-            return
 
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))
