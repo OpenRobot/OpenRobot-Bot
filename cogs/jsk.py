@@ -362,8 +362,8 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 Exited with code {proc.returncode}.```
         """
 
-        yield stdout.decode()
-        yield stderr.decode()
+        await ctx.send(stdout.decode())
+        await ctx.send(stderr.decode())
 
         embed.set_author(name='Sync', icon_url=ctx.author.avatar.url)
 
@@ -439,15 +439,14 @@ Exited with code {proc.returncode}.```
                 return
 
             if view.value == 'restart':
-                await self.jsk_restart(ctx)
-                return
+                return await self.jsk_restart(ctx)
             
             if view.value == 'reload':
                 cogs_found = [
                     x.split(' | ')[0][:-3].replace('/', '.') 
                     for x in re.findall(r'cogs\/.*', stdout.decode()) 
                     if x.split(' | ')[0].endswith('.py') and \
-                        len(r'\/', re.findall(x.split(' | ')[0])) == 1
+                        len(re.findall(r'\/', x.split(' | ')[0])) == 1
                 ]
 
                 if not cogs_found:
@@ -467,8 +466,7 @@ Exited with code {proc.returncode}.```
                     else:
                         l.append(f'{inbox_tray} {cog}')
 
-                await ctx.send('\n'.join(l))
-                return
+                return await ctx.send('\n'.join(l))
 
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))
