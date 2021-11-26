@@ -369,7 +369,7 @@ Exited with code {proc.returncode}.```
 
         await ctx.send(embed=embed)
 
-        if proc.returncode == 0 and not stderr.decode() and stdout.decode() != 'Already up to date.\n':
+        if proc.returncode == 0 and stdout.decode() != 'Already up to date.\n':
             class View(discord.ui.View):
                 def __init__(self, *, timeout: float | None = 180):
                     super().__init__(timeout=timeout)
