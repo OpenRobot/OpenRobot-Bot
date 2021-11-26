@@ -354,11 +354,26 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
             
             embed.set_thumbnail(url=track_image or discord.Embed.Empty)
 
-            embed.description = discord.utils.escape_markdown(lyrics)
+            pag = commands.Paginator(prefix='', suffix='', max_size=4000)
+
+            for line in lyrics.split('\n'):
+                pag.add_line(line)
+
+            embed.description = discord.utils.escape_markdown(pag.pages[0])
 
             embed.set_footer(text=f'Invoked by: {ctx.author}')
 
-            return embed # await ctx.send(embed=embed)
+            embeds = []
+
+            if len(pag.pages) >= 2:
+                for page in pag.pages[1:]:
+                    e = discord.Embed(color=bot.color)
+                    e.description = discord.utils.escape_markdown(page)
+                    e.set_footer(text=f'Invoked by: {ctx.author}')
+
+                    embeds.append(e)
+
+            return [embed] + embeds # await ctx.send(embed=embed)
         except Exception as e:
             if ctx.debug:
                 raise e
@@ -431,14 +446,14 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
                         l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
 
                     if not l:
-                        msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
+                        msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."), embeds=None)
                     else:
-                        msg = await ctx.send(embed=l)
+                        msg = await ctx.send(embeds=l, embed=None)
 
                 await msg.add_reaction('\U000023f9')
             elif await msgIsNew(msg):
                 if not activity:
-                    msg = await msg.edit(embed=generateErrorEmbed("You are not playing any spotify music!"))
+                    msg = await msg.edit(embed=generateErrorEmbed("You are not playing any spotify music!"), embeds=None)
                 else:
                     l = await getLyrics(activity.title + ' ' + activity.artists[0])
 
@@ -455,9 +470,9 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
                         l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
 
                     if not l:
-                        msg = await msg.edit(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
+                        msg = await msg.edit(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."), embeds=None)
                     else:
-                        msg = await msg.edit(embed=l)
+                        msg = await msg.edit(embeds=l, embed=None)
             else:
                 await msg.delete()
                 if not activity:
@@ -480,7 +495,7 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
                     if not l:
                         msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
                     else:
-                        msg = await ctx.send(embed=l)
+                        msg = await ctx.send(embeds=l)
 
                     await msg.add_reaction('\U000023f9')
 
@@ -513,7 +528,8 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
         if not l:
             return await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
 
-        msg = await ctx.send(embed=l)
+        for embed in l:
+            await ctx.send(embed=embed)
 
 @bot.command(aliases=['ss'])
 async def screenshot(ctx: commands.Context, url: str = commands.Option(description='The website URL to screenshot.'), delay: int = commands.Option(None, description='Waits for x seconds before taking the screenshot.')):
