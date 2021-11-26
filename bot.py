@@ -305,7 +305,7 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
     - `--from-spotify`: Gets the lyrics from spotify. This gets the lyrics from your spotify activity and edits them automatically when a new song plays. If it does not sync, try pausing/playing, or do anything regarding to the playback of your Spotify song.
     """
 
-    if '--raw' in query.split(' ') and '--from-spotify' in query.split(' '):
+    if '--raw' in query and '--from-spotify' in query:
         return await ctx.send("You cannot define both `--raw` and `--from-spotify` flags.")
     if query == '--from-spotify':
         from_spotify = True
@@ -317,9 +317,9 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
 
     async def getLyrics(q):
         try:
-            lyric = await api.lyrics(q)
+            lyric = await api.lyrics(q.replace('--raw', ''))
 
-            if '--raw' in query.split(' '):
+            if '--raw' in query:
                 s = StringIO()
                 s.write(json.dumps(lyric.raw, indent=4))
                 s.seek(0)
