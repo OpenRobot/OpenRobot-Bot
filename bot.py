@@ -297,7 +297,7 @@ async def activity_error(ctx: commands.Context, error: Exception):
 
 @bot.command()
 async def load(ctx, ext):
-    bot.load_extension(f'cogs.{ext}')
+    bot.load_extension(f'{ext}')
 
 @bot.command()
 async def lyrics(ctx: commands.Context, *, query: str = commands.Option(description='The query to search for the lyrics.')):
