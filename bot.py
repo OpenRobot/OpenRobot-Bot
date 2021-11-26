@@ -1049,6 +1049,7 @@ def start(**kwargs):
         if kwargs.get('db') is False:
             bot.pool = None
             bot.redis = None
+            bot.spotify_redis = None
         else:
             bot.pool = await asyncpg.create_pool(config.DATABASE)
             #bot.spotify_pool = await asyncpg.create_pool(config.SPOTIFY_DATABASE)
