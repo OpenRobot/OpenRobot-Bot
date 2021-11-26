@@ -362,8 +362,8 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 Exited with code {proc.returncode}.```
         """
 
-        await ctx.send(stdout.decode())
-        await ctx.send(stderr.decode())
+        await ctx.send(stdout.decode() or 'Empty.')
+        await ctx.send(stderr.decode() or 'Empty.')
 
         embed.set_author(name='Sync', icon_url=ctx.author.avatar.url)
 
