@@ -362,17 +362,20 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 Exited with code {proc.returncode}.```
         """
 
+        yield stdout.decode()
+        yield stderr.decode()
+
         embed.set_author(name='Sync', icon_url=ctx.author.avatar.url)
 
         await ctx.send(embed=embed)
 
-        if proc.returncode == 0 and not stderr and stdout != 'Already up to date.':
+        if proc.returncode == 0 and not stderr.decode() and stdout.decode() != 'Already up to date.\n':
             class View(discord.ui.View):
                 def __init__(self, *, timeout: float | None = 180):
+                    super().__init__(timeout=timeout)
+
                     self.message = None
                     self.value = None
-
-                    super().__init__(timeout=timeout)
 
                 @discord.ui.button(label='Restart', style=discord.ButtonStyle.blurple)
                 async def restart(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -381,27 +384,33 @@ Exited with code {proc.returncode}.```
                     for child in self.children:
                         child.disabled = True
 
+                    button.style = discord.ButtonStyle.green
+
                     await interaction.message.edit(view=self)
 
                     self.stop()
 
                 @discord.ui.button(label='Reload', style=discord.ButtonStyle.blurple)
-                async def restart(self, button: discord.ui.Button, interaction: discord.Interaction):
+                async def reload(self, button: discord.ui.Button, interaction: discord.Interaction):
                     self.value = 'reload'
                     
                     for child in self.children:
                         child.disabled = True
+
+                    button.style = discord.ButtonStyle.green
 
                     await interaction.message.edit(view=self)
 
                     self.stop()
 
                 @discord.ui.button(label='Do Nothing', style=discord.ButtonStyle.blurple)
-                async def restart(self, button: discord.ui.Button, interaction: discord.Interaction):
+                async def do_nothing(self, button: discord.ui.Button, interaction: discord.Interaction):
                     self.value = 'do_nothing'
                     
                     for child in self.children:
                         child.disabled = True
+
+                    button.style = discord.ButtonStyle.green
 
                     await interaction.message.edit(view=self)
 
