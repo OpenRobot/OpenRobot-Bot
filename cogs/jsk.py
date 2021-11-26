@@ -451,7 +451,8 @@ Exited with code {proc.returncode}.```
                 ]
 
                 if not cogs_found:
-                    return await ctx.send('No cogs found to reload.')
+                    await ctx.send('No cogs found to reload.')
+                    return
 
                 warning_sign = '\U000026a0'
                 inbox_tray = '\U0001f4e5'
@@ -466,7 +467,8 @@ Exited with code {proc.returncode}.```
                     else:
                         l.append(f'{inbox_tray} {cog}')
 
-                return await ctx.send('\n'.join(l))
+                await ctx.send('\n'.join(l))
+                return
 
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))
