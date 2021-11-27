@@ -1,5 +1,6 @@
 from discord.ext import commands
 
+
 def is_guild_owner():
     def predicate(ctx):
         if ctx.guild.owner:

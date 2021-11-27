@@ -9,23 +9,20 @@ import contextlib
 from discord.ext import commands
 from cogs.utils import Cog
 
+
 class OpenRobotHelp(commands.HelpCommand):
     def __init__(self, **options):
-        self.options = {
-            'command_attrs': {},
-            'verify_checks': True,
-            'show_hidden': True
-        }
+        self.options = {"command_attrs": {}, "verify_checks": True, "show_hidden": True}
         self.options.update(options)
 
-        super().__init__(
-            **self.options
-        )
+        super().__init__(**self.options)
 
-        self.no_category = self.options.get('no_category', 'Miscellaneous')
-        self.no_category_description = self.options.get('no_category_description', 'No description provided.')
-        self.no_category_emoji = self.options.get('no_category_emoji', '')
-        
+        self.no_category = self.options.get("no_category", "Miscellaneous")
+        self.no_category_description = self.options.get(
+            "no_category_description", "No description provided."
+        )
+        self.no_category_emoji = self.options.get("no_category_emoji", "")
+
     async def send(self, *args, **kwargs):
         return await self.get_destination().send(*args, **kwargs)
 
@@ -46,12 +43,12 @@ class OpenRobotHelp(commands.HelpCommand):
         embed.color = ctx.bot.color
         embed.timestamp = discord.utils.utcnow()
 
-        embed.set_author(name=f'{ctx.me.name} Help:', icon_url=ctx.author.avatar.url)
+        embed.set_author(name=f"{ctx.me.name} Help:", icon_url=ctx.author.avatar.url)
         embed.set_thumbnail(url=ctx.me.avatar.url)
 
         embed.set_footer(text=self.ending_note)
 
-        embed.description = ''
+        embed.description = ""
 
         return embed
 
@@ -66,18 +63,20 @@ class OpenRobotHelp(commands.HelpCommand):
             useable = 0
 
             # Only display useable commands. If no commands are useable in that cog, we don't want to display it
-            if filtered_commands := await self.filter_commands(commands): 
+            if filtered_commands := await self.filter_commands(commands):
                 amount_commands = len(filtered_commands)
                 useable += amount_commands
 
                 if cog:
-                    name = getattr(cog, 'full_name', cog.qualified_name)
+                    name = getattr(cog, "full_name", cog.qualified_name)
                     description = cog.description or "No description provided."
                 else:
-                    name = (f'{self.no_category_emoji} ' if self.no_category_emoji else '') + self.no_category
+                    name = (
+                        f"{self.no_category_emoji} " if self.no_category_emoji else ""
+                    ) + self.no_category
                     description = self.no_category_description
 
-                embed.add_field(name=f'{name} [{amount_commands}]', value=description)
+                embed.add_field(name=f"{name} [{amount_commands}]", value=description)
 
         embed.description = f"{ctx.bot.description}\n\n{len(ctx.bot.commands)} commands | {useable} usable"
 
@@ -86,42 +85,54 @@ class OpenRobotHelp(commands.HelpCommand):
     async def get_command_help(self, command: commands.Command):
         ctx = self.ctx
 
-        signature = self.get_command_signature(command) # get_command_signature gets the signature of a command in <required> [optional]
+        signature = self.get_command_signature(
+            command
+        )  # get_command_signature gets the signature of a command in <required> [optional]
         embed = self.generate_embed()
 
-        embed.title = command.qualified_name.title() + ' Command'
+        embed.title = command.qualified_name.title() + " Command"
 
         embed.description = f"""
         ```yml
 {signature}```"""
 
-        embed.description += command.help or ''
+        embed.description += command.help or ""
 
         if command.aliases:
-            embed.add_field(name=f'{len(command.aliases)} Aliases:', value='- ' + '\n- '.join([f'`{alias}`' for alias in command.aliases]), inline=False)
+            embed.add_field(
+                name=f"{len(command.aliases)} Aliases:",
+                value="- " + "\n- ".join([f"`{alias}`" for alias in command.aliases]),
+                inline=False,
+            )
 
         if cog := command.cog:
-            embed.add_field(name="Category:", value=getattr(cog, 'full_name', cog.qualified_name), inline=False)
+            embed.add_field(
+                name="Category:",
+                value=getattr(cog, "full_name", cog.qualified_name),
+                inline=False,
+            )
 
         can_run = "<:no:597591030807920660>"
         # command.can_run to test if the cog is usable
         with contextlib.suppress(commands.CommandError):
             if await command.can_run(ctx):
                 can_run = "<:yes:597590985802907658>"
-            
+
         embed.add_field(name="Usable:", value=can_run, inline=False)
 
-        if command._buckets and (cooldown := command._buckets._cooldown): # use of internals to get the cooldown of the command
+        if command._buckets and (
+            cooldown := command._buckets._cooldown
+        ):  # use of internals to get the cooldown of the command
             embed.add_field(
                 name="Cooldown",
                 value=f"{cooldown.rate} per {cooldown.per:.0f} seconds",
-                inline=False
+                inline=False,
             )
 
         if isinstance(command, commands.Group):
             subcommands = command.commands
-            value = "\n".join([f'`{subcommand}`' for subcommand in subcommands])
-            embed.add_field(name='Subcommand(s):', value=value, inline=False)
+            value = "\n".join([f"`{subcommand}`" for subcommand in subcommands])
+            embed.add_field(name="Subcommand(s):", value=value, inline=False)
 
         return await self.send(embed=embed)
 
@@ -129,28 +140,38 @@ class OpenRobotHelp(commands.HelpCommand):
         ctx = self.ctx
 
         if cog is None:
-            filtered = await self.filter_commands(filter(lambda c: c.cog is None, ctx.bot.commands))
+            filtered = await self.filter_commands(
+                filter(lambda c: c.cog is None, ctx.bot.commands)
+            )
         else:
             filtered = await self.filter_commands(cog.get_commands())
 
         if not filtered:
-            return await self.send('You don\'t have perms to view the help for this category!')
+            return await self.send(
+                "You don't have perms to view the help for this category!"
+            )
 
         embed = self.generate_embed()
 
         if cog is None:
-            embed.title = self.no_category_emoji + ' `' + self.no_category + '`'
+            embed.title = self.no_category_emoji + " `" + self.no_category + "`"
         else:
-            embed.title = cog.emoji + ' `' + cog.qualified_name + '`'
+            embed.title = cog.emoji + " `" + cog.qualified_name + "`"
 
-        embed.title += ' Category:'
+        embed.title += " Category:"
 
         if cog is None:
-            embed.description = self.no_category_description + '\n\n' if self.no_category_description else ''
+            embed.description = (
+                self.no_category_description + "\n\n"
+                if self.no_category_description
+                else ""
+            )
         else:
-            embed.description = cog.description + '\n\n' if cog.description else ''
+            embed.description = cog.description + "\n\n" if cog.description else ""
 
-        embed.description += ', '.join([f'`{command.qualified_name}`' for command in filtered])
+        embed.description += ", ".join(
+            [f"`{command.qualified_name}`" for command in filtered]
+        )
 
         return await self.send(embed=embed)
 
@@ -159,7 +180,9 @@ class OpenRobotHelp(commands.HelpCommand):
             await command.can_run(self.context)
             return await self.get_command_help(command)
 
-        return await self.ctx.send('You don\'t have perms to view the help for this command!')
+        return await self.ctx.send(
+            "You don't have perms to view the help for this command!"
+        )
 
     async def send_group_help(self, group: commands.Group):
         return await self.handle_help(group)
@@ -169,7 +192,9 @@ class OpenRobotHelp(commands.HelpCommand):
 
     # Embed error message
     async def send_error_message(self, error):
-        return await self.send(embed=discord.Embed(color=self.ctx.bot.color, description=error))
+        return await self.send(
+            embed=discord.Embed(color=self.ctx.bot.color, description=error)
+        )
 
     async def command_callback(self, ctx, *, command=None):
         if command == self.no_category:
@@ -177,20 +202,18 @@ class OpenRobotHelp(commands.HelpCommand):
 
         return await super().command_callback(ctx, command=command)
 
-class Help(Cog, emoji='<:help:901151299284922369>'):
+
+class Help(Cog, emoji="<:help:901151299284922369>"):
     """
     The help command for the bot.
     """
-    
+
     def cog_load(self):
         self._original_help_command = self.bot.help_command
         self.bot.help_command = OpenRobotHelp(
             command_attrs={
-                'help': 'Shows this help command message.',
-                'aliases': [
-                    'h',
-                    '?'
-                ],
+                "help": "Shows this help command message.",
+                "aliases": ["h", "?"],
             }
         )
         self.bot.help_command.cog = self
@@ -198,6 +221,7 @@ class Help(Cog, emoji='<:help:901151299284922369>'):
     def cog_unload(self) -> None:
         self.bot.help_command = self._original_help_command
         self.bot.help_command.cog = self
+
 
 def setup(bot):
     bot.add_cog(Help(bot))

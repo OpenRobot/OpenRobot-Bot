@@ -14,23 +14,20 @@ from discord.components import SelectOption
 from discord.ext import commands
 from .enums import Filters
 
-class Queue(slate.Queue[slate.obsidian.Track]):
 
-    def __init__(
-        self,
-        player: Player,
-        /
-    ) -> None:
+class Queue(slate.Queue[slate.obsidian.Track]):
+    def __init__(self, player: Player, /) -> None:
 
         super().__init__()
         self.player: Player = player
 
     def put(
         self,
-        items: list[slate.obsidian.Track[commands.Context]] | slate.obsidian.Track[commands.Context],
+        items: list[slate.obsidian.Track[commands.Context]]
+        | slate.obsidian.Track[commands.Context],
         /,
         *,
-        position: int | None = None
+        position: int | None = None,
     ) -> None:
 
         super().put(items, position=position)
@@ -38,8 +35,8 @@ class Queue(slate.Queue[slate.obsidian.Track]):
         self.player._queue_add_event.set()
         self.player._queue_add_event.clear()
 
-class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
 
+class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
     def __init__(self, client: commands.Bot, channel: discord.VoiceChannel) -> None:
         super().__init__(client, channel)
 
@@ -69,8 +66,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
         return self.channel
 
     async def invoke_controller(
-        self,
-        channel: discord.TextChannel | None = None
+        self, channel: discord.TextChannel | None = None
     ) -> discord.Message | None:
 
         if (channel is None and self.text_channel is None) or self.current is None:
@@ -83,43 +79,44 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
         embed = discord.Embed(
             title="Now playing:",
             description=f"**[{self.current.title}]({self.current.uri})**\nBy **{self.current.author}**",
-            color=self.bot.color
+            color=self.bot.color,
         ).set_thumbnail(url=self.current.thumbnail)
 
         embed.add_field(
             name="__Player info:__",
             value=f"**Paused:** {self.paused}\n"
-                  f"**Loop mode:** {self.queue.loop_mode.name.title()}\n"
-                  f"**Queue length:** {len(self.queue)}\n"
-                  f"**Queue time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in self.queue) // 1000))}\n" if not any([track.is_stream() for track in self.queue]) else "**Queue time:** Unable to determine."
+            f"**Loop mode:** {self.queue.loop_mode.name.title()}\n"
+            f"**Queue length:** {len(self.queue)}\n"
+            f"**Queue time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in self.queue) // 1000))}\n"
+            if not any([track.is_stream() for track in self.queue])
+            else "**Queue time:** Unable to determine.",
         )
 
         embed.add_field(
             name="__Track info:__",
-            value=f"**Time:** {humanize.naturaldelta(datetime.timedelta(seconds=self.position // 1000))} / {humanize.naturaldelta(datetime.timedelta(seconds=self.current.length // 1000)) if not self.current.is_stream() else 'LIVE'}\n" 
-                  f"**Is Stream:** {self.current.is_stream()}\n"
-                  f"**Source:** {self.current.source.value.title()}\n"
-                  f"**Requester:** {self.current.requester.mention if self.current.requester else 'N/A'}\n"
+            value=f"**Time:** {humanize.naturaldelta(datetime.timedelta(seconds=self.position // 1000))} / {humanize.naturaldelta(datetime.timedelta(seconds=self.current.length // 1000)) if not self.current.is_stream() else 'LIVE'}\n"
+            f"**Is Stream:** {self.current.is_stream()}\n"
+            f"**Source:** {self.current.source.value.title()}\n"
+            f"**Requester:** {self.current.requester.mention if self.current.requester else 'N/A'}\n",
         )
 
         if not self.queue.is_empty():
-            entries = [f"**{index + 1}.** [{entry.title}]({entry.uri})" for index, entry in enumerate(list(self.queue)[:3])]
+            entries = [
+                f"**{index + 1}.** [{entry.title}]({entry.uri})"
+                for index, entry in enumerate(list(self.queue)[:3])
+            ]
 
             if len(self.queue) > 3:
-                entries.append(f"**...**\n**{len(self.queue)}.** [{self.queue[-1].title}]({self.queue[-1].uri})")
+                entries.append(
+                    f"**...**\n**{len(self.queue)}.** [{self.queue[-1].title}]({self.queue[-1].uri})"
+                )
 
-            embed.add_field(
-                name="__Up next:__",
-                value="\n".join(entries),
-                inline=False
-            )
+            embed.add_field(name="__Up next:__", value="\n".join(entries), inline=False)
 
         return await text_channel.send(embed=embed)
 
     async def set_volume(self, volume: int | float):
-        await self.set_filter(
-            slate.obsidian.Filter(self.filter, volume=volume)
-        )
+        await self.set_filter(slate.obsidian.Filter(self.filter, volume=volume))
 
         old_volume = self._volume
         self._volume = volume
@@ -133,10 +130,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
     async def set_filter(self, filter: slate.obsidian.Filter, /, *, seek: bool = False):
         return await super().set_filter(filter, seek=seek)
 
-    async def send(
-        self,
-        *args, **kwargs
-    ) -> None:
+    async def send(self, *args, **kwargs) -> None:
 
         if not self.text_channel:
             return
@@ -163,7 +157,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
             if error.source:
                 message = f"No {error.source.value.lower().replace('_', ' ')} {error.search_type.value}s were found for your search."
             else:
-                message = f"No results were found for your search.",
+                message = (f"No results were found for your search.",)
 
             raise error
 
@@ -183,7 +177,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
         next: bool = False,
         choose: bool = False,
         message: discord.Message = None,
-        delete_message: bool = False
+        delete_message: bool = False,
     ) -> None:
 
         search = await self.search(query, source=source, ctx=ctx)
@@ -203,33 +197,47 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
                 if c == 10:
                     break
 
-                entries.append((f'{index + 1:}', track.title, track.uri, track))
+                entries.append((f"{index + 1:}", track.title, track.uri, track))
 
                 c += 1
 
-            embed = discord.Embed(color=self.bot.color, title='Select the number of the track you want to play.')
-            embed.description = ''
+            embed = discord.Embed(
+                color=self.bot.color,
+                title="Select the number of the track you want to play.",
+            )
+            embed.description = ""
 
             for index, title, url, _ in entries:
-                embed.description += f'`{index}`. [`{title}`]({url})\n'
+                embed.description += f"`{index}`. [`{title}`]({url})\n"
 
             class Select(discord.ui.Select):
                 def __init__(self):
-                    super().__init__(placeholder='Select an option.', options=[SelectOption(label=index + ' - ' + title, description=url) for index, title, url, _ in entries])
+                    super().__init__(
+                        placeholder="Select an option.",
+                        options=[
+                            SelectOption(label=index + " - " + title, description=url)
+                            for index, title, url, _ in entries
+                        ],
+                    )
 
                 async def callback(self, interaction: discord.Interaction):
-                    x = discord.utils.find(lambda option: self.values[0] == option.label, self.options)
+                    x = discord.utils.find(
+                        lambda option: self.values[0] == option.label, self.options
+                    )
 
                     for child in self.view.children:
                         child.disabled = True
 
                     await interaction.response.defer()
 
-                    await self.view.msg.edit(view=self.view, content=f'You selected {x.label} - <{x.description}>.')
+                    await self.view.msg.edit(
+                        view=self.view,
+                        content=f"You selected {x.label} - <{x.description}>.",
+                    )
 
                     self.view.stop()
-                    
-                    self.view.value = (x, entries[int(x.label.split(' - ')[0])])
+
+                    self.view.value = (x, entries[int(x.label.split(" - ")[0])])
 
                     return self.view.value
 
@@ -247,7 +255,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
                     for child in self.children:
                         child.disabled = True
 
-                    await self.msg.edit(view=self, content='Timed Out.')
+                    await self.msg.edit(view=self, content="Timed Out.")
 
             view = View(ctx)
 
@@ -262,18 +270,26 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
 
             tracks = view.value[1][3]
         else:
-            tracks = search.tracks[0] if search.search_type is slate.SearchType.TRACK else search.tracks
+            tracks = (
+                search.tracks[0]
+                if search.search_type is slate.SearchType.TRACK
+                else search.tracks
+            )
 
         self.queue.put(tracks, position=0 if (now or next) else None)
         if now:
             await self.stop()
 
-        if search.search_type is slate.SearchType.TRACK or isinstance(search.result, list):
+        if search.search_type is slate.SearchType.TRACK or isinstance(
+            search.result, list
+        ):
             description = f"Added the {search.source.value.lower()} track [{search.tracks[0].title}]({search.tracks[0].uri}) to the queue."
         else:
             description = f"Added the {search.source.value.lower()} {search.type.name.lower()} [{search.result.name}]({search.result.uri}) to the queue."
 
-        await ctx.reply(embed=discord.Embed(color=self.bot.color, description=description))
+        await ctx.reply(
+            embed=discord.Embed(color=self.bot.color, description=description)
+        )
 
     async def loop(self) -> None:
 
@@ -296,7 +312,11 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
             if track.source is slate.Source.SPOTIFY:
 
                 try:
-                    search = await self.search(f"{track.author} - {track.title}", source=slate.Source.YOUTUBE, ctx=track.ctx)
+                    search = await self.search(
+                        f"{track.author} - {track.title}",
+                        source=slate.Source.YOUTUBE,
+                        ctx=track.ctx,
+                    )
                 except Exception as error:
                     await self.send(embed=error.embed)
                     continue
@@ -307,7 +327,13 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
 
             await self._track_end_event.wait()
 
-    async def connect(self, *, timeout: float | None = None, reconnect: bool | None = None, self_deaf: bool = True) -> None:
+    async def connect(
+        self,
+        *,
+        timeout: float | None = None,
+        reconnect: bool | None = None,
+        self_deaf: bool = True,
+    ) -> None:
 
         await super().connect(timeout=timeout, reconnect=reconnect, self_deaf=self_deaf)
         self._task = asyncio.create_task(self.loop())
@@ -338,7 +364,7 @@ class Player(slate.obsidian.Player["commands.Bot", commands.Context, "Player"]):
         except IndexError:
             return
 
-        #await self.message.edit(embed=utils.embed(description=f"Finished playing **[{old.title}]({old.uri})** by **{old.author}**."))
+        # await self.message.edit(embed=utils.embed(description=f"Finished playing **[{old.title}]({old.uri})** by **{old.author}**."))
 
     async def handle_track_error(self) -> None:
 

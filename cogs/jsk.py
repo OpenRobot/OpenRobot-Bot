@@ -33,32 +33,39 @@ def natural_size(size_in_bytes: int):
         1024 -> 1.00 KiB
         12345678 -> 11.77 MiB
     """
-    units = ('B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB')
+    units = ("B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB")
 
     power = int(math.log(size_in_bytes, 1024))
 
     return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
 
+
 class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.emoji = '<:jishaku_logo:901355736850890813>'
-        self.full_name =  (f'{self.emoji} ' if self.emoji else '') + 'Jishaku'
+        self.emoji = "<:jishaku_logo:901355736850890813>"
+        self.full_name = (f"{self.emoji} " if self.emoji else "") + "Jishaku"
 
     def cog_load(self):
         try:
-            self.bot.unload_extension('jishaku')
+            self.bot.unload_extension("jishaku")
         except:
             pass
 
     def cog_unload(self):
         try:
-            self.bot.load_extension('jishaku')
+            self.bot.load_extension("jishaku")
         except:
             pass
 
-    @Feature.Command(name="jishaku", aliases=["jsk", "jishakum", "admin", "dev"], invoke_without_command=True, ignore_extra=False, slash_command=False)
+    @Feature.Command(
+        name="jishaku",
+        aliases=["jsk", "jishakum", "admin", "dev"],
+        invoke_without_command=True,
+        ignore_extra=False,
+        slash_command=False,
+    )
     async def jsk(self, ctx: commands.Context):
         """
         The Jishaku debug and diagnostic commands.
@@ -72,7 +79,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
             f"`Python {sys.version}` on `{sys.platform}`".replace("\n", ""),
             f"Module was loaded <t:{self.load_time.timestamp():.0f}:R>, "
             f"cog was loaded <t:{self.start_time.timestamp():.0f}:R>.",
-            ""
+            "",
         ]
 
         if psutil:
@@ -82,9 +89,11 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
                 with proc.oneshot():
                     try:
                         mem = proc.memory_full_info()
-                        summary.append(f"Using {natural_size(mem.rss)} physical memory and "
-                                       f"{natural_size(mem.vms)} virtual memory, "
-                                       f"{natural_size(mem.uss)} of which unique to this process.")
+                        summary.append(
+                            f"Using {natural_size(mem.rss)} physical memory and "
+                            f"{natural_size(mem.vms)} virtual memory, "
+                            f"{natural_size(mem.uss)} of which unique to this process."
+                        )
                     except psutil.AccessDenied:
                         pass
 
@@ -93,7 +102,9 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
                         pid = proc.pid
                         thread_count = proc.num_threads()
 
-                        summary.append(f"Running on PID {pid} (`{name}`) with {thread_count} thread(s).")
+                        summary.append(
+                            f"Running on PID {pid} (`{name}`) with {thread_count} thread(s)."
+                        )
                     except psutil.AccessDenied:
                         pass
 
@@ -105,7 +116,9 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
                 )
                 summary.append("")  # blank line
 
-        cache_summary = f"{len(self.bot.guilds)} guild(s) and {len(self.bot.users)} user(s)"
+        cache_summary = (
+            f"{len(self.bot.guilds)} guild(s) and {len(self.bot.users)} user(s)"
+        )
 
         # Show shard settings to summary
         if isinstance(self.bot, discord.AutoShardedClient):
@@ -115,7 +128,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
                     f" and can see {cache_summary}."
                 )
             else:
-                shard_ids = ', '.join(str(i) for i in self.bot.shards.keys())
+                shard_ids = ", ".join(str(i) for i in self.bot.shards.keys())
                 summary.append(
                     f"This bot is automatically sharded (Shards {shard_ids} of {self.bot.shard_count})"
                     f" and can see {cache_summary}."
@@ -130,7 +143,9 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
 
         # pylint: disable=protected-access
         if self.bot._connection.max_messages:
-            message_cache = f"Message cache capped at {self.bot._connection.max_messages}"
+            message_cache = (
+                f"Message cache capped at {self.bot._connection.max_messages}"
+            )
         else:
             message_cache = "Message cache is disabled"
 
@@ -147,13 +162,19 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         # pylint: enable=protected-access
 
         # Show websocket latency in milliseconds
-        summary.append(f"Average websocket latency: {round(self.bot.latency * 1000, 2)}ms")
+        summary.append(
+            f"Average websocket latency: {round(self.bot.latency * 1000, 2)}ms"
+        )
 
         embed = discord.Embed(description="\n".join(summary), color=self.bot.color)
-        #embed.set_thumbnail(url=ctx.me.avatar.url)
+        # embed.set_thumbnail(url=ctx.me.avatar.url)
         embed.timestamp = discord.utils.utcnow()
-        embed.set_author(name='Jishaku', icon_url=self.bot.get_emoji(901355736850890813).url)
-        embed.set_footer(text=f'Requested By: {ctx.author}', icon_url=ctx.author.avatar.url)
+        embed.set_author(
+            name="Jishaku", icon_url=self.bot.get_emoji(901355736850890813).url
+        )
+        embed.set_footer(
+            text=f"Requested By: {ctx.author}", icon_url=ctx.author.avatar.url
+        )
 
         await ctx.send(embed=embed)
 
@@ -164,7 +185,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
 
         Most of the code is inspired by [Ami#7836](https://discord.com/users/801742991185936384).
         """
-        
+
         async with ctx.typing():
             embed = discord.Embed(color=self.bot.color)
 
@@ -174,12 +195,15 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
             machine = uname.machine
             processor = uname.processor
 
-            embed.add_field(name="System:", value=f"""```yml
+            embed.add_field(
+                name="System:",
+                value=f"""```yml
 OS: {system_name}
 Name: {node_name}
 Machine: {machine}
 Processor: {processor}```
-            """)
+            """,
+            )
 
             physical_cores = psutil.cpu_count(logical=False)
             total_cores = psutil.cpu_count(logical=True)
@@ -187,14 +211,17 @@ Processor: {processor}```
             cpufreq = psutil.cpu_freq()
             current_cpu_freq = f"{cpufreq.current:.2f}Mhz"
 
-            cpu_usage = f"{psutil.cpu_percent()}%" 
+            cpu_usage = f"{psutil.cpu_percent()}%"
 
-            embed.add_field(name="CPU:", value=f"""```yml
+            embed.add_field(
+                name="CPU:",
+                value=f"""```yml
 Physical cores: {physical_cores}
 Total cores: {total_cores}
 Frequency: {current_cpu_freq}
 Usage: {cpu_usage}```
-            """)
+            """,
+            )
 
             svmem = psutil.virtual_memory()
             total_mem = f"{get_size(svmem.total)}"
@@ -202,45 +229,54 @@ Usage: {cpu_usage}```
             used_mem = f"{get_size(svmem.used)}"
             mem_perc = f"{svmem.percent}%"
 
-            embed.add_field(name="Memory:", value=f"""```yml
+            embed.add_field(
+                name="Memory:",
+                value=f"""```yml
 Total: {total_mem}
 Available: {available_mem}
 Used: {used_mem}
 Percentage: {mem_perc}```
-            """)
+            """,
+            )
 
             line_count = self.bot.line_count()
 
-            embed.add_field(name="Code Stats:", value=f"""```yml
+            embed.add_field(
+                name="Code Stats:",
+                value=f"""```yml
 Files: {line_count.files}
 Lines: {line_count.lines}
 Classes: {line_count.classes}
 Functions: {line_count.functions}
 Coroutines: {line_count.coroutines}
 Comments: {line_count.comments}```
-            """)
-            
+            """,
+            )
+
             disk_io = psutil.disk_io_counters()
             disk_io_bytes_read = f"{get_size(disk_io.read_bytes)}"
             disk_io_bytes_send = f"{get_size(disk_io.write_bytes)}"
 
-            embed.add_field(name="Disk:", value=f"""```yml
+            embed.add_field(
+                name="Disk:",
+                value=f"""```yml
 Read: {disk_io_bytes_read}
 Send: {disk_io_bytes_send}```
-            """)
-            
+            """,
+            )
+
             proc = await asyncio.create_subprocess_shell(
-                'speedtest -f json',
+                "speedtest -f json",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
 
             stdout, stderr = await proc.communicate()
 
             if ctx.debug:
-                await ctx.send('Stdout: ' + (stdout.decode() or 'Empty.'))
-                await ctx.send('Stderr: ' + (stderr.decode() or 'Empty.'))
-                await ctx.send('Return Code: ' + str(proc.returncode))
+                await ctx.send("Stdout: " + (stdout.decode() or "Empty."))
+                await ctx.send("Stderr: " + (stderr.decode() or "Empty."))
+                await ctx.send("Return Code: " + str(proc.returncode))
 
             if not stdout or proc.returncode != 0 or stderr:
                 s = speedtest.Speedtest()
@@ -258,7 +294,10 @@ Send: {disk_io_bytes_send}```
 
                     data2 = s.results.dict()
 
-                    if data['download'] < data2['download'] and data['upload'] < data2['upload']:
+                    if (
+                        data["download"] < data2["download"]
+                        and data["upload"] < data2["upload"]
+                    ):
                         data = data2
                 except Exception as e:
                     if ctx.debug:
@@ -266,7 +305,9 @@ Send: {disk_io_bytes_send}```
 
                     pass
 
-                embed.add_field(name="Speedtest:", value=f"""`{data['client']['isp']}, {data['client']['country']}` --> `{data['server']['sponsor']} - {data['server']['name']}, {data['server']['cc']}`: 
+                embed.add_field(
+                    name="Speedtest:",
+                    value=f"""`{data['client']['isp']}, {data['client']['country']}` --> `{data['server']['sponsor']} - {data['server']['name']}, {data['server']['cc']}`: 
 ```yml
 Download: {round(data['download'] / 1000000, 2)} Mbps
 Upload: {round(data['upload'] / 1000000, 2)} Mbps
@@ -275,11 +316,15 @@ Ping: {round(data['ping'], 2)} ms
 Bytes Sent: {round(data['bytes_sent'], 5)}
 Bytes Recieved: {round(data['bytes_received'], 5)}
 ```Result URL: {'https://' + '.'.join(s.results.share().replace('http://', '').split('.')[:-1])}
-                """, inline=False)
+                """,
+                    inline=False,
+                )
             else:
                 data = json.loads(stdout.decode())
 
-                embed.add_field(name="Speedtest:", value=f"""`{data['isp']}` --> `{data['server']['name']} - {data['server']['location']}, {data['server']['country']}`:
+                embed.add_field(
+                    name="Speedtest:",
+                    value=f"""`{data['isp']}` --> `{data['server']['name']} - {data['server']['location']}, {data['server']['country']}`:
 ```yml
 Download: 
 - Result: {round(data['download']['bandwidth'] / 125000, 2)} Mbps
@@ -295,20 +340,37 @@ Ping:
 
 Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data else 'Not available.'}
 ```Result URL: {data['result']['url']}
-                """, inline=False)
+                """,
+                    inline=False,
+                )
 
-            embed.set_footer(text=f'PID: {os.getpid()}')
+            embed.set_footer(text=f"PID: {os.getpid()}")
 
             await ctx.send(embed=embed)
 
-    @Feature.Command(parent="jsk", name="restart", aliases=["rs", "rst", "reboot", "rbt", "rb"])
+    @Feature.Command(
+        parent="jsk", name="restart", aliases=["rs", "rst", "reboot", "rbt", "rb"]
+    )
     async def jsk_restart(self, ctx: commands.Context):
-        m = await ctx.send(embed=discord.Embed(description='<a:openrobot_searching_gif:899928367799885834> Restarting...', color=self.bot.color))
+        m = await ctx.send(
+            embed=discord.Embed(
+                description="<a:openrobot_searching_gif:899928367799885834> Restarting...",
+                color=self.bot.color,
+            )
+        )
 
-        with open('restart.json', 'w') as f:
-            json.dump({'message_id': m.id, 'channel_id': m.channel.id, 'restarted_at': discord.utils.utcnow().timestamp()}, f, indent=4)
+        with open("restart.json", "w") as f:
+            json.dump(
+                {
+                    "message_id": m.id,
+                    "channel_id": m.channel.id,
+                    "restarted_at": discord.utils.utcnow().timestamp(),
+                },
+                f,
+                indent=4,
+            )
 
-        await self.bot.close() # Let systemd handle the rest
+        await self.bot.close()  # Let systemd handle the rest
 
     @Feature.Command(parent="jsk", name="debug", aliases=["dbg"])
     async def jsk_debug(self, ctx: commands.Context, *, command_string: str):
@@ -318,7 +380,9 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 
         alt_ctx = await copy_context_with(ctx, content=ctx.prefix + command_string)
 
-        alt_ctx.debug = True # To trigger exceptions and stuff, a.k.a CDM (Command Debug Mode)
+        alt_ctx.debug = (
+            True  # To trigger exceptions and stuff, a.k.a CDM (Command Debug Mode)
+        )
 
         if alt_ctx.command is None:
             return await ctx.send(f'Command "{alt_ctx.invoked_with}" is not found')
@@ -330,7 +394,9 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
                 returned = await alt_ctx.command.invoke(alt_ctx)
 
         end = time.perf_counter()
-        return await ctx.send(f"Command `{alt_ctx.command.qualified_name}` finished in `{end - start:.3f}s`, returning `{returned}`")  
+        return await ctx.send(
+            f"Command `{alt_ctx.command.qualified_name}` finished in `{end - start:.3f}s`, returning `{returned}`"
+        )
 
     @Feature.Command(parent="jsk", name="sync", aliases=["pull"])
     async def jsk_sync(self, ctx: commands.Context, *, extra: str = None):
@@ -343,12 +409,12 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
         - `Do Nothing`
         """
 
-        extra = f' {extra}' if extra else ''
+        extra = f" {extra}" if extra else ""
 
         proc = await asyncio.create_subprocess_shell(
-            f'git pull{extra}',
+            f"git pull{extra}",
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+            stderr=asyncio.subprocess.PIPE,
         )
 
         stdout, stderr = await proc.communicate()
@@ -362,11 +428,12 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 Exited with code {proc.returncode}.```
         """
 
-        embed.set_author(name='Sync', icon_url=ctx.author.avatar.url)
+        embed.set_author(name="Sync", icon_url=ctx.author.avatar.url)
 
         await ctx.send(embed=embed)
 
-        if proc.returncode == 0 and stdout.decode() != 'Already up to date.\n':
+        if proc.returncode == 0 and stdout.decode() != "Already up to date.\n":
+
             class View(discord.ui.View):
                 def __init__(self, *, timeout: float | None = 180):
                     super().__init__(timeout=timeout)
@@ -374,10 +441,12 @@ Exited with code {proc.returncode}.```
                     self.message = None
                     self.value = None
 
-                @discord.ui.button(label='Restart', style=discord.ButtonStyle.blurple)
-                async def restart(self, button: discord.ui.Button, interaction: discord.Interaction):
-                    self.value = 'restart'
-                    
+                @discord.ui.button(label="Restart", style=discord.ButtonStyle.blurple)
+                async def restart(
+                    self, button: discord.ui.Button, interaction: discord.Interaction
+                ):
+                    self.value = "restart"
+
                     for child in self.children:
                         child.disabled = True
 
@@ -387,10 +456,12 @@ Exited with code {proc.returncode}.```
 
                     self.stop()
 
-                @discord.ui.button(label='Reload', style=discord.ButtonStyle.blurple)
-                async def reload(self, button: discord.ui.Button, interaction: discord.Interaction):
-                    self.value = 'reload'
-                    
+                @discord.ui.button(label="Reload", style=discord.ButtonStyle.blurple)
+                async def reload(
+                    self, button: discord.ui.Button, interaction: discord.Interaction
+                ):
+                    self.value = "reload"
+
                     for child in self.children:
                         child.disabled = True
 
@@ -400,10 +471,14 @@ Exited with code {proc.returncode}.```
 
                     self.stop()
 
-                @discord.ui.button(label='Do Nothing', style=discord.ButtonStyle.blurple)
-                async def do_nothing(self, button: discord.ui.Button, interaction: discord.Interaction):
-                    self.value = 'do_nothing'
-                    
+                @discord.ui.button(
+                    label="Do Nothing", style=discord.ButtonStyle.blurple
+                )
+                async def do_nothing(
+                    self, button: discord.ui.Button, interaction: discord.Interaction
+                ):
+                    self.value = "do_nothing"
+
                     for child in self.children:
                         child.disabled = True
 
@@ -413,45 +488,54 @@ Exited with code {proc.returncode}.```
 
                     self.stop()
 
-                async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                async def interaction_check(
+                    self, interaction: discord.Interaction
+                ) -> bool:
                     if interaction.user != ctx.author:
-                        await interaction.response.send_message('This is not your interaction!', ephemeral=True)
+                        await interaction.response.send_message(
+                            "This is not your interaction!", ephemeral=True
+                        )
                         return False
-                    
+
                     return True
 
                 async def on_timeout(self):
                     for child in self.children:
                         child.disabled = True
 
-                    await self.message.edit(view=self, content='Timed out.')
+                    await self.message.edit(view=self, content="Timed out.")
 
             view = View()
 
-            view.message = await ctx.send('Please select an option.', view=view)
+            view.message = await ctx.send("Please select an option.", view=view)
 
             val = await view.wait()
 
-            if val or not view.value or view.value == 'do_nothing' or view.value not in ['do_nothing', 'restart', 'reload']:
+            if (
+                val
+                or not view.value
+                or view.value == "do_nothing"
+                or view.value not in ["do_nothing", "restart", "reload"]
+            ):
                 return
 
-            if view.value == 'restart':
+            if view.value == "restart":
                 return await self.jsk_restart(ctx)
-            
-            if view.value == 'reload':
+
+            if view.value == "reload":
                 cogs_found = [
-                    x.split(' | ')[0][:-3].replace('/', '.') 
-                    for x in re.findall(r'cogs\/.*', stdout.decode()) 
-                    if x.split(' | ')[0].endswith('.py') and \
-                        len(re.findall(r'\/', x.split(' | ')[0])) == 1
+                    x.split(" | ")[0][:-3].replace("/", ".")
+                    for x in re.findall(r"cogs\/.*", stdout.decode())
+                    if x.split(" | ")[0].endswith(".py")
+                    and len(re.findall(r"\/", x.split(" | ")[0])) == 1
                 ]
 
                 if not cogs_found:
-                    await ctx.send('No cogs found to reload.')
+                    await ctx.send("No cogs found to reload.")
                     return
 
-                warning_sign = '\U000026a0'
-                inbox_tray = '\U0001f4e5'
+                warning_sign = "\U000026a0"
+                inbox_tray = "\U0001f4e5"
 
                 l = []
 
@@ -459,11 +543,12 @@ Exited with code {proc.returncode}.```
                     try:
                         self.bot.reload_extension(cog)
                     except Exception as e:
-                        l.append(f'{warning_sign} {cog}: {e}')
+                        l.append(f"{warning_sign} {cog}: {e}")
                     else:
-                        l.append(f'{inbox_tray} {cog}')
+                        l.append(f"{inbox_tray} {cog}")
 
-                return await ctx.send('\n'.join(l))
+                return await ctx.send("\n".join(l))
+
 
 def setup(bot):
     bot.add_cog(Jishaku(bot=bot))

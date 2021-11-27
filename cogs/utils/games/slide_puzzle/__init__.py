@@ -7,12 +7,13 @@ from .error import *
 from .data import *
 from .enums import *
 
+
 class SlidePuzzle:
     def __init__(self, **options):
         self.options: dict[str, str] = options
 
-        self.x: int = options.pop('x', 3)
-        self.y: int = options.pop('y', 3)
+        self.x: int = options.pop("x", 3)
+        self.y: int = options.pop("y", 3)
 
         self.position: list[list[int]] = self.generate_random()
 
@@ -22,16 +23,16 @@ class SlidePuzzle:
         self.end_time = None
         self.duration = None
 
-        s = ''
+        s = ""
         start = 0
 
         for y in range(self.y):
-            for x in range(start+1, start+self.x+1):
-                s += f'{x} '
+            for x in range(start + 1, start + self.x + 1):
+                s += f"{x} "
 
             start += self.x
 
-            s += '\n'
+            s += "\n"
 
         s = s[:-3]
 
@@ -69,10 +70,12 @@ Switching Numbers:
 
         temp = []
 
-        l = list(range(1, self.x*self.y)) + [None] # None = one empty space
+        l = list(range(1, self.x * self.y)) + [None]  # None = one empty space
 
-        while len(position) <= self.y: # while the generated number of rows are less-than or equals to 4
-            if len(temp) >= self.x: # If there are 4 or more buttons in a row
+        while (
+            len(position) <= self.y
+        ):  # while the generated number of rows are less-than or equals to 4
+            if len(temp) >= self.x:  # If there are 4 or more buttons in a row
                 position.append(temp)
                 temp = []
 
@@ -105,37 +108,21 @@ Switching Numbers:
 
         none_location = self.get_location(None)
 
-        if none_location.x == self.x-1:
-            l.append(
-                self.position[none_location.y][self.x-1-1]
-            )
+        if none_location.x == self.x - 1:
+            l.append(self.position[none_location.y][self.x - 1 - 1])
         elif none_location.x == 0:
-            l.append(
-                self.position[none_location.y][1]
-            )
+            l.append(self.position[none_location.y][1])
         else:
-            l.append(
-                self.position[none_location.y][none_location.x-1]
-            )
-            l.append(
-                self.position[none_location.y][none_location.x+1]
-            )
+            l.append(self.position[none_location.y][none_location.x - 1])
+            l.append(self.position[none_location.y][none_location.x + 1])
 
         if none_location.y == 0:
-            l.append(
-                self.position[none_location.y+1][none_location.x]
-            )
-        elif none_location.y == self.y-1:
-            l.append(
-                self.position[none_location.y-1][none_location.x]
-            )
+            l.append(self.position[none_location.y + 1][none_location.x])
+        elif none_location.y == self.y - 1:
+            l.append(self.position[none_location.y - 1][none_location.x])
         else:
-            l.append(
-                self.position[none_location.y-1][none_location.x]
-            )
-            l.append(
-                self.position[none_location.y+1][none_location.x]
-            )
+            l.append(self.position[none_location.y - 1][none_location.x])
+            l.append(self.position[none_location.y + 1][none_location.x])
 
         return l
 
@@ -147,17 +134,17 @@ Switching Numbers:
         number_location: Location = self.get_location(number)
 
         if number_location.x == none_location.x:
-            if number_location.y == none_location.y+1:
+            if number_location.y == none_location.y + 1:
                 return MoveToEnum.DOWN
-            elif number_location.y == none_location.y-1:
+            elif number_location.y == none_location.y - 1:
                 return MoveToEnum.UP
-        
+
         if number_location.y == none_location.y:
-            if number_location.x == none_location.x+1:
+            if number_location.x == none_location.x + 1:
                 return MoveToEnum.RIGHT
-            elif number_location.x == none_location.x-1:
+            elif number_location.x == none_location.x - 1:
                 return MoveToEnum.LEFT
-        
+
         return None
 
     def move(self, number: int):
@@ -166,10 +153,10 @@ Switching Numbers:
 
         self.tries += 1
 
-        #move_to: MoveToEnum | None = self.move_to(number) # From number perspective, not None.
+        # move_to: MoveToEnum | None = self.move_to(number) # From number perspective, not None.
 
-        #if not move_to:
-            #raise CannotBeMoved(number)
+        # if not move_to:
+        # raise CannotBeMoved(number)
 
         none_location: Location = self.get_location(None)
         number_location: Location = self.get_location(number)
@@ -187,9 +174,9 @@ Switching Numbers:
             start = 0
 
             for position in self.position:
-                if position == list(range(start+1, start+self.x+1)):
+                if position == list(range(start + 1, start + self.x + 1)):
                     l.append(True)
-                elif position == list(range(start+1, start+self.x)) + [None]:
+                elif position == list(range(start + 1, start + self.x)) + [None]:
                     l.append(True)
                 else:
                     l.append(False)
@@ -218,7 +205,7 @@ Switching Numbers:
     def switch(self, num1: int | None, num2: int | None):
         if not self._switch_attempts.left:
             raise SwitchAttemptExhausted()
-        
+
         num1_location: Location = self.get_location(num1)
         num2_location: Location = self.get_location(num2)
 

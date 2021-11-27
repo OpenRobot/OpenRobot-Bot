@@ -3,6 +3,7 @@ class Location:
         self.x: int = int(x)
         self.y: int = int(y)
 
+
 class SwitchAttempts:
     def __init__(self, total: int, left: int = None):
         self.total = int(total)

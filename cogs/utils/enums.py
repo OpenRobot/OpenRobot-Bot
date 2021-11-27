@@ -2,6 +2,7 @@
 
 from discord.enums import Enum
 
+
 class Filters(Enum):
 
     ROTATION = 1

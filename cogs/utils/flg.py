@@ -2,17 +2,23 @@ import argparse
 import shlex
 from discord.ext import commands
 
-class FlagConverter(commands.FlagConverter, prefix='--', delimiter=' ', case_insensitive=True):
+
+class FlagConverter(
+    commands.FlagConverter, prefix="--", delimiter=" ", case_insensitive=True
+):
     pass
+
 
 class _Arguments(argparse.ArgumentParser):
     def error(self, message):
         raise RuntimeError(message)
 
+
 class LegacyFlagItems:
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
+
 
 class LegacyFlagConverter:
     def __init__(self, l: list[LegacyFlagItems]):

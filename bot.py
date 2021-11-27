@@ -25,21 +25,11 @@ import textwrap
 import aiospotify
 import async_timeout
 
-from io import (
-    BytesIO, 
-    StringIO
-)
+from io import BytesIO, StringIO
 
-from openrobot import (
-    discord_activities as discord_activity
-)
+from openrobot import discord_activities as discord_activity
 
-from cogs.utils import (
-    MenuPages, 
-    CodePaginator, 
-    executor, 
-    Bot as BaseBot
-)
+from cogs.utils import MenuPages, CodePaginator, executor, Bot as BaseBot
 
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).
@@ -48,35 +38,39 @@ GitHub: <https://github.com/OpenRobot>
 Website: <https://openrobot.xyz/>
 """
 
+
 class LineCount:
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-class Bot(BaseBot):
-    CDN_BUCKET = 'cdn.openrobot.xyz'
 
-    def line_count(self, directory: str = './') -> LineCount:
+class Bot(BaseBot):
+    CDN_BUCKET = "cdn.openrobot.xyz"
+
+    def line_count(self, directory: str = "./") -> LineCount:
         p = pathlib.Path(directory)
         cm = cr = fn = cl = ls = fc = 0
-        for f in p.rglob('*.py'):
+        for f in p.rglob("*.py"):
             if str(f).startswith("venv"):
                 continue
             fc += 1
             with f.open() as of:
                 for l in of.readlines():
                     l = l.strip()
-                    if l.startswith('class'):
+                    if l.startswith("class"):
                         cl += 1
-                    if l.startswith('def'):
+                    if l.startswith("def"):
                         fn += 1
-                    if l.startswith('async def'):
+                    if l.startswith("async def"):
                         cr += 1
-                    if '#' in l:
+                    if "#" in l:
                         cm += 1
                     ls += 1
 
-        return LineCount(files=fc, lines=ls, classes=cl, functions=fn, coroutines=cr, comments=cm)
+        return LineCount(
+            files=fc, lines=ls, classes=cl, functions=fn, coroutines=cr, comments=cm
+        )
 
     @executor()
     def screenshot(self, url: str, *, delay: int = None, proxy: bool = False):
@@ -95,7 +89,9 @@ class Bot(BaseBot):
 
         return buffer
 
-    async def publishCdn(self, fp : BytesIO, filename : str = "uwu.png", from_aiohttp=True, file_type = None):
+    async def publishCdn(
+        self, fp: BytesIO, filename: str = "uwu.png", from_aiohttp=True, file_type=None
+    ):
         fileType = file_type or f"{filename.split('.')[-1:]}"
 
         if from_aiohttp:
@@ -103,7 +99,7 @@ class Bot(BaseBot):
             fp.close = lambda: None
 
         data = aiohttp.FormData()
-        data.add_field('file', fp)
+        data.add_field("file", fp)
 
         url = f"https://cdn.ayomerdeka.com/upload?Authorization={config.CDN_TOKEN}&File-Type={fileType}"
 
@@ -111,43 +107,47 @@ class Bot(BaseBot):
             async with self.session.post(url, data=data) as resps:
                 if resps.status == 200:
                     d = await resps.json()
-                    return d['url']
+                    return d["url"]
                 else:
                     return None
         finally:
             if from_aiohttp:
                 fp.close = original
 
-    @executor() # CDN may be blocking, so lets just use an executor just in case
-    def publish_cdn(self, fp: BytesIO | bytes, filename: str, *, raw: bool = False) -> str | dict | typing.Any:
-        hash = ''.join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))
+    @executor()  # CDN may be blocking, so lets just use an executor just in case
+    def publish_cdn(
+        self, fp: BytesIO | bytes, filename: str, *, raw: bool = False
+    ) -> str | dict | typing.Any:
+        hash = "".join(
+            random.choices(
+                string.ascii_letters + string.digits, k=random.randint(10, 32)
+            )
+        )
 
-        file_type = filename.split('.')
+        file_type = filename.split(".")
         file_type = file_type[len(file_type) - 1]
 
-        with open(f'./cdn-images/{hash}.{file_type}', 'wb') as f:
-            f.write(getattr(fp, 'getvalue', lambda: fp)())
+        with open(f"./cdn-images/{hash}.{file_type}", "wb") as f:
+            f.write(getattr(fp, "getvalue", lambda: fp)())
 
         response = self.cdn.upload_file(
-            f'./cdn-images/{hash}.{file_type}',
-            self.CDN_BUCKET,
-            filename
+            f"./cdn-images/{hash}.{file_type}", self.CDN_BUCKET, filename
         )
 
         try:
-            os.remove(f'./cdn-images/{hash}.{file_type}')
+            os.remove(f"./cdn-images/{hash}.{file_type}")
         except:
             pass
 
         if not raw:
-            return 'https://' + self.CDN_BUCKET + '/' + filename
+            return "https://" + self.CDN_BUCKET + "/" + filename
         else:
             return response
 
     async def close(self):
         if self.redis:
             await self.redis.close()
-        
+
         if self.pool:
             await self.pool.close()
 
@@ -166,36 +166,45 @@ class Bot(BaseBot):
 
         return await super().close()
 
+
 bot = Bot(
     command_prefix=commands.when_mentioned_or(*config.PREFIXES),
-    help_command=commands.MinimalHelpCommand(no_category="Miscellaneous"), # For old help command purposes only. This is used whenever the help cog fails.
+    help_command=commands.MinimalHelpCommand(
+        no_category="Miscellaneous"
+    ),  # For old help command purposes only. This is used whenever the help cog fails.
     intents=discord.Intents.all(),
     activity=discord.Activity(type=discord.ActivityType.listening, name="or.help"),
     case_insensitive=True,
     description=description,
-    slash_commands=True
+    slash_commands=True,
 )
 
 api = bot.api
 
-def override(func): # Plainly just for `source` command.
+
+def override(func):  # Plainly just for `source` command.
     func.__is_overridden__ = True
     return func
+
 
 @bot.event
 @override
 async def on_ready():
-    print(f'{bot.user} is ready!')
+    print(f"{bot.user} is ready!")
+
 
 @bot.event
 @override
 async def on_message(message: discord.Message):
-    if re.match(rf'^<@!?{bot.user.id}>$', message.content):
-        return await message.reply("My prefix is `or.`! You can also mention me!", mention_author=False)
+    if re.match(rf"^<@!?{bot.user.id}>$", message.content):
+        return await message.reply(
+            "My prefix is `or.`! You can also mention me!", mention_author=False
+        )
 
     await bot.process_commands(message)
 
-@bot.command(aliases=['latency'])
+
+@bot.command(aliases=["latency"])
 async def ping(ctx: commands.Context):
     """
     Gets the latency of the bot, databases and more.
@@ -205,34 +214,47 @@ async def ping(ctx: commands.Context):
         await ctx.interaction.response.defer()
 
     def do_ping_string(ping: int) -> str:
-        s = '```diff\n'
+        s = "```diff\n"
 
         if ping <= 250:
-            s += f'+ {ping} ms'
+            s += f"+ {ping} ms"
         else:
-            s += f'- {ping} ms'
+            s += f"- {ping} ms"
 
-        s += '```'
-        
+        s += "```"
+
         return s
 
-    msg = await ctx.send('Calculating Latency...')
+    msg = await ctx.send("Calculating Latency...")
 
-    embed = discord.Embed(color=bot.color, timestamp=ctx.message.created_at).set_author(name='Latency/Ping Info:', icon_url=ctx.author.avatar.url).set_footer(icon_url=ctx.author.avatar.url, text=f'Requested by: {ctx.author}')
+    embed = (
+        discord.Embed(color=bot.color, timestamp=ctx.message.created_at)
+        .set_author(name="Latency/Ping Info:", icon_url=ctx.author.avatar.url)
+        .set_footer(icon_url=ctx.author.avatar.url, text=f"Requested by: {ctx.author}")
+    )
 
     web_ping = await bot.ping.discord_web_ping() * 1000
     typing_ping = await bot.ping.typing_latency() * 1000
     bot_latency = bot.ping.bot_latency() * 1000
 
-    embed.add_field(name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:', value=do_ping_string(round(bot_latency, 2)))
-    embed.add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value=do_ping_string(round(typing_ping, 2)))
-    embed.add_field(name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', value=do_ping_string(round(web_ping, 2)))
+    embed.add_field(
+        name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:',
+        value=do_ping_string(round(bot_latency, 2)),
+    )
+    embed.add_field(
+        name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:',
+        value=do_ping_string(round(typing_ping, 2)),
+    )
+    embed.add_field(
+        name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:',
+        value=do_ping_string(round(web_ping, 2)),
+    )
 
     if bot.pool is not None:
         postgresql_ping = await bot.ping.database.postgresql()
     else:
         postgresql_ping = None
-    
+
     if bot.spotify_pool is not None:
         postgresql_spotify_ping = await bot.ping.database.postgresql(spotify=True)
     else:
@@ -246,20 +268,35 @@ async def ping(ctx: commands.Context):
         elif postgresql_ping is None:
             psql_ping = postgresql_spotify_ping
 
-        embed.add_field(name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:', value=do_ping_string(round(psql_ping * 1000, 2)))
+        embed.add_field(
+            name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:',
+            value=do_ping_string(round(psql_ping * 1000, 2)),
+        )
 
     if bot.redis:
         redis_ping = await bot.ping.database.redis()
 
         if redis_ping:
-            embed.add_field(name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:', value=do_ping_string(round(redis_ping * 1000, 2)))
+            embed.add_field(
+                name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:',
+                value=do_ping_string(round(redis_ping * 1000, 2)),
+            )
 
-    embed.add_field(name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:', value=do_ping_string(round(await bot.ping.api() * 1000, 2)))
+    embed.add_field(
+        name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:',
+        value=do_ping_string(round(await bot.ping.api() * 1000, 2)),
+    )
 
-    embed.add_field(name='Average Discord Latency:', value=do_ping_string(round((web_ping + typing_ping + bot_latency) / 3, 2)))
+    embed.add_field(
+        name="Average Discord Latency:",
+        value=do_ping_string(round((web_ping + typing_ping + bot_latency) / 3, 2)),
+    )
 
-    #await msg.delete()
-    await msg.edit(embed=embed, content=None, allowed_mentions=discord.AllowedMentions.none())
+    # await msg.delete()
+    await msg.edit(
+        embed=embed, content=None, allowed_mentions=discord.AllowedMentions.none()
+    )
+
 
 @bot.command("system", aliases=["sys"])
 async def system(ctx: commands.Context):
@@ -272,11 +309,31 @@ async def system(ctx: commands.Context):
     if ctx.interaction is not None:
         await ctx.interaction.response.defer()
 
-    return await bot.get_command('jishaku system')(ctx) # yes i am too lazy to move the code here, sorry!
+    return await bot.get_command("jishaku system")(
+        ctx
+    )  # yes i am too lazy to move the code here, sorry!
 
-@bot.command(aliases=['act'])
-async def activity(ctx: commands.Context, channel: discord.VoiceChannel = commands.Option(description='The voice channel to start the activity. Defaults to the channel you are in.'), activity: typing.Literal['Watch Together', 'Poker Night', 'Chess', 'Doodle Crew', 'Word Snacks', 'Letter Tile', 'Spellcast', 'Checkers', 'Fishington', 'Betrayal'] = commands.Option(description='The activity to start.')):
-    act = getattr(discord_activity.ActivityType, activity.replace(' ', '_').lower())
+
+@bot.command(aliases=["act"])
+async def activity(
+    ctx: commands.Context,
+    channel: discord.VoiceChannel = commands.Option(
+        description="The voice channel to start the activity. Defaults to the channel you are in."
+    ),
+    activity: typing.Literal[
+        "Watch Together",
+        "Poker Night",
+        "Chess",
+        "Doodle Crew",
+        "Word Snacks",
+        "Letter Tile",
+        "Spellcast",
+        "Checkers",
+        "Fishington",
+        "Betrayal",
+    ] = commands.Option(description="The activity to start."),
+):
+    act = getattr(discord_activity.ActivityType, activity.replace(" ", "_").lower())
 
     try:
         started_activity = await bot.discord_activity.set_activity(channel.id, act)
@@ -284,19 +341,32 @@ async def activity(ctx: commands.Context, channel: discord.VoiceChannel = comman
         if ctx.debug:
             raise e
 
-        return await ctx.send(f'Something wen\'t wrong. Make sure I have `Create Invite` permissions in {channel.mention}!')
+        return await ctx.send(
+            f"Something wen't wrong. Make sure I have `Create Invite` permissions in {channel.mention}!"
+        )
 
-    await ctx.send(embed=discord.Embed(color=bot.color, description=f'[Click here to start your `{activity}` activity]({started_activity.url})'))
+    await ctx.send(
+        embed=discord.Embed(
+            color=bot.color,
+            description=f"[Click here to start your `{activity}` activity]({started_activity.url})",
+        )
+    )
+
 
 @activity.error
 async def activity_error(ctx: commands.Context, error: Exception):
     if isinstance(error, commands.BadLiteralArgument):
-        await ctx.send('Invalid activity.')
+        await ctx.send("Invalid activity.")
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('Please provide a channel.')
+        await ctx.send("Please provide a channel.")
+
 
 @bot.command()
-async def lyrics(ctx: commands.Context, *, query: str = commands.Option(description='The query to search for the lyrics.')):
+async def lyrics(
+    ctx: commands.Context,
+    *,
+    query: str = commands.Option(description="The query to search for the lyrics."),
+):
     """
     Get lyrics on a specific song/query.
 
@@ -305,11 +375,13 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
     - `--from-spotify`: Gets the lyrics from spotify. This gets the lyrics from your spotify activity and edits them automatically when a new song plays. If it does not sync, try pausing/playing, or do anything regarding to the playback of your Spotify song.
     """
 
-    query = re.sub('\n+', ' ', query)
+    query = re.sub("\n+", " ", query)
 
-    if '--raw' in query.split(' ') and '--from-spotify' in query.split(' '):
-        return await ctx.send("You cannot define both `--raw` and `--from-spotify` flags.")
-    if query == '--from-spotify':
+    if "--raw" in query.split(" ") and "--from-spotify" in query.split(" "):
+        return await ctx.send(
+            "You cannot define both `--raw` and `--from-spotify` flags."
+        )
+    if query == "--from-spotify":
         from_spotify = True
     else:
         from_spotify = False
@@ -321,12 +393,12 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
         try:
             lyric = await api.lyrics(q)
 
-            if '--raw' in query.split(' '):
+            if "--raw" in query.split(" "):
                 s = StringIO()
                 s.write(json.dumps(lyric.raw, indent=4))
                 s.seek(0)
 
-                return await ctx.send(file=discord.File(s, 'response.json'))
+                return await ctx.send(file=discord.File(s, "response.json"))
 
             title = lyric.title
             artist = lyric.artist
@@ -335,29 +407,32 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
             artist_image = lyric.images.background
 
             if not lyrics:
-                return None # return await ctx.send(f"Song with query `{query}` not found.")
+                return None  # return await ctx.send(f"Song with query `{query}` not found.")
 
             embed = discord.Embed(color=bot.color)
-            if title and not getattr(title, 'lower', lambda: title)() == 'none':
+            if title and not getattr(title, "lower", lambda: title)() == "none":
                 embed.title = title
             else:
-                embed.title = f'{q} Search Result:'
+                embed.title = f"{q} Search Result:"
 
-            if artist and not getattr(artist, 'lower', lambda: artist)() == 'none':
-                embed.set_author(name=f'Artist: {artist}', icon_url=artist_image or discord.Embed.Empty)
+            if artist and not getattr(artist, "lower", lambda: artist)() == "none":
+                embed.set_author(
+                    name=f"Artist: {artist}",
+                    icon_url=artist_image or discord.Embed.Empty,
+                )
             else:
                 pass
-            
+
             embed.set_thumbnail(url=track_image or discord.Embed.Empty)
 
-            pag = commands.Paginator(prefix='', suffix='', max_size=4000)
+            pag = commands.Paginator(prefix="", suffix="", max_size=4000)
 
-            for line in lyrics.split('\n'):
+            for line in lyrics.split("\n"):
                 pag.add_line(line)
 
             embed.description = discord.utils.escape_markdown(pag.pages[0])
 
-            embed.set_footer(text=f'Invoked by: {ctx.author}')
+            embed.set_footer(text=f"Invoked by: {ctx.author}")
 
             embeds = []
 
@@ -365,23 +440,25 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
                 for page in pag.pages[1:]:
                     e = discord.Embed(color=bot.color)
                     e.description = discord.utils.escape_markdown(page)
-                    e.set_footer(text=f'Invoked by: {ctx.author}')
+                    e.set_footer(text=f"Invoked by: {ctx.author}")
 
                     embeds.append(e)
 
-            return [embed] + embeds # await ctx.send(embed=embed)
+            return [embed] + embeds  # await ctx.send(embed=embed)
         except Exception as e:
             if ctx.debug:
                 raise e
 
-            return None # return await ctx.send(f"Song with query `{query}` not found.") 
+            return (
+                None  # return await ctx.send(f"Song with query `{query}` not found.")
+            )
 
     def generateErrorEmbed(error):
         embed = discord.Embed(color=bot.color)
-        
+
         embed.description = error
 
-        embed.set_author(name=f'Invoked by: {ctx.author}')
+        embed.set_author(name=f"Invoked by: {ctx.author}")
 
         return embed
 
@@ -390,16 +467,18 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
             if isinstance(act, discord.Spotify):
                 activity = act
                 break
-                
+
         activity = None
 
         for act in ctx.author.activities:
             if isinstance(act, discord.Spotify):
                 activity = act
                 break
-        
+
         if not activity:
-            return await ctx.send(embed=generateErrorEmbed("You are not playing any spotify music!"))
+            return await ctx.send(
+                embed=generateErrorEmbed("You are not playing any spotify music!")
+            )
 
         async def msgIsNew(msg):
             async for message in msg.channel.history(limit=5):
@@ -425,81 +504,123 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
 
             if msg is None:
                 if not activity:
-                    msg = await ctx.send(embed=generateErrorEmbed("You are not playing any spotify music!"))
+                    msg = await ctx.send(
+                        embed=generateErrorEmbed(
+                            "You are not playing any spotify music!"
+                        )
+                    )
                 else:
-                    l = await getLyrics(activity.title + ' ' + activity.artists[0])
+                    l = await getLyrics(activity.title + " " + activity.artists[0])
 
                     if not l:
                         l = await getLyrics(activity.title)
 
                     if not l:
                         for x in activity.artists:
-                            l = await getLyrics(activity.title + ' ' + x)
+                            l = await getLyrics(activity.title + " " + x)
                             if l:
                                 break
 
                     if not l:
-                        l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+                        l = await getLyrics(
+                            activity.title + " " + " ".join(activity.artists)
+                        )
 
                     if not l:
-                        msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."), embeds=None)
+                        msg = await ctx.send(
+                            embed=generateErrorEmbed(
+                                f"Song with query `{query}` cannot be found."
+                            ),
+                            embeds=None,
+                        )
                     else:
                         msg = await ctx.send(embeds=l, embed=None)
 
-                await msg.add_reaction('\U000023f9')
+                await msg.add_reaction("\U000023f9")
             elif await msgIsNew(msg):
                 if not activity:
-                    msg = await msg.edit(embed=generateErrorEmbed("You are not playing any spotify music!"), embeds=None)
+                    msg = await msg.edit(
+                        embed=generateErrorEmbed(
+                            "You are not playing any spotify music!"
+                        ),
+                        embeds=None,
+                    )
                 else:
-                    l = await getLyrics(activity.title + ' ' + activity.artists[0])
+                    l = await getLyrics(activity.title + " " + activity.artists[0])
 
                     if not l:
                         l = await getLyrics(activity.title)
 
                     if not l:
                         for x in activity.artists:
-                            l = await getLyrics(activity.title + ' ' + x)
+                            l = await getLyrics(activity.title + " " + x)
                             if l:
                                 break
 
                     if not l:
-                        l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+                        l = await getLyrics(
+                            activity.title + " " + " ".join(activity.artists)
+                        )
 
                     if not l:
-                        msg = await msg.edit(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."), embeds=None)
+                        msg = await msg.edit(
+                            embed=generateErrorEmbed(
+                                f"Song with query `{query}` cannot be found."
+                            ),
+                            embeds=None,
+                        )
                     else:
                         msg = await msg.edit(embeds=l, embed=None)
             else:
                 await msg.delete()
                 if not activity:
-                    msg = await ctx.send(embed=generateErrorEmbed("You are not playing any spotify music!"))
+                    msg = await ctx.send(
+                        embed=generateErrorEmbed(
+                            "You are not playing any spotify music!"
+                        )
+                    )
                 else:
-                    l = await getLyrics(activity.title + ' ' + activity.artists[0])
+                    l = await getLyrics(activity.title + " " + activity.artists[0])
 
                     if not l:
                         l = await getLyrics(activity.title)
 
                     if not l:
                         for x in activity.artists:
-                            l = await getLyrics(activity.title + ' ' + x)
+                            l = await getLyrics(activity.title + " " + x)
                             if l:
                                 break
 
                     if not l:
-                        l = await getLyrics(activity.title + ' ' + ' '.join(activity.artists))
+                        l = await getLyrics(
+                            activity.title + " " + " ".join(activity.artists)
+                        )
 
                     if not l:
-                        msg = await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
+                        msg = await ctx.send(
+                            embed=generateErrorEmbed(
+                                f"Song with query `{query}` cannot be found."
+                            )
+                        )
                     else:
                         msg = await ctx.send(embeds=l)
 
-                    await msg.add_reaction('\U000023f9')
+                    await msg.add_reaction("\U000023f9")
 
             async def do_stop():
                 while True:
-                    reaction, user = await bot.wait_for('reaction_add', check=lambda r, u: str(r.emoji) == '\U000023f9' and r.message == msg and not u.bot)
+                    reaction, user = await bot.wait_for(
+                        "reaction_add",
+                        check=lambda r, u: str(r.emoji) == "\U000023f9"
+                        and r.message == msg
+                        and not u.bot,
+                    )
 
-                    if not await bot.is_owner(user) and not user == ctx.author and not user.guild_permissions.manage_messages:
+                    if (
+                        not await bot.is_owner(user)
+                        and not user == ctx.author
+                        and not user.guild_permissions.manage_messages
+                    ):
                         continue
 
                     nonlocal stop_process
@@ -511,7 +632,10 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
             if stop_process:
                 return
 
-            _, __ = await bot.wait_for('presence_update', check=lambda b, a: b == ctx.author and a == ctx.author)
+            _, __ = await bot.wait_for(
+                "presence_update",
+                check=lambda b, a: b == ctx.author and a == ctx.author,
+            )
 
             if stop_process:
                 return
@@ -522,13 +646,22 @@ async def lyrics(ctx: commands.Context, *, query: str = commands.Option(descript
             return
 
         if not l:
-            return await ctx.send(embed=generateErrorEmbed(f"Song with query `{query}` cannot be found."))
+            return await ctx.send(
+                embed=generateErrorEmbed(f"Song with query `{query}` cannot be found.")
+            )
 
         for embed in l:
             await ctx.send(embed=embed)
 
-@bot.command(aliases=['ss'])
-async def screenshot(ctx: commands.Context, url: str = commands.Option(description='The website URL to screenshot.'), delay: int = commands.Option(None, description='Waits for x seconds before taking the screenshot.')):
+
+@bot.command(aliases=["ss"])
+async def screenshot(
+    ctx: commands.Context,
+    url: str = commands.Option(description="The website URL to screenshot."),
+    delay: int = commands.Option(
+        None, description="Waits for x seconds before taking the screenshot."
+    ),
+):
     """
     Screenshots a URL.
     """
@@ -536,7 +669,7 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
     if ctx.interaction is not None:
         await ctx.interaction.response.defer()
     else:
-        await ctx.message.add_reaction('<a:openrobot_searching_gif:899928367799885834>')
+        await ctx.message.add_reaction("<a:openrobot_searching_gif:899928367799885834>")
 
     try:
         buffer: BytesIO = await bot.screenshot(url, delay=delay)
@@ -544,11 +677,15 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
         if ctx.debug:
             raise e
 
-        return await ctx.send(f'Error: {e}')
+        return await ctx.send(f"Error: {e}")
 
-    render_msg = await bot.get_channel(847804286933925919).send(file=discord.File(fp=BytesIO(buffer.getvalue()), filename='screenshot.png'))
+    render_msg = await bot.get_channel(847804286933925919).send(
+        file=discord.File(fp=BytesIO(buffer.getvalue()), filename="screenshot.png")
+    )
 
-    await ctx.message.remove_reaction('<a:openrobot_searching_gif:899928367799885834>', bot.user)
+    await ctx.message.remove_reaction(
+        "<a:openrobot_searching_gif:899928367799885834>", bot.user
+    )
 
     if not ctx.channel.is_nsfw():
         check = await bot.api.nsfw_check(render_msg.attachments[0].url)
@@ -556,35 +693,53 @@ async def screenshot(ctx: commands.Context, url: str = commands.Option(descripti
         is_unsafe = check.score > 50 or bool(check.labels)
 
         if is_unsafe:
-            return await ctx.send('This website seems to be NSFW/Innapropriate. I am sorry, but I may not be able to send the screenshot result in this channel.')
+            return await ctx.send(
+                "This website seems to be NSFW/Innapropriate. I am sorry, but I may not be able to send the screenshot result in this channel."
+            )
 
     embed = discord.Embed(color=bot.color)
 
-    embed.description = f'[`{url}`]({url})'
+    embed.description = f"[`{url}`]({url})"
 
-    embed.set_image(url='attachment://screenshot.png')
+    embed.set_image(url="attachment://screenshot.png")
 
-    embed.set_footer(text=f'Requested by: {ctx.author} | Delay: {delay}s.')
+    embed.set_footer(text=f"Requested by: {ctx.author} | Delay: {delay}s.")
 
     class View(discord.ui.View):
-        @discord.ui.button(label='Delete', emoji='<:trash:911955690644447273>', style=discord.ButtonStyle.red)
-        async def delete(self, button: discord.ui.Button, interaction: discord.Interaction):
+        @discord.ui.button(
+            label="Delete",
+            emoji="<:trash:911955690644447273>",
+            style=discord.ButtonStyle.red,
+        )
+        async def delete(
+            self, button: discord.ui.Button, interaction: discord.Interaction
+        ):
             await interaction.message.delete()
             self.stop()
 
-    return await ctx.send(embed=embed, view=View(timeout=None), file=discord.File(buffer, filename='screenshot.png'))
+    return await ctx.send(
+        embed=embed,
+        view=View(timeout=None),
+        file=discord.File(buffer, filename="screenshot.png"),
+    )
 
-#@bot.group()
+
+# @bot.group()
 async def spotify(ctx: commands.Context):
     """
     OpenRobot Spotify (OpenRobot x Spotify)
     """
-    
+
     if ctx.invoked_subcommand is None:
         return await ctx.send_help(ctx.command)
 
-#@spotify.command('login')
-async def spotify_login(ctx: commands.Context, *, flags: str = commands.Option(None, description='Flags: [--interactive]')):
+
+# @spotify.command('login')
+async def spotify_login(
+    ctx: commands.Context,
+    *,
+    flags: str = commands.Option(None, description="Flags: [--interactive]"),
+):
     """
     Pair your spotify account to OpenRobot x Spotify.
 
@@ -592,27 +747,27 @@ async def spotify_login(ctx: commands.Context, *, flags: str = commands.Option(N
     - `--interactive`: Interactively helps you step-by-step on how to pair your spotify account to OpenRobot Spotify.
     """
 
-    flags = (flags or '').split(' ')
+    flags = (flags or "").split(" ")
 
-    if '--interactive' not in flags:
-        return await ctx.send('https://spotify.openrobot.xyz/')
+    if "--interactive" not in flags:
+        return await ctx.send("https://spotify.openrobot.xyz/")
 
     DEMO_URLS = {
-        'discord': 'https://api.openrobot.xyz/static/openrobot_spotify_step_discord.gif',
-        'spotify': 'https://api.openrobot.xyz/static/openrobot_spotify_step_spotify.gif'
+        "discord": "https://api.openrobot.xyz/static/openrobot_spotify_step_discord.gif",
+        "spotify": "https://api.openrobot.xyz/static/openrobot_spotify_step_spotify.gif",
     }
 
     DESCRIPTION = {
-        'discord': f"""
+        "discord": f"""
 Go to https://spotify.openrobot.xyz and `Authorize` to this Discord account, {ctx.author}.
         """,
-        'spotify': """
+        "spotify": """
 Now, sign in to the correct spotify account and click the `Agree` button.
-        """
+        """,
     }
 
     def generate_embed(step: str = None):
-        step = step or 'discord'
+        step = step or "discord"
 
         embed = discord.Embed(color=bot.color)
 
@@ -622,47 +777,66 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
         return embed
 
-    async def wait_for(step: str, *, timeout = 60):
+    async def wait_for(step: str, *, timeout=60):
         c = 0
 
         async with async_timeout.timeout(timeout):
-            while not getattr(await bot.spotify_redis.get(str(ctx.author.id)), 'decode', lambda: None)() == f'ON_STEP({step.upper()})':
+            while (
+                not getattr(
+                    await bot.spotify_redis.get(str(ctx.author.id)),
+                    "decode",
+                    lambda: None,
+                )()
+                == f"ON_STEP({step.upper()})"
+            ):
                 pass
 
     username = None
     url = None
 
-    get_step = getattr(await bot.spotify_redis.get(str(ctx.author.id)), 'decode', lambda: None)()
+    get_step = getattr(
+        await bot.spotify_redis.get(str(ctx.author.id)), "decode", lambda: None
+    )()
 
     if get_step:
-        step: str = re.findall(r'\(.*\)', get_step)[0].strip('(').strip(')').lower()
+        step: str = re.findall(r"\(.*\)", get_step)[0].strip("(").strip(")").lower()
 
-        if step == 'finish':
-            return await ctx.send('You just authenticated, wait for some time!')
+        if step == "finish":
+            return await ctx.send("You just authenticated, wait for some time!")
 
-        confirm = await bot.confirm(ctx, embed=discord.Embed(description=f'Seems like you already tried to authenticate/pair your spotify account to OpenRobot. You we\'re at the `{step.capitalize()}` step.\nDo you want to continue from your step?', color=bot.color))
+        confirm = await bot.confirm(
+            ctx,
+            embed=discord.Embed(
+                description=f"Seems like you already tried to authenticate/pair your spotify account to OpenRobot. You we're at the `{step.capitalize()}` step.\nDo you want to continue from your step?",
+                color=bot.color,
+            ),
+        )
 
         if confirm:
-            if step not in ['spotify']:
-                return await ctx.send(f'Unknown step. This is a problem in our back-end! Please try restarting your steps and report this to {bot.owner.mention} - `{bot.owner}`!') 
+            if step not in ["spotify"]:
+                return await ctx.send(
+                    f"Unknown step. This is a problem in our back-end! Please try restarting your steps and report this to {bot.owner.mention} - `{bot.owner}`!"
+                )
 
-            await ctx.send('Check your DMs!')
+            await ctx.send("Check your DMs!")
 
-            embed = generate_embed('spotify')
+            embed = generate_embed("spotify")
 
             await ctx.author.send(embed=embed)
 
             try:
-                await wait_for('FINISH', timeout=90)
+                await wait_for("FINISH", timeout=90)
             except asyncio.TimeoutError as e:
                 if ctx.debug:
                     raise e
 
-                return await ctx.author.send('Took to long, try again later.')
+                return await ctx.author.send("Took to long, try again later.")
 
             while True:
                 try:
-                    spotify_db_res = await bot.spotify_pool.fetchrow("SELECT * FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+                    spotify_db_res = await bot.spotify_pool.fetchrow(
+                        "SELECT * FROM spotify_auth WHERE user_id = $1", ctx.author.id
+                    )
                 except asyncpg.exceptions._base.InterfaceError:
                     pass
                 else:
@@ -670,120 +844,145 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
             spotify = aiospotify.Client()
 
-            async with bot.session.get('https://api.spotify.com/v1/me', headers={'Authorization': f'Bearer {spotify_db_res["access_token"]}'}) as resp:
+            async with bot.session.get(
+                "https://api.spotify.com/v1/me",
+                headers={"Authorization": f'Bearer {spotify_db_res["access_token"]}'},
+            ) as resp:
                 js = await resp.json()
 
-                username = js['display_name']
-                url = js['uri']
+                username = js["display_name"]
+                url = js["uri"]
         else:
             await bot.spotify_redis.delete(str(ctx.author.id))
-    
+
     if not username and not url:
         embed = generate_embed()
 
         await ctx.author.send(embed=embed)
 
         try:
-            await wait_for('SPOTIFY', timeout=90)
+            await wait_for("SPOTIFY", timeout=90)
         except asyncio.TimeoutError as e:
             if ctx.debug:
                 raise e
 
-            return await ctx.author.send('Took to long, try again later.')
+            return await ctx.author.send("Took to long, try again later.")
 
-        embed = generate_embed('spotify')
+        embed = generate_embed("spotify")
 
-        await ctx.send('Check your DMs!')
+        await ctx.send("Check your DMs!")
         await ctx.author.send(embed=embed)
 
         try:
-            await wait_for('FINISH', timeout=90)
+            await wait_for("FINISH", timeout=90)
         except asyncio.TimeoutError as e:
             if ctx.debug:
                 raise e
 
-            return await ctx.author.send('Took to long, try again later.')
+            return await ctx.author.send("Took to long, try again later.")
 
         while True:
             try:
-                spotify_db_res = await bot.spotify_pool.fetchrow("SELECT * FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+                spotify_db_res = await bot.spotify_pool.fetchrow(
+                    "SELECT * FROM spotify_auth WHERE user_id = $1", ctx.author.id
+                )
             except asyncpg.exceptions._base.InterfaceError:
                 pass
             else:
                 break
 
-        async with bot.session.get('https://api.spotify.com/v1/me', headers={'Authorization': f'Bearer {spotify_db_res["access_token"]}'}) as resp:
+        async with bot.session.get(
+            "https://api.spotify.com/v1/me",
+            headers={"Authorization": f'Bearer {spotify_db_res["access_token"]}'},
+        ) as resp:
             js = await resp.json()
 
-            username = js['display_name']
-            url = js['uri']
+            username = js["display_name"]
+            url = js["uri"]
 
     embed = discord.Embed(color=bot.color)
 
-    embed.description = f'Just for confirmation, Is [`{username}`]({url}) the spotify account you are trying to link to your discord account, `{ctx.author}`'
+    embed.description = f"Just for confirmation, Is [`{username}`]({url}) the spotify account you are trying to link to your discord account, `{ctx.author}`"
 
     value = await bot.confirm(ctx, channel=ctx.author, embed=embed)
 
     if value:
-        await ctx.author.send('Ok! Authenticated and paired successfully!')
+        await ctx.author.send("Ok! Authenticated and paired successfully!")
     else:
         await bot.spotify_redis.delete(str(ctx.author))
 
         while True:
             try:
-                await bot.spotify_pool.fetchrow("DELETE FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+                await bot.spotify_pool.fetchrow(
+                    "DELETE FROM spotify_auth WHERE user_id = $1", ctx.author.id
+                )
             except asyncpg.exceptions._base.InterfaceError:
                 pass
             else:
                 break
 
-        await ctx.author.send('Removed your spotify pair from this account. Please redo the command again.')
+        await ctx.author.send(
+            "Removed your spotify pair from this account. Please redo the command again."
+        )
 
-#@spotify.command('logout')
+
+# @spotify.command('logout')
 async def spotify_logout(ctx: commands.Context):
     while True:
         try:
-            x = await bot.spotify_pool.fetchrow("SELECT * FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+            x = await bot.spotify_pool.fetchrow(
+                "SELECT * FROM spotify_auth WHERE user_id = $1", ctx.author.id
+            )
         except asyncpg.exceptions._base.InterfaceError:
             pass
         else:
             break
 
     if not x:
-        return await ctx.send('You have not logged in to OpenRobot Spotify.')
+        return await ctx.send("You have not logged in to OpenRobot Spotify.")
 
     await bot.spotify_redis.delete(str(ctx.author))
 
     while True:
         try:
-            await bot.spotify_pool.fetchrow("DELETE FROM spotify_auth WHERE user_id = $1", ctx.author.id)
+            await bot.spotify_pool.fetchrow(
+                "DELETE FROM spotify_auth WHERE user_id = $1", ctx.author.id
+            )
         except asyncpg.exceptions._base.InterfaceError:
             pass
         else:
             break
-    
-    await ctx.send('Logged out successfully!')
 
-@bot.command(aliases=['sp'])
+    await ctx.send("Logged out successfully!")
+
+
+@bot.command(aliases=["sp"])
 async def spotify(ctx: commands.Context, *, member: discord.Member = None):
     member = member or ctx.author
 
-    spotify = discord.utils.find(lambda a: isinstance(a, discord.Spotify), member.activities)
+    spotify = discord.utils.find(
+        lambda a: isinstance(a, discord.Spotify), member.activities
+    )
     if spotify is None:
         return await ctx.send(f"**{member}** is not listening or connected to Spotify.")
 
     params = {
-        'title': spotify.title,
-        'cover_url': spotify.album_cover_url,
-        'duration_seconds': spotify.duration.seconds,
-        'start_timestamp': spotify.start.timestamp(),
-        'artists': spotify.artists[0]
+        "title": spotify.title,
+        "cover_url": spotify.album_cover_url,
+        "duration_seconds": spotify.duration.seconds,
+        "start_timestamp": spotify.start.timestamp(),
+        "artists": spotify.artists[0],
     }
 
-    async with bot.session.get('https://api.jeyy.xyz/discord/spotify', params=params) as response:
+    async with bot.session.get(
+        "https://api.jeyy.xyz/discord/spotify", params=params
+    ) as response:
         buf = BytesIO(await response.read())
 
-    url = await bot.publish_cdn(buf, f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png') # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
+    url = await bot.publish_cdn(
+        buf,
+        f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png',
+    )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
 
     embed = discord.Embed(color=spotify.colour)
 
@@ -795,37 +994,68 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 
     if do_spotify_api:
         try:
-            async with bot.session.post('https://accounts.spotify.com/api/token', params={'grant_type': 'client_credentials'}, headers={'Authorization': f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}', 'Content-Type': 'application/x-www-form-urlencoded'}) as resp:
+            async with bot.session.post(
+                "https://accounts.spotify.com/api/token",
+                params={"grant_type": "client_credentials"},
+                headers={
+                    "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            ) as resp:
                 auth_js = await resp.json()
         except Exception as e:
             if ctx.debug:
                 raise e
 
-            artists = ', '.join(spotify.artists)
+            artists = ", ".join(spotify.artists)
             album = spotify.album
         else:
             try:
                 for artist in spotify.artists:
                     try:
-                        async with bot.session.get('https://api.spotify.com/v1/search', params={'q': artist, 'type': 'artist', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {auth_js["access_token"]}'}) as resp:
+                        async with bot.session.get(
+                            "https://api.spotify.com/v1/search",
+                            params={
+                                "q": artist,
+                                "type": "artist",
+                                "market": "US",
+                                "limit": 1,
+                                "offset": 0,
+                            },
+                            headers={
+                                "Authorization": f'Bearer {auth_js["access_token"]}'
+                            },
+                        ) as resp:
                             js = await resp.json()
 
-                        artists.append(f'[`{js["artists"]["items"][0]["name"]}`]({js["artists"]["items"][0]["external_urls"]["spotify"]})')
+                        artists.append(
+                            f'[`{js["artists"]["items"][0]["name"]}`]({js["artists"]["items"][0]["external_urls"]["spotify"]})'
+                        )
                     except Exception as e:
                         if ctx.debug:
                             raise e
 
                         artists.append(artist)
 
-                artists = ', '.join(artists)
+                artists = ", ".join(artists)
             except Exception as e:
                 if ctx.debug:
                     raise e
 
-                artists = ', '.join(spotify.artists)
+                artists = ", ".join(spotify.artists)
 
             try:
-                async with bot.session.get('https://api.spotify.com/v1/search', params={'q': spotify.album, 'type': 'album', 'market': 'US', 'limit': 1, 'offset': 0}, headers={'Authorization': f'Bearer {auth_js["access_token"]}'}) as resp:
+                async with bot.session.get(
+                    "https://api.spotify.com/v1/search",
+                    params={
+                        "q": spotify.album,
+                        "type": "album",
+                        "market": "US",
+                        "limit": 1,
+                        "offset": 0,
+                    },
+                    headers={"Authorization": f'Bearer {auth_js["access_token"]}'},
+                ) as resp:
                     js = await resp.json()
 
                 album = f'[`{js["albums"]["items"][0]["name"]}`]({js["albums"]["items"][0]["external_urls"]["spotify"]})'
@@ -835,10 +1065,10 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 
                 album = spotify.album
     else:
-        artists = ', '.join([f'`{x}`' for x in spotify.artists])
-        album = '`' + spotify.album + '`'
+        artists = ", ".join([f"`{x}`" for x in spotify.artists])
+        album = "`" + spotify.album + "`"
 
-    embed.set_author(name=f'{member}\'s Spotify:', icon_url=member.avatar.url)
+    embed.set_author(name=f"{member}'s Spotify:", icon_url=member.avatar.url)
 
     embed.description = f"""
 > **{member}** is listening to [`{spotify.title}`]({spotify.track_url}) by {artists}
@@ -853,25 +1083,35 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 
     await ctx.send(embed=embed)
 
-@bot.command(aliases=['docs'])
+
+@bot.command(aliases=["docs"])
 async def documentation(ctx: commands.Context):
     """
     Gives the OpenRobot documentation URL.
     """
 
-    return await ctx.send('<https://api.openrobot.xyz/api/docs>')
+    return await ctx.send("<https://api.openrobot.xyz/api/docs>")
 
-def codeblock(code: str, *, language = ''):
+
+def codeblock(code: str, *, language=""):
     return f"```{language}\n{code}```"
+
 
 bot.codeblock = codeblock
 
-@bot.command(aliases=['src'])
-async def source(ctx: commands.Context, *, command: str = commands.Option(None, description='The command name/cog/event to get the source code')):
+
+@bot.command(aliases=["src"])
+async def source(
+    ctx: commands.Context,
+    *,
+    command: str = commands.Option(
+        None, description="The command name/cog/event to get the source code"
+    ),
+):
     """
-    The source code of OpenRobot. You can get a code from a specific 
-    command such as `api apply`, or get a source code from a 
-    cog/extension by typing `cog:<Insert Cog Name>` e.g `cog:API`. 
+    The source code of OpenRobot. You can get a code from a specific
+    command such as `api apply`, or get a source code from a
+    cog/extension by typing `cog:<Insert Cog Name>` e.g `cog:API`.
     You can also get a event source code by typing `event:<Event Name>`
     e.g `event:on_message`.
 
@@ -883,55 +1123,60 @@ async def source(ctx: commands.Context, *, command: str = commands.Option(None, 
         await ctx.interaction.response.defer()
 
     try:
-        if '--code' in command.split(' '):
+        if "--code" in command.split(" "):
             code = True
-            command = command.replace(' --code', '')
+            command = command.replace(" --code", "")
         else:
             code = False
     except:
         code = False
 
-    source_url = 'https://github.com/OpenRobot/OpenRobot-Bot'
-    branch = 'main'
+    source_url = "https://github.com/OpenRobot/OpenRobot-Bot"
+    branch = "main"
     if command is None:
         return await ctx.send(source_url)
 
-    if command.startswith('cog:'): # Cog proccessing
+    if command.startswith("cog:"):  # Cog proccessing
         command = command[4:]
 
         cog = bot.get_cog(command)
         if not cog:
-            return await ctx.send('Could not find cog.')
+            return await ctx.send("Could not find cog.")
 
         src = cog.__class__
 
         module = inspect.getfile(src)
-    elif command.startswith('event:'): # Event processing
+    elif command.startswith("event:"):  # Event processing
         command = command[6:]
 
-        if not command.startswith('on_'):
-            command = 'on_' + command
+        if not command.startswith("on_"):
+            command = "on_" + command
 
         src = getattr(bot, command, None)
 
         if not src:
-            return await ctx.send('Could not find event.')
+            return await ctx.send("Could not find event.")
 
-        if not getattr(src, '__is_overridden__', False):
-            return await ctx.send('Could not find event.')
+        if not getattr(src, "__is_overridden__", False):
+            return await ctx.send("Could not find event.")
 
         module = inspect.getfile(src)
-    else: # Command processing
-        if command == 'help':
-            if isinstance(bot.help_command, (commands.DefaultHelpCommand, commands.MinimalHelpCommand)):
-                return await ctx.send('I cannot get the source code of the help command as of now. Sorry!')
+    else:  # Command processing
+        if command == "help":
+            if isinstance(
+                bot.help_command,
+                (commands.DefaultHelpCommand, commands.MinimalHelpCommand),
+            ):
+                return await ctx.send(
+                    "I cannot get the source code of the help command as of now. Sorry!"
+                )
 
             src = type(bot.help_command)
             module = src.__module__
         else:
-            obj = bot.get_command(command.replace('.', ' '))
+            obj = bot.get_command(command.replace(".", " "))
             if obj is None:
-                return await ctx.send('Could not find command.')
+                return await ctx.send("Could not find command.")
 
             # since we found the command we're looking for, presumably anyway, let's
             # try to access the code itself
@@ -940,39 +1185,40 @@ async def source(ctx: commands.Context, *, command: str = commands.Option(None, 
 
     if not code:
         lines, firstlineno = inspect.getsourcelines(src)
-        #location = module.replace('.', '/') + '.py'
-        location = module.replace(os.getcwd() + '/', '').replace(os.getcwd(), '')
+        # location = module.replace('.', '/') + '.py'
+        location = module.replace(os.getcwd() + "/", "").replace(os.getcwd(), "")
 
-        if location.endswith('.py'):
+        if location.endswith(".py"):
             location = location[:-3]
 
-        location = location.replace('.', '/') + '.py'
+        location = location.replace(".", "/") + ".py"
 
-        final_url = f'<{source_url}/blob/{branch}/{location}#L{firstlineno}-L{firstlineno + len(lines) - 1}>'
+        final_url = f"<{source_url}/blob/{branch}/{location}#L{firstlineno}-L{firstlineno + len(lines) - 1}>"
         return await ctx.send(final_url)
     else:
         param = {
-            "text": inspect.getsource(src), 
-            "width": 4000, 
-            "replace_whitespace": False
+            "text": inspect.getsource(src),
+            "width": 4000,
+            "replace_whitespace": False,
         }
-        list_codeblock = [codeblock(cb, language='py') for cb in textwrap.wrap(**param)]
+        list_codeblock = [codeblock(cb, language="py") for cb in textwrap.wrap(**param)]
         menu = MenuPages(CodePaginator(list_codeblock), delete_message_after=True)
         await menu.start(ctx)
 
-async def _confirm(ctx, channel = None, *args, **kwargs):
-    timeout = kwargs.pop('timeout', 60)
 
-    options = kwargs.pop('options', [])
+async def _confirm(ctx, channel=None, *args, **kwargs):
+    timeout = kwargs.pop("timeout", 60)
+
+    options = kwargs.pop("options", [])
 
     channel = channel or ctx.channel
 
     class Yes(discord.ui.Button):
         def __init__(self):
             super().__init__(
-                label='Yes',
+                label="Yes",
                 style=discord.ButtonStyle.green,
-                emoji="<:yes:814691942821920810>"
+                emoji="<:yes:814691942821920810>",
             )
 
         async def callback(self, interaction: discord.Interaction):
@@ -980,7 +1226,7 @@ async def _confirm(ctx, channel = None, *args, **kwargs):
                 child.disabled = True
 
             self.view.value = True
-            
+
             await interaction.message.edit(view=self.view)
 
             self.view.stop()
@@ -988,9 +1234,9 @@ async def _confirm(ctx, channel = None, *args, **kwargs):
     class No(discord.ui.Button):
         def __init__(self):
             super().__init__(
-                label='No',
+                label="No",
                 style=discord.ButtonStyle.red,
-                emoji="<:no:814692370430951476>"
+                emoji="<:no:814692370430951476>",
             )
 
         async def callback(self, interaction: discord.Interaction):
@@ -998,7 +1244,7 @@ async def _confirm(ctx, channel = None, *args, **kwargs):
                 child.disabled = True
 
             self.view.value = False
-            
+
             await interaction.message.edit(view=self.view)
 
             self.view.stop()
@@ -1018,68 +1264,104 @@ async def _confirm(ctx, channel = None, *args, **kwargs):
 
         async def interaction_check(self, interaction: discord.Interaction) -> bool:
             if interaction.user != ctx.author:
-                await interaction.response.send_message(f'This is not your interaction! Only {ctx.author} can manage and click/respond to interactions!', ephemeral=True)
+                await interaction.response.send_message(
+                    f"This is not your interaction! Only {ctx.author} can manage and click/respond to interactions!",
+                    ephemeral=True,
+                )
                 return False
 
             return True
 
-    kwargs['view'] = view = View()
+    kwargs["view"] = view = View()
 
     view.msg = await channel.send(*args, **kwargs)
     await view.wait()
-    
+
     return view.value
 
+
 @bot.command()
-async def invite(ctx: commands.Context, option: typing.Literal['Slash Commands', 'Bot Invite'] = commands.Option(description='Either Slash Commands or Message Commands (Normal)')):
-    if option == 'Bot Invite':
-        url_with_slash = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['bot', 'applications.commands',])
-        url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['bot',])
-        return await ctx.send(f'With slash commands: <{url_with_slash}>\nWithout slash commands: <{url}>')
-    elif option == 'Slash Commands':
-        url = discord.utils.oauth_url(bot.user.id, permissions=discord.Permissions(8), scopes=['applications.commands',])
-        return await ctx.send(f'<{url}>')
+async def invite(
+    ctx: commands.Context,
+    option: typing.Literal["Slash Commands", "Bot Invite"] = commands.Option(
+        description="Either Slash Commands or Message Commands (Normal)"
+    ),
+):
+    if option == "Bot Invite":
+        url_with_slash = discord.utils.oauth_url(
+            bot.user.id,
+            permissions=discord.Permissions(8),
+            scopes=[
+                "bot",
+                "applications.commands",
+            ],
+        )
+        url = discord.utils.oauth_url(
+            bot.user.id,
+            permissions=discord.Permissions(8),
+            scopes=[
+                "bot",
+            ],
+        )
+        return await ctx.send(
+            f"With slash commands: <{url_with_slash}>\nWithout slash commands: <{url}>"
+        )
+    elif option == "Slash Commands":
+        url = discord.utils.oauth_url(
+            bot.user.id,
+            permissions=discord.Permissions(8),
+            scopes=[
+                "applications.commands",
+            ],
+        )
+        return await ctx.send(f"<{url}>")
     else:
-        return await ctx.send('Unknown Option') # idk when this would happen, but ok.
+        return await ctx.send("Unknown Option")  # idk when this would happen, but ok.
+
 
 bot.confirm = _confirm
 
 bot.exts = [
     #'jishaku',
-    'cogs.api',
-    'cogs.error',
-    'cogs.music',
-    'cogs.help',
-    'cogs.jsk',
-    'cogs.fun',
-    'cogs.speech',
-    'cogs.ai',
+    "cogs.api",
+    "cogs.error",
+    "cogs.music",
+    "cogs.help",
+    "cogs.jsk",
+    "cogs.fun",
+    "cogs.speech",
+    "cogs.ai",
 ]
+
 
 def start(**kwargs):
     async def parse_flags(**kwargs):
-        if kwargs.get('db') is False:
+        if kwargs.get("db") is False:
             bot.pool = None
             bot.redis = None
             bot.spotify_redis = None
         else:
             bot.pool = await asyncpg.create_pool(config.DATABASE)
-            #bot.spotify_pool = await asyncpg.create_pool(config.SPOTIFY_DATABASE)
+            # bot.spotify_pool = await asyncpg.create_pool(config.SPOTIFY_DATABASE)
             bot.redis = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS)
-            bot.spotify_redis = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=1)
-            #bot.tb_pool = await asyncpg.create_pool(config.TRACEBACK_DATABASE)
+            bot.spotify_redis = aioredis.Redis(
+                **config.REDIS_DATABASE_CRIDENTIALS, db=1
+            )
+            # bot.tb_pool = await asyncpg.create_pool(config.TRACEBACK_DATABASE)
 
-            #bot.cache = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=2)
+            # bot.cache = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=2)
 
-        if kwargs.get('cogs') is not None and 'cogs' not in kwargs:
-            l = list(filter(lambda i: i[0].startswith('without-') and i[1], kwargs.items()))
+        if kwargs.get("cogs") is not None and "cogs" not in kwargs:
+            l = list(
+                filter(lambda i: i[0].startswith("without-") and i[1], kwargs.items())
+            )
 
             for i in l:
                 try:
                     bot.exts.remove(i)
                 except KeyError:
                     try:
-                        bot.exts.remove('cogs.' + i)
+                        bot.exts.remove("cogs." + i)
                     except:
                         pass
 
@@ -1088,7 +1370,7 @@ def start(**kwargs):
                     bot.load_extension(ext)
                 except:
                     pass
-        elif kwargs.get('cogs') is True:
+        elif kwargs.get("cogs") is True:
             for ext in bot.exts:
                 try:
                     bot.load_extension(ext)
@@ -1097,15 +1379,19 @@ def start(**kwargs):
         else:
             pass
 
-        if kwargs.get('colour') and bot.color is None:
+        if kwargs.get("colour") and bot.color is None:
             try:
-                bot.color = await commands.ColourConverter().convert(None, kwargs.get('colour')) # ctx argument isn't used, so we'll just pass in None.
+                bot.color = await commands.ColourConverter().convert(
+                    None, kwargs.get("colour")
+                )  # ctx argument isn't used, so we'll just pass in None.
             except:
                 pass
 
-        if kwargs.get('color') and bot.color is None:
+        if kwargs.get("color") and bot.color is None:
             try:
-                bot.color = await commands.ColourConverter().convert(None, kwargs.get('color')) # ctx argument isn't used, so we'll just pass in None.
+                bot.color = await commands.ColourConverter().convert(
+                    None, kwargs.get("color")
+                )  # ctx argument isn't used, so we'll just pass in None.
             except:
                 pass
 
@@ -1117,8 +1403,8 @@ def start(**kwargs):
         bot.owner = bot.get_user(699839134709317642)
 
         try:
-            await bot.cogs['Music'].initiate_node()
-        except KeyError: # Cog isnt loaded
+            await bot.cogs["Music"].initiate_node()
+        except KeyError:  # Cog isnt loaded
             pass
 
     async def do_restart_message():
@@ -1126,23 +1412,30 @@ def start(**kwargs):
 
         utcnow = discord.utils.utcnow()
 
-        with open('restart.json', 'r') as f:
+        with open("restart.json", "r") as f:
             js: dict = json.load(f)
 
-        with open('restart.json', 'w') as f:
+        with open("restart.json", "w") as f:
             json.dump({}, f, indent=4)
 
-        if ('channel_id' in js) and ('message_id' in js) and ('restarted_at' in js):
-            restarted_at = datetime.datetime.fromtimestamp(js['restarted_at'], tz=datetime.timezone.utc)
+        if ("channel_id" in js) and ("message_id" in js) and ("restarted_at" in js):
+            restarted_at = datetime.datetime.fromtimestamp(
+                js["restarted_at"], tz=datetime.timezone.utc
+            )
             restart_duration = utcnow - restarted_at
 
-            chan = bot.get_channel(js['channel_id'])
+            chan = bot.get_channel(js["channel_id"])
 
             if chan:
-                msg = chan.get_partial_message(js['message_id'])
+                msg = chan.get_partial_message(js["message_id"])
 
                 try:
-                    await msg.edit(embed=discord.Embed(description=f'Back in `{restart_duration.seconds} seconds`.', color=bot.color))
+                    await msg.edit(
+                        embed=discord.Embed(
+                            description=f"Back in `{restart_duration.seconds} seconds`.",
+                            color=bot.color,
+                        )
+                    )
                 except:
                     pass
 
@@ -1152,7 +1445,13 @@ def start(**kwargs):
         utcnow = discord.utils.utcnow()
 
         webhook = discord.Webhook.from_url(config.UPTIME_WEBHOOK, session=bot.session)
-        await webhook.send(embed=discord.Embed(description=f'<:status_online:596576749790429200> OpenRobot is going online and up!\n\nAt: {discord.utils.format_dt(utcnow, "F")}', color=bot.color, timestamp=utcnow))
+        await webhook.send(
+            embed=discord.Embed(
+                description=f'<:status_online:596576749790429200> OpenRobot is going online and up!\n\nAt: {discord.utils.format_dt(utcnow, "F")}',
+                color=bot.color,
+                timestamp=utcnow,
+            )
+        )
 
     def start_tasks():
         bot.loop.create_task(parse_flags(**kwargs))
@@ -1161,13 +1460,13 @@ def start(**kwargs):
         bot.loop.create_task(send_online_msg())
 
         try:
-            bot.loop.create_task(bot.cogs['Music'].renew())
-        except KeyError: # Cog isnt loaded
+            bot.loop.create_task(bot.cogs["Music"].renew())
+        except KeyError:  # Cog isnt loaded
             pass
 
         try:
-            bot.loop.create_task(bot.cogs['Error'].initiate_tb_pool())
-        except KeyError: # Cog isnt loaded
+            bot.loop.create_task(bot.cogs["Error"].initiate_tb_pool())
+        except KeyError:  # Cog isnt loaded
             pass
 
     start_tasks()
@@ -1178,4 +1477,10 @@ def start(**kwargs):
         utcnow = discord.utils.utcnow()
 
         webhook = discord.SyncWebhook.from_url(config.UPTIME_WEBHOOK)
-        webhook.send(embed=discord.Embed(description=f'<:status_offline:596576752013279242> OpenRobot is going offline and shutting down!\n\nAt: {discord.utils.format_dt(utcnow, "F")}', color=bot.color, timestamp=utcnow))
+        webhook.send(
+            embed=discord.Embed(
+                description=f'<:status_offline:596576752013279242> OpenRobot is going offline and shutting down!\n\nAt: {discord.utils.format_dt(utcnow, "F")}',
+                color=bot.color,
+                timestamp=utcnow,
+            )
+        )

@@ -7,8 +7,17 @@ from discord.ext import menus
 from discord.ext.menus import ListPageSource, Menu
 import humanize
 
+
 class ViewMenuPages(ui.View, menus.MenuPages):
-    def __init__(self, source, *, timeout=180, delete_message_after=False, clear_buttons_after=False, force_paginate=False):
+    def __init__(
+        self,
+        source,
+        *,
+        timeout=180,
+        delete_message_after=False,
+        clear_buttons_after=False,
+        force_paginate=False,
+    ):
         super().__init__(timeout=timeout)
         self._source = source
         self.current_page = 0
@@ -29,12 +38,12 @@ class ViewMenuPages(ui.View, menus.MenuPages):
     async def _get_kwargs_from_page(self, page):
         """This method calls ListPageSource.format_page class"""
         value = await super()._get_kwargs_from_page(page)
-        if 'view' not in value:
+        if "view" not in value:
             if not self.force_paginate:
                 if self._source.get_max_pages() <= 1:
                     return value
 
-            value.update({'view': self})
+            value.update({"view": self})
         return value
 
     async def send_initial_message(self, ctx, channel):
@@ -47,7 +56,9 @@ class ViewMenuPages(ui.View, menus.MenuPages):
             if self._source.get_max_pages() <= 1:
                 return await self.message.edit(view=None)
 
-        self.page_button.label = f'{self.current_page + 1}/{self._source.get_max_pages()}'
+        self.page_button.label = (
+            f"{self.current_page + 1}/{self._source.get_max_pages()}"
+        )
         if self.current_page == 0:
             self.first_page.disabled = True
             self.before_page.disabled = True
@@ -85,27 +96,44 @@ class ViewMenuPages(ui.View, menus.MenuPages):
 
     async def interaction_check(self, interaction):
         """Only allow the author that invoke the command to be able to use the interaction"""
-        if not (interaction.user == self.ctx.author or await self.ctx.bot.is_owner(interaction.user)):
-            await interaction.response.send_message(f'This is not your interaction! Only {self.ctx.author.mention} can respond to this interaction!', ephemeral=True)
+        if not (
+            interaction.user == self.ctx.author
+            or await self.ctx.bot.is_owner(interaction.user)
+        ):
+            await interaction.response.send_message(
+                f"This is not your interaction! Only {self.ctx.author.mention} can respond to this interaction!",
+                ephemeral=True,
+            )
             return False
         else:
             return True
 
-    @ui.button(emoji='<:openrobot_rewind_button:899931475720413187>', style=discord.ButtonStyle.gray, row=1)
+    @ui.button(
+        emoji="<:openrobot_rewind_button:899931475720413187>",
+        style=discord.ButtonStyle.gray,
+        row=1,
+    )
     async def first_page(self, button, interaction):
         await self.show_page(0)
         await self.update_buttons()
 
-    @ui.button(emoji='<:openrobot_previous_button:899937597877542922>', label='Previous', style=discord.ButtonStyle.gray, row=1)
+    @ui.button(
+        emoji="<:openrobot_previous_button:899937597877542922>",
+        label="Previous",
+        style=discord.ButtonStyle.gray,
+        row=1,
+    )
     async def before_page(self, button, interaction):
         await self.show_checked_page(self.current_page - 1)
         await self.update_buttons()
 
-    @ui.button(label='\u200b', style=discord.ButtonStyle.gray, row=1)
+    @ui.button(label="\u200b", style=discord.ButtonStyle.gray, row=1)
     async def page_button(self, button, interaction):
         await interaction.response.defer()
-        
-        m = await self.ctx.send(f"Enter page number you would like to see (1/{self._source.get_max_pages()})")
+
+        m = await self.ctx.send(
+            f"Enter page number you would like to see (1/{self._source.get_max_pages()})"
+        )
 
         def check(msg):
             page_num = self.try_int(msg.content)
@@ -115,10 +143,10 @@ class ViewMenuPages(ui.View, menus.MenuPages):
                 return 1 <= page_num <= self._source.get_max_pages()
 
         try:
-            msg = await self.ctx.bot.wait_for('message', check = check, timeout=30)
+            msg = await self.ctx.bot.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
             await m.delete()
-            return await self.ctx.send('Took to long...', delete_after=10)
+            return await self.ctx.send("Took to long...", delete_after=10)
         else:
             page_num = int(msg.content) - 1
 
@@ -136,17 +164,31 @@ class ViewMenuPages(ui.View, menus.MenuPages):
 
         await self.update_buttons()
 
-    @ui.button(emoji='<:openrobot_next_button:899878229437984799>', label='Next', style=discord.ButtonStyle.gray, row=1)
+    @ui.button(
+        emoji="<:openrobot_next_button:899878229437984799>",
+        label="Next",
+        style=discord.ButtonStyle.gray,
+        row=1,
+    )
     async def next_page(self, button, interaction):
         await self.show_checked_page(self.current_page + 1)
         await self.update_buttons()
 
-    @ui.button(emoji='<:openrobot_fast_forward_button:899878227777060894>', style=discord.ButtonStyle.gray, row=1)
+    @ui.button(
+        emoji="<:openrobot_fast_forward_button:899878227777060894>",
+        style=discord.ButtonStyle.gray,
+        row=1,
+    )
     async def last_page(self, button, interaction):
         await self.show_page(self._source.get_max_pages() - 1)
         await self.update_buttons()
 
-    @ui.button(emoji='<:openrobot_stop_button:899878227969974322>', label='Quit', style=discord.ButtonStyle.red, row=2)
+    @ui.button(
+        emoji="<:openrobot_stop_button:899878227969974322>",
+        label="Quit",
+        style=discord.ButtonStyle.red,
+        row=2,
+    )
     async def stop_page(self, button, interaction):
         self.stop()
         if self.delete_message_after:
@@ -159,11 +201,14 @@ class ViewMenuPages(ui.View, menus.MenuPages):
 
             await self.message.edit(view=self)
 
+
 MenuPages = ViewMenuPages
+
 
 class ClassicPaginator(ListPageSource):
     async def format_page(self, menu, page):
         return page
+
 
 class APIInfoPaginator(ListPageSource):
     def __init__(self, data):
@@ -185,10 +230,11 @@ __**{c})**__
             """
             c += 1
 
-        embed.set_footer(text=f'Page {menu.current_page + 1}/{self.get_max_pages()}')
+        embed.set_footer(text=f"Page {menu.current_page + 1}/{self.get_max_pages()}")
         embed.timestamp = menu.ctx.message.created_at
 
         return embed
+
 
 class CelebrityPaginator(ListPageSource):
     def __init__(self, data):
@@ -204,19 +250,21 @@ class CelebrityPaginator(ListPageSource):
         if page.cropped_url:
             embed.set_thumbnail(url=page.cropped_url)
 
-        emotion = sorted(page.item['Face']['Emotions'], key=lambda i: i['Confidence'], reverse=True)
+        emotion = sorted(
+            page.item["Face"]["Emotions"], key=lambda i: i["Confidence"], reverse=True
+        )
 
-        urls = ''
+        urls = ""
 
-        for url in page.item['URLs']:
-            if not url.startswith(('https://', 'http://')):
-                url = 'https://' + url
+        for url in page.item["URLs"]:
+            if not url.startswith(("https://", "http://")):
+                url = "https://" + url
 
-            urls += f' \u200b \u200b \u200b- {url}\n'
+            urls += f" \u200b \u200b \u200b- {url}\n"
 
         urls = urls[:-1]
 
-        newline = '\n'
+        newline = "\n"
 
         embed.description = f"""
 Seems like this is `{page.name}`. I am `{round(page.item['Confidence'], 1)}%` sure.
@@ -234,10 +282,11 @@ Seems like this is `{page.name}`. I am `{round(page.item['Confidence'], 1)}%` su
  \u200b \u200b \u200b- **Sharpness:** `{round(page.item['Face']['Quality']['Sharpness'], 1)}%`
         """
 
-        embed.set_footer(text=f'Page {menu.current_page + 1}/{self.get_max_pages()}')
+        embed.set_footer(text=f"Page {menu.current_page + 1}/{self.get_max_pages()}")
         embed.timestamp = menu.ctx.message.created_at
 
         return embed
+
 
 class TranslateLanguagesPagniator(ListPageSource):
     def __init__(self, data):
@@ -248,19 +297,28 @@ class TranslateLanguagesPagniator(ListPageSource):
 
         embed.timestamp = discord.utils.utcnow()
 
-        embed.set_author(name = "Languages:", icon_url=menu.ctx.author.avatar.url)
+        embed.set_author(name="Languages:", icon_url=menu.ctx.author.avatar.url)
 
         embed.description = "```yml\n"
 
         entries = list(entries)
 
-        embed.description += "\n".join([f"{k.rjust(len(max(dict(entries).keys(), key=len)))}: {v}" for k, v in entries])
+        embed.description += "\n".join(
+            [
+                f"{k.rjust(len(max(dict(entries).keys(), key=len)))}: {v}"
+                for k, v in entries
+            ]
+        )
 
         embed.description += "```"
 
-        embed.set_footer(text = f"Requested by {menu.ctx.author} | Page {menu.current_page + 1}/{self.get_max_pages()}", icon_url=menu.ctx.author.avatar.url)
+        embed.set_footer(
+            text=f"Requested by {menu.ctx.author} | Page {menu.current_page + 1}/{self.get_max_pages()}",
+            icon_url=menu.ctx.author.avatar.url,
+        )
 
         return embed
+
 
 class CodePaginator(menus.ListPageSource):
     def __init__(self, code):
@@ -274,6 +332,7 @@ class CodePaginator(menus.ListPageSource):
         embed.description = entries
 
         return embed
+
 
 class IPBanListPaginator(ListPageSource):
     def __init__(self, data):
@@ -294,10 +353,11 @@ __**{c})**__
             """
             c += 1
 
-        embed.set_footer(text=f'Page {menu.current_page + 1}/{self.get_max_pages()}')
+        embed.set_footer(text=f"Page {menu.current_page + 1}/{self.get_max_pages()}")
         embed.timestamp = menu.ctx.message.created_at
 
         return embed
+
 
 class QueueNowPlayingPaginator(ListPageSource):
     def __init__(self, queue, entries, *, per_page):
@@ -326,25 +386,34 @@ class QueueNowPlayingPaginator(ListPageSource):
 
         return embed
 
+
 class QueueHistoryPaginator(ListPageSource):
     async def format_page(self, menu, entries):
         embed = discord.Embed(color=menu.ctx.bot.color)
 
-        embed.title = 'Queue history:'
+        embed.title = "Queue history:"
 
-        embed.set_footer(text=f'1 = most recent | {len(entries)} = least recent')
+        embed.set_footer(text=f"1 = most recent | {len(entries)} = least recent")
 
-        embed.description = f'**Tracks:** {len(entries)}\n**Time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in entries) // 1000))}\n\n'
+        embed.description = f"**Tracks:** {len(entries)}\n**Time:** {humanize.naturaldelta(datetime.timedelta(seconds=sum(track.length for track in entries) // 1000))}\n\n"
 
         for index, track in entries:
-            embed.description = '\n'.join([f"**{index + 1}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(track.length // 1000))} | {track.requester.mention}"])
+            embed.description = "\n".join(
+                [
+                    f"**{index + 1}.** [{str(track.title)}]({track.uri}) | {humanize.naturaldelta(datetime.timedelta(track.length // 1000))} | {track.requester.mention}"
+                ]
+            )
 
         return embed
 
+
 class TextToSpeechDetailsPaginator(ListPageSource):
     async def format_page(self, menu, entries):
-        embed = discord.Embed(color=menu.ctx.bot.color, title=f'Text to speech details for language `{entries[0].language.name}`:')
-        embed.description = ''
+        embed = discord.Embed(
+            color=menu.ctx.bot.color,
+            title=f"Text to speech details for language `{entries[0].language.name}`:",
+        )
+        embed.description = ""
 
         for page in entries:
             embed.description += f"""

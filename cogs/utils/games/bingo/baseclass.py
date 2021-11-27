@@ -1,9 +1,11 @@
 import discord
 
+
 class Number:
     def __init__(self, number, claimed=False):
         self.number: int | None = number
         self.claimed: bool = claimed
+
 
 class Player:
     def __init__(self, member, board):
@@ -32,6 +34,7 @@ class Player:
             return
 
         self.board[y][x].claimed = True
+
 
 class Winner:
     def __init__(self, player, win_type):

@@ -3,6 +3,7 @@ import inspect
 from .base import Bot
 from discord.ext import commands
 
+
 class Cog(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
@@ -21,14 +22,14 @@ class Cog(commands.Cog):
     def _inject(self, bot):
         super()._inject(bot)
         self.cog_load()
-        self.bot.dispatch('cog_load', self)
+        self.bot.dispatch("cog_load", self)
 
         return self
 
     def _eject(self, bot):
         super()._eject(bot)
-        self.bot.dispatch('cog_unload', self)
+        self.bot.dispatch("cog_unload", self)
 
     def __init_subclass__(cls, **kwargs):
-        cls.emoji = kwargs.pop('emoji', None)
-        cls.full_name = (f'{cls.emoji} ' if cls.emoji else '') + cls.__cog_name__
+        cls.emoji = kwargs.pop("emoji", None)
+        cls.full_name = (f"{cls.emoji} " if cls.emoji else "") + cls.__cog_name__

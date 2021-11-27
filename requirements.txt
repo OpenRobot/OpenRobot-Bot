@@ -18,3 +18,4 @@ openai
 http-request-randomizer
 selenium
 boto3
+black

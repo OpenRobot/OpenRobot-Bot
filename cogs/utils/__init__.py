@@ -1,19 +1,19 @@
 # Module imports
 from . import (
-    cog, 
-    flg, 
-    views, 
-    paginator, 
-    converters, 
-    context, 
-    player, 
-    checks, 
-    enums, 
-    games, 
-    base, 
-    error, 
+    cog,
+    flg,
+    views,
+    paginator,
+    converters,
+    context,
+    player,
+    checks,
+    enums,
+    games,
+    base,
+    error,
     driver,
-    executor
+    executor,
 )
 
 # Base imports
