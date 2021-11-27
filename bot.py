@@ -296,10 +296,6 @@ async def activity_error(ctx: commands.Context, error: Exception):
         await ctx.send('Please provide a channel.')
 
 @bot.command()
-async def load(ctx, ext):
-    bot.load_extension(f'{ext}')
-
-@bot.command()
 async def lyrics(ctx: commands.Context, *, query: str = commands.Option(description='The query to search for the lyrics.')):
     """
     Get lyrics on a specific song/query.
