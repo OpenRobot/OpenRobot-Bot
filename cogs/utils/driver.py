@@ -5,7 +5,7 @@ from selenium.webdriver.chrome.options import Options
 class Driver:
     def __init__(self, *, use_proxy: bool = False, proxy: str = None):
         self.proxy: bool = proxy
-        self.use_proxy = None
+        self.use_proxy = use_proxy
 
         self.driver = None
 
