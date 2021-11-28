@@ -41,6 +41,10 @@ def natural_size(size_in_bytes: int):
 
 
 class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
+    """
+    The frontend subclass that mixes in to form the final Jishaku cog.
+    """
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
