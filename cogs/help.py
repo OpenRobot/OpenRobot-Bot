@@ -134,7 +134,9 @@ class OpenRobotHelp(commands.HelpCommand):
 
             filtered_subcommands = await self.filter_commands(subcommands)
 
-            value = "\n".join([f"`{subcommand}`" for subcommand in filtered_subcommands])
+            value = "\n".join(
+                [f"`{subcommand}`" for subcommand in filtered_subcommands]
+            )
             embed.add_field(name="Subcommand(s):", value=value, inline=False)
 
         return await self.send(embed=embed)

@@ -408,7 +408,7 @@ async def lyrics(
             lyrics = lyric.lyrics
             track_image = lyric.images.track
             artist_image = lyric.images.background
-            
+
             if "--file" in query.split(" "):
                 content = ""
 
