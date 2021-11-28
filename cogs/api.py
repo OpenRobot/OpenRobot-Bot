@@ -1223,6 +1223,7 @@ __**Info:**__
         return await ctx.send("Reseted.")
 
     @api.group(name="ip", invoke_without_command=True)
+    @checks.api.has_applied()
     async def api_ip(self, ctx: commands.Context):
         """
         IP management.
@@ -1247,6 +1248,7 @@ __**Info:**__
         return ip not in ["127.0.0.1", "0.0.0.0"]
 
     @api_ip.command("list", aliases=["show"])
+    @checks.api.has_applied()
     async def api_ip_list(
         self,
         ctx,
@@ -1339,6 +1341,7 @@ __**Info:**__
         await pages.start(ctx)
 
     @api_ip.command("ban", aliases=["reject"])
+    @checks.api.has_applied()
     async def api_ip_ban(
         self,
         ctx,
@@ -1415,6 +1418,7 @@ __**Info:**__
         await ctx.send(f"IP banned {ip}.")
 
     @api_ip.command("unban", aliases=["accept", "un-ban", "un_ban"])
+    @checks.api.has_applied()
     async def api_ip_unban(
         self, ctx, *, ip: str = commands.Option(description="The IP Address to unban.")
     ):
