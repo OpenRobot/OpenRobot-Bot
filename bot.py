@@ -391,7 +391,7 @@ async def lyrics(
 
     async def getLyrics(q):
         try:
-            lyric = await api.lyrics(q)
+            lyric = await api.lyrics(q.replace("--raw", ""))
 
             if "--raw" in query.split(" "):
                 s = StringIO()
