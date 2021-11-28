@@ -30,7 +30,7 @@ class api:
         table = "applied_tokens" if applied_tokens else "tokens"
 
         async def predicate(ctx):
-            if not await ctx.bot.pool.fetchrow(
+            if await ctx.bot.pool.fetchrow(
                 f"SELECT * FROM {table} WHERE user_id = $1", ctx.author.id
             ):
                 raise APIHasApplied("You already applied for the API.")
