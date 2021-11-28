@@ -372,15 +372,18 @@ async def lyrics(
 
     Flags:
     - `--raw`: Returns the raw response sent by our (OpenRobot) API.
+    - `--file`: Sends/Exports the lyrics in a text file.
     - `--from-spotify`: Gets the lyrics from spotify. This gets the lyrics from your spotify activity and edits them automatically when a new song plays. If it does not sync, try pausing/playing, or do anything regarding to the playback of your Spotify song.
     """
 
     query = re.sub("\n+", " ", query)
 
-    if "--raw" in query.split(" ") and "--from-spotify" in query.split(" "):
-        return await ctx.send(
-            "You cannot define both `--raw` and `--from-spotify` flags."
-        )
+    if (
+        ("--raw" in query.split(" ") and "--from-spotify" in query.split(" "))
+        or ("--raw" in query.split(" ") and "--file" in query.split(" "))
+        or ("--file" in query.split(" ") and "--from-spotify" in query.split(" "))
+    ):
+        return await ctx.send("Invalid flags.")
     if query == "--from-spotify":
         from_spotify = True
     else:
@@ -405,6 +408,33 @@ async def lyrics(
             lyrics = lyric.lyrics
             track_image = lyric.images.track
             artist_image = lyric.images.background
+            
+            if "--file" in query.split(" "):
+                content = ""
+
+                if title and not getattr(title, "lower", lambda: title)() == "none":
+                    content += f"Title: {title}\n"
+                else:
+                    content += f"Search Result for: {q}\n"
+
+                if artist and not getattr(artist, "lower", lambda: artist)() == "none":
+                    content += f"Artist: {artist}\n"
+                else:
+                    content += f"Artist: Unknown\n"
+
+                content += f"Track Image URL: {track_image or 'Unknown'}\n"
+
+                content += f"Atist Image URL: {artist_image or 'Unknown'}\n"
+
+                content += "\n"
+
+                content += lyrics
+
+                s = StringIO()
+                s.write(f"")
+                s.seek(0)
+
+                return await ctx.send(file=discord.File(s, "lyrics.txt"))
 
             if not lyrics:
                 return None  # return await ctx.send(f"Song with query `{query}` not found.")
