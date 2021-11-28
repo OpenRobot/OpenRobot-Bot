@@ -15,6 +15,7 @@ from cogs.utils import (
     APIInfoPaginator,
     MenuPages,
     IPBanListPaginator,
+    checks
 )
 from thefuzz import process
 
@@ -179,13 +180,13 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
-    @api.command("status", invoke_without_command=True)
+    @api.command("status")
     async def api_status(
         self,
-        ctx: commands.Context,
-        channel: discord.TextChannel = commands.Option(
-            None, description="Use that channel for OpenRobot API Status updates."
-        ),
+        ctx: commands.Context#,
+        #channel: discord.TextChannel = commands.Option(
+            #None, description="Use that channel for OpenRobot API Status updates."
+        #),
     ):
         """
         API status.
@@ -605,6 +606,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
         return msg
 
     @api.command("apply")
+    @checks.api.has_not_applied()
     async def api_apply(
         self,
         ctx: commands.Context,
@@ -618,28 +620,6 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
         Note that you can only apply once, and you cannot edit it afterwards.
         """
-
-        while True:
-            try:
-                if await self.bot.pool.fetchrow(
-                    "SELECT * FROM applied_tokens WHERE user_id = $1", ctx.author.id
-                ):
-                    return await ctx.send(f"You already applied for the API.")
-            except asyncpg.exceptions._base.InterfaceError:
-                pass
-            else:
-                break
-
-        while True:
-            try:
-                if await self.bot.pool.fetchrow(
-                    "SELECT * FROM tokens WHERE user_id = $1", ctx.author.id
-                ):
-                    return await ctx.send(f"You already applied for the API.")
-            except asyncpg.exceptions._base.InterfaceError:
-                pass
-            else:
-                break
 
         try:
             msg = await ctx.author.send(
@@ -985,6 +965,7 @@ __**Info:**__
             "regenerate_token",
         ],
     )
+    @checks.api.has_applied()
     async def api_regenerate_token(
         self,
         ctx: commands.Context,
@@ -1012,17 +993,6 @@ __**Info:**__
             force = True
         else:
             force = False
-
-        while True:
-            try:
-                if not await self.bot.pool.fetchrow(
-                    "SELECT * FROM tokens WHERE user_id = $1", ctx.author.id
-                ):
-                    return await ctx.send(f"You did not apply for the API.")
-            except asyncpg.exceptions._base.InterfaceError:
-                pass
-            else:
-                break
 
         token = generate_token(50)
 
@@ -1058,6 +1028,7 @@ __**Info:**__
                 break
 
     @api.command("token")
+    @checks.api.has_applied()
     async def api_token(self, ctx: commands.Context):
         """
         Sends your OpenRobot API token to your DM.
@@ -1364,7 +1335,7 @@ __**Info:**__
         else:
             ip_bans = sorted(ip_bans, key=lambda d: d["banned_at"], reverse=True)
 
-        pages = MenuPages(source=APIInfoPaginator(ip_bans), delete_message_after=True)
+        pages = MenuPages(source=IPBanListPaginator(ip_bans), delete_message_after=True)
         await pages.start(ctx)
 
     @api_ip.command("ban", aliases=["reject"])

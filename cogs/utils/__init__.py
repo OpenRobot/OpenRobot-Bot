@@ -14,6 +14,7 @@ from . import (
     error,
     driver,
     executor,
+    checks,
 )
 
 # Base imports
