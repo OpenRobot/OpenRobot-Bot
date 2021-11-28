@@ -15,7 +15,7 @@ from cogs.utils import (
     APIInfoPaginator,
     MenuPages,
     IPBanListPaginator,
-    checks
+    checks,
 )
 from thefuzz import process
 
@@ -183,10 +183,10 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
     @api.command("status")
     async def api_status(
         self,
-        ctx: commands.Context#,
-        #channel: discord.TextChannel = commands.Option(
-            #None, description="Use that channel for OpenRobot API Status updates."
-        #),
+        ctx: commands.Context  # ,
+        # channel: discord.TextChannel = commands.Option(
+        # None, description="Use that channel for OpenRobot API Status updates."
+        # ),
     ):
         """
         API status.
