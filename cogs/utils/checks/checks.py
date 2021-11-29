@@ -14,28 +14,50 @@ def is_guild_owner():
 
 class api:
     @classmethod
-    def has_applied(cls, *, applied_tokens=False):
+    def has_applied(cls, *, applied_tokens=False, check_both=False):
         table = "applied_tokens" if applied_tokens else "tokens"
 
         async def predicate(ctx):
-            if not await ctx.bot.pool.fetchrow(
-                f"SELECT * FROM {table} WHERE user_id = $1", ctx.author.id
-            ):
-                raise APIHasNotApplied("You have not applied for the API.")
+            if check_both:
+                if not await ctx.bot.pool.fetchrow(
+                    f"SELECT * FROM applied_tokens WHERE user_id = $1", ctx.author.id
+                ):
+                    raise APIHasNotApplied("You have not applied for the API.")
+
+                if not await ctx.bot.pool.fetchrow(
+                    f"SELECT * FROM tokens WHERE user_id = $1", ctx.author.id
+                ):
+                    raise APIHasNotApplied("You have not applied for the API.")
+            else:
+                if not await ctx.bot.pool.fetchrow(
+                    f"SELECT * FROM {table} WHERE user_id = $1", ctx.author.id
+                ):
+                    raise APIHasNotApplied("You have not applied for the API.")
 
             return True
 
         return commands.check(predicate)
 
     @classmethod
-    def has_not_applied(cls, *, applied_tokens=True):
+    def has_not_applied(cls, *, applied_tokens=True, check_both=True):
         table = "applied_tokens" if applied_tokens else "tokens"
 
         async def predicate(ctx):
-            if await ctx.bot.pool.fetchrow(
-                f"SELECT * FROM {table} WHERE user_id = $1", ctx.author.id
-            ):
-                raise APIHasApplied("You already applied for the API.")
+            if check_both:
+                if await ctx.bot.pool.fetchrow(
+                    f"SELECT * FROM applied_tokens WHERE user_id = $1", ctx.author.id
+                ):
+                    raise APIHasApplied("You already applied for the API.")
+
+                if await ctx.bot.pool.fetchrow(
+                    f"SELECT * FROM tokens WHERE user_id = $1", ctx.author.id
+                ):
+                    raise APIHasApplied("You already applied for the API.")
+            else:
+                if await ctx.bot.pool.fetchrow(
+                    f"SELECT * FROM {table} WHERE user_id = $1", ctx.author.id
+                ):
+                    raise APIHasApplied("You already applied for the API.")
 
             return True
 
