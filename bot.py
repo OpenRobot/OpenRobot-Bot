@@ -527,6 +527,8 @@ async def lyrics(
                     activity = act
                     break
 
+            await msg.delete()
+
             if not activity:
                 msg = await ctx.send(
                     embed=generateErrorEmbed("You are not playing any spotify music!")
