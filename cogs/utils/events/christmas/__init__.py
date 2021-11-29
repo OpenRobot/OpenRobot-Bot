@@ -1,7 +1,7 @@
 import discord
 import datetime
 from io import BytesIO
-from cogs.utils import Bot
+from cogs.utils.base import Bot
 
 
 class ChristmasEvent:
