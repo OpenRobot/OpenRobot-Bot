@@ -529,9 +529,7 @@ async def lyrics(
 
             if not activity:
                 msg = await ctx.send(
-                    embed=generateErrorEmbed(
-                        "You are not playing any spotify music!"
-                    )
+                    embed=generateErrorEmbed("You are not playing any spotify music!")
                 )
             else:
                 l = await getLyrics(activity.title + " " + activity.artists[0])
