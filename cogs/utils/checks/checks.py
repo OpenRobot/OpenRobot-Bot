@@ -23,6 +23,8 @@ class api:
             ):
                 raise APIHasNotApplied("You have not applied for the API.")
 
+            return True
+
         return commands.check(predicate)
 
     @classmethod
@@ -34,5 +36,7 @@ class api:
                 f"SELECT * FROM {table} WHERE user_id = $1", ctx.author.id
             ):
                 raise APIHasApplied("You already applied for the API.")
+
+            return True
 
         return commands.check(predicate)
