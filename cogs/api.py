@@ -1394,7 +1394,7 @@ __**Info:**__
                 "info": {
                     "message_id": ctx.message.id,
                     "channel_id": ctx.channel.id,
-                    "guild_id": ctx.guild.id,
+                    "guild_id": ctx.guild.id if ctx.guild else None,
                     "author_id": ctx.author.id,
                     "message_url": ctx.message.jump_url,
                 },
