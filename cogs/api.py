@@ -1057,6 +1057,7 @@ __**Info:**__
         return await ctx.send("Check your DM for your API token!")
 
     @api.group("info", invoke_without_command=True)
+    @checks.api.has_applied()
     async def api_info(
         self,
         ctx: commands.Context,
@@ -1160,6 +1161,7 @@ __**Info:**__
             await pages.start(ctx)
 
     @api_info.command("reset")
+    @checks.api.has_applied()
     async def api_info_reset(
         self,
         ctx: commands.Context,
