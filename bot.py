@@ -29,7 +29,13 @@ from io import BytesIO, StringIO
 
 from openrobot import discord_activities as discord_activity
 
-from cogs.utils import MenuPages, CodePaginator, executor, Bot as BaseBot, ChristmasEvent
+from cogs.utils import (
+    MenuPages,
+    CodePaginator,
+    executor,
+    Bot as BaseBot,
+    ChristmasEvent,
+)
 
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).
