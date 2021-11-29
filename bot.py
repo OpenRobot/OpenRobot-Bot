@@ -514,15 +514,6 @@ async def lyrics(
                 embed=generateErrorEmbed("You are not playing any spotify music!")
             )
 
-        async def msgIsNew(msg):
-            async for message in msg.channel.history(limit=5):
-                if msg == message:
-                    return True
-
-            return False
-
-        msg = None
-
         stop_process = False
 
         while True:
@@ -536,110 +527,39 @@ async def lyrics(
                     activity = act
                     break
 
-            if msg is None:
-                if not activity:
-                    msg = await ctx.send(
-                        embed=generateErrorEmbed(
-                            "You are not playing any spotify music!"
-                        )
+            if not activity:
+                msg = await ctx.send(
+                    embed=generateErrorEmbed(
+                        "You are not playing any spotify music!"
                     )
-                else:
-                    l = await getLyrics(activity.title + " " + activity.artists[0])
-
-                    if not l:
-                        l = await getLyrics(activity.title)
-
-                    if not l:
-                        for x in activity.artists:
-                            l = await getLyrics(activity.title + " " + x)
-                            if l:
-                                break
-
-                    if not l:
-                        l = await getLyrics(
-                            activity.title + " " + " ".join(activity.artists)
-                        )
-
-                    if not l:
-                        msg = await ctx.send(
-                            embed=generateErrorEmbed(
-                                f"Song with query `{query}` cannot be found."
-                            ),
-                            embeds=None,
-                        )
-                    else:
-                        msg = await ctx.send(embeds=l, embed=None)
-
-                await msg.add_reaction("\U000023f9")
-            elif await msgIsNew(msg):
-                if not activity:
-                    msg = await msg.edit(
-                        embed=generateErrorEmbed(
-                            "You are not playing any spotify music!"
-                        ),
-                        embeds=None,
-                    )
-                else:
-                    l = await getLyrics(activity.title + " " + activity.artists[0])
-
-                    if not l:
-                        l = await getLyrics(activity.title)
-
-                    if not l:
-                        for x in activity.artists:
-                            l = await getLyrics(activity.title + " " + x)
-                            if l:
-                                break
-
-                    if not l:
-                        l = await getLyrics(
-                            activity.title + " " + " ".join(activity.artists)
-                        )
-
-                    if not l:
-                        msg = await msg.edit(
-                            embed=generateErrorEmbed(
-                                f"Song with query `{query}` cannot be found."
-                            ),
-                            embeds=None,
-                        )
-                    else:
-                        msg = await msg.edit(embeds=l, embed=None)
+                )
             else:
-                await msg.delete()
-                if not activity:
+                l = await getLyrics(activity.title + " " + activity.artists[0])
+
+                if not l:
+                    l = await getLyrics(activity.title)
+
+                if not l:
+                    for x in activity.artists:
+                        l = await getLyrics(activity.title + " " + x)
+                        if l:
+                            break
+
+                if not l:
+                    l = await getLyrics(
+                        activity.title + " " + " ".join(activity.artists)
+                    )
+
+                if not l:
                     msg = await ctx.send(
                         embed=generateErrorEmbed(
-                            "You are not playing any spotify music!"
+                            f"Song with query `{query}` cannot be found."
                         )
                     )
                 else:
-                    l = await getLyrics(activity.title + " " + activity.artists[0])
+                    msg = await ctx.send(embeds=l)
 
-                    if not l:
-                        l = await getLyrics(activity.title)
-
-                    if not l:
-                        for x in activity.artists:
-                            l = await getLyrics(activity.title + " " + x)
-                            if l:
-                                break
-
-                    if not l:
-                        l = await getLyrics(
-                            activity.title + " " + " ".join(activity.artists)
-                        )
-
-                    if not l:
-                        msg = await ctx.send(
-                            embed=generateErrorEmbed(
-                                f"Song with query `{query}` cannot be found."
-                            )
-                        )
-                    else:
-                        msg = await ctx.send(embeds=l)
-
-                    await msg.add_reaction("\U000023f9")
+            await msg.add_reaction("\U000023f9")
 
             async def do_stop():
                 while True:
