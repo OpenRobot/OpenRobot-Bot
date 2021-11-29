@@ -516,6 +516,8 @@ async def lyrics(
 
         stop_process = False
 
+        msg = None
+
         while True:
             if stop_process:
                 return
@@ -527,7 +529,8 @@ async def lyrics(
                     activity = act
                     break
 
-            await msg.delete()
+            if msg:
+                await msg.delete()
 
             if not activity:
                 msg = await ctx.send(
