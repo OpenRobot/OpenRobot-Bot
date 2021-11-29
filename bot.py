@@ -435,7 +435,7 @@ async def lyrics(
                 content += lyrics
 
                 s = StringIO()
-                s.write(f"")
+                s.write(content)
                 s.seek(0)
 
                 return await ctx.send(file=discord.File(s, "lyrics.txt"))
