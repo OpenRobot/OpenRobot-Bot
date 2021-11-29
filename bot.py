@@ -25,6 +25,7 @@ import textwrap
 import aiospotify
 import async_timeout
 
+from threading import Thread
 from io import BytesIO, StringIO
 
 from openrobot import discord_activities as discord_activity
@@ -1432,7 +1433,8 @@ def start(**kwargs):
         except KeyError:  # Cog isnt loaded
             pass
 
-        ChristmasEvent(bot).start()
+        t = Thread(ChristmasEvent(bot).start)
+        t.start()
 
     start_tasks()
 
