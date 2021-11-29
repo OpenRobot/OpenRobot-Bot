@@ -1432,7 +1432,7 @@ def start(**kwargs):
         except KeyError:  # Cog isnt loaded
             pass
 
-        #ChristmasEvent(bot).start()
+        ChristmasEvent(bot).start()
 
     start_tasks()
 
