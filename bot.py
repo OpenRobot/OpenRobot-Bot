@@ -1433,7 +1433,7 @@ def start(**kwargs):
         except KeyError:  # Cog isnt loaded
             pass
 
-        bot.loop.create_task(asyncio.coroutine(ChristmasEvent(bot).start)())
+        #bot.loop.create_task(asyncio.coroutine(ChristmasEvent(bot).start)())
 
     start_tasks()
 
