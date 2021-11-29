@@ -29,7 +29,7 @@ from io import BytesIO, StringIO
 
 from openrobot import discord_activities as discord_activity
 
-from cogs.utils import MenuPages, CodePaginator, executor, Bot as BaseBot
+from cogs.utils import MenuPages, CodePaginator, executor, Bot as BaseBot, ChristmasEvent
 
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).
@@ -1425,6 +1425,8 @@ def start(**kwargs):
             bot.loop.create_task(bot.cogs["Error"].initiate_tb_pool())
         except KeyError:  # Cog isnt loaded
             pass
+
+        ChristmasEvent(bot).start()
 
     start_tasks()
 

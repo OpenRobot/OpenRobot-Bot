@@ -15,6 +15,7 @@ from . import (
     driver,
     executor,
     checks,
+    events,
 )
 
 # Base imports
@@ -33,3 +34,4 @@ from .base import *
 from .error import *
 from .driver import *
 from .executor import *
+from .events import *
