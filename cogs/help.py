@@ -23,6 +23,8 @@ class OpenRobotHelp(commands.HelpCommand):
         )
         self.no_category_emoji = self.options.get("no_category_emoji", "")
 
+        self.banner = self.options.get("banner", "https://cdn.openrobot.xyz/Logos/Banner.png")
+
     async def send(self, *args, **kwargs):
         return await self.get_destination().send(*args, **kwargs)
 
@@ -79,6 +81,8 @@ class OpenRobotHelp(commands.HelpCommand):
                 embed.add_field(name=f"{name} [{amount_commands}]", value=description)
 
         embed.description = f"{ctx.bot.description}\n\n{len(ctx.bot.commands)} commands | {useable} usable"
+
+        embed.set_image(url=self.banner)
 
         return await self.send(embed=embed)
 

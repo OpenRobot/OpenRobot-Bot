@@ -102,5 +102,5 @@ class ChristmasEvent:
     async def _end_event(self):
         await self.bot.change_presence(activity=self._old_activity)
         await self.bot.user.edit(avatar=self.get_avatar(christmas=False))
-        self.bot.help_command.banner = self.get_banner(christmas=False, url=False)
+        self.bot.help_command.banner = self.get_banner(christmas=False, url=True)
         self.bot.description = self._old_description
