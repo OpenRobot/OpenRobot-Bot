@@ -1,8 +1,8 @@
 import discord
 import datetime
 from io import BytesIO
+from discord.ext import tasks
 from cogs.utils.base import Bot
-
 
 class ChristmasEvent:
     def __init__(self, bot):
@@ -65,27 +65,33 @@ class ChristmasEvent:
                     return f.read()
 
     def start(self):
-        self.bot.loop.create_task(self._start_task())
-        self.bot.loop.create_task(self._end_task())
+        self._start_task.start()
+        self._end_task.start()
 
+    @tasks.loop(seconds=1)
     async def _start_task(self):
+        utcnow = discord.utils.utcnow()
+
+        if self.start_time <= utcnow <= self.end_time:
+            self._start_triggered = True
+            await self._start_event()
+            self._end_task.cancel()
+
+    @_start_task.before_loop
+    async def _start_task_before_loop(self):
         await self.bot.wait_until_ready()
 
-        while True:
-            utcnow = discord.utils.utcnow()
-
-            if self.start_time <= utcnow <= self.end_time:
-                self._start_triggered = True
-                return await self._start_event()
-
+    @tasks.loop(seconds=1)
     async def _end_task(self):
+        utcnow = discord.utils.utcnow()
+
+        if utcnow > self.end_time and self._start_triggered:
+            await self._end_event()
+            self._end_task.cancel()
+
+    @_start_task.before_loop
+    async def _start_task_before_loop(self):
         await self.bot.wait_until_ready()
-
-        while True:
-            utcnow = discord.utils.utcnow()
-
-            if utcnow > self.end_time and self._start_triggered:
-                return await self._end_event()
 
     async def _start_event(self):
         await self.bot.change_presence(activity=self.activity)

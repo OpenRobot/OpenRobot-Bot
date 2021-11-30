@@ -17,7 +17,7 @@ class Speech(Cog, emoji="\U0001f399"):
         name="text-to-speech",
         invoke_without_command=True,
         aliases=["speak", "tts", "text_to_speech", "texttospeech", "talk"],
-        usage="<text> <flags>",
+        usage="<Language Code> <text> <flags>",
         slash_command=False,
     )
     async def text_to_speech(self, ctx: commands.Context, *, flags: str):
@@ -33,7 +33,7 @@ class Speech(Cog, emoji="\U0001f399"):
             converter = LegacyFlagConverter(
                 [
                     LegacyFlagItems("text", nargs="+"),
-                    LegacyFlagItems("--voice", "-v", "--v"),
+                    LegacyFlagItems("--voice", "-v", "--v", default=None),
                     LegacyFlagItems(
                         "--language-code",
                         "-l",
@@ -65,14 +65,9 @@ class Speech(Cog, emoji="\U0001f399"):
 
             text = " ".join(flag.text)
 
-            if lang_code == "en-US":
-                if not flag.voice:
-                    flag.voice = "Matthew"
-
             if not flag.voice:
-                return await ctx.send(
-                    f"You must specify a voice ID with the `--voice` flag. To view a list of them, invoke the `{ctx.prefix}text-to-speech details` command."
-                )
+                voices = (await self.bot.api.speech.text_to_speech_support(lang_code)).voices
+                flag.voice = voices[0].id
 
             voice_id = "".join(flag.voice)
 
