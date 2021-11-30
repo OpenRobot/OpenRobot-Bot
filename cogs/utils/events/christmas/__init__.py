@@ -34,6 +34,8 @@ class ChristmasEvent:
             tzinfo=datetime.timezone.utc,
         )
 
+        self.bot.banner = self.get_banner(christmas=False, url=True)
+
         self._start_triggered = False
 
     def get_avatar(self, *, christmas=True, url=False) -> bytes:
@@ -96,11 +98,11 @@ class ChristmasEvent:
     async def _start_event(self):
         await self.bot.change_presence(activity=self.activity)
         await self.bot.user.edit(avatar=self.get_avatar())
-        self.bot.help_command.banner = self.get_banner(christmas=True, url=True)
+        self.bot.banner = self.get_banner(christmas=True, url=True)
         self.bot.description = self.description
 
     async def _end_event(self):
         await self.bot.change_presence(activity=self._old_activity)
         await self.bot.user.edit(avatar=self.get_avatar(christmas=False))
-        self.bot.help_command.banner = self.get_banner(christmas=False, url=True)
+        self.bot.banner = self.get_banner(christmas=False, url=True)
         self.bot.description = self._old_description

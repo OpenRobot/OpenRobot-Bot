@@ -23,6 +23,7 @@ class Bot(commands.Bot):
 
         # Some other attrs that can be used
         self.session = aiohttp.ClientSession(loop=self.loop)
+        self.banner: str = "https://cdn.openrobot.xyz/Logos/Banner.png"
         self.spotify: aiospotify.Client = aiospotify.Client(
             **config.AIOSPOTIFY_CRIDENTIALS, session=self.session
         )
