@@ -44,10 +44,10 @@ class ChristmasEvent:
                 return "https://cdn.openrobot.xyz/Logos/Logo.png"
         else:
             if christmas:
-                with open("./Logos/Christmas.png", "wb") as f:
+                with open("./Logos/Christmas.png", "rb") as f:
                     return f.read()
             else:
-                with open("./Logos/Logo.png", "wb") as f:
+                with open("./Logos/Logo.png", "rb") as f:
                     return f.read()
 
     def get_banner(self, *, christmas=True, url=False) -> bytes:
@@ -58,10 +58,10 @@ class ChristmasEvent:
                 return "https://cdn.openrobot.xyz/Logos/Banner.png"
         else:
             if christmas:
-                with open("./Logos/Christmas-Banner.png", "wb") as f:
+                with open("./Logos/Christmas-Banner.png", "rb") as f:
                     return f.read()
             else:
-                with open("./Logos/Banner.png", "wb") as f:
+                with open("./Logos/Banner.png", "rb") as f:
                     return f.read()
 
     def start(self):
