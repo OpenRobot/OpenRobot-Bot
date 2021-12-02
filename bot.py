@@ -994,7 +994,7 @@ async def spotify(
 
             if msg:
                 await asyncio.sleep(
-                    random.randint(3, 10)
+                    random.randint(5, 10)
                 )  # API Ratelimit and Cache update
 
             spotify = discord.utils.find(
@@ -1009,7 +1009,7 @@ async def spotify(
             if msg and latest_spotify:
                 is_new = msgIsNew(msg)
 
-                if spotify == latest_spotify:
+                if spotify.track_id == latest_spotify.track_id:
                     params = {
                         "title": spotify.title,
                         "cover_url": spotify.album_cover_url,
