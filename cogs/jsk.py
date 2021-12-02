@@ -221,7 +221,7 @@ Processor: {processor}```
             embed.add_field(
                 name="CPU:",
                 value=f"""```yml
-Name: {cpuinfo.get_cpu_info()['raw_brand']}
+Name: {cpuinfo.get_cpu_info()['brand_raw']}
 Physical cores: {physical_cores}
 Total cores: {total_cores}
 Frequency: {current_cpu_freq}
