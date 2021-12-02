@@ -922,103 +922,405 @@ async def spotify_logout(ctx: commands.Context):
 
 
 @bot.command(aliases=["sp"])
-async def spotify(ctx: commands.Context, *, member: discord.Member = None):
+async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member] = None, *flags):
+    """
+    Shows a member's currently listening track in spotify. Defaults to yourself.
+
+    Flags:
+    - `--no-sync`: Disables the Auto Spotify Sync feature (Automatically edits the message).
+    """
+    
     member = member or ctx.author
 
-    spotify = discord.utils.find(
-        lambda a: isinstance(a, discord.Spotify), member.activities
-    )
-    if spotify is None:
-        return await ctx.send(f"**{member}** is not listening or connected to Spotify.")
+    flags = [x.lower() for x in flags]
 
-    params = {
-        "title": spotify.title,
-        "cover_url": spotify.album_cover_url,
-        "duration_seconds": spotify.duration.seconds,
-        "start_timestamp": spotify.start.timestamp(),
-        "artists": spotify.artists[0],
-    }
+    sync = '--no-sync' not in flags
 
-    async with bot.session.get(
-        "https://api.jeyy.xyz/discord/spotify", params=params
-    ) as response:
-        buf = BytesIO(await response.read())
+    if sync:
+        latest_spotify = None
 
-    url = await bot.publish_cdn(
-        buf,
-        f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png',
-    )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
+        msg = None
 
-    embed = discord.Embed(color=spotify.colour)
+        async def msgIsNew(msg: discord.Message):
+            if not msg:
+                return True
 
-    embed.set_image(url=url)
+            async for m in msg.channel.history(limit=10):
+                if m == msg:
+                    return True
 
-    artists = []
+            return False
 
-    do_spotify_api = True
+        stopped = False
 
-    if do_spotify_api:
-        try:
-            async with bot.session.post(
-                "https://accounts.spotify.com/api/token",
-                params={"grant_type": "client_credentials"},
-                headers={
-                    "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-            ) as resp:
-                auth_js = await resp.json()
-        except Exception as e:
-            if ctx.debug:
-                raise e
+        class StopView(discord.ui.View):
+            def __init__(self, *, timeout: float = None):
+                super().__init__(timeout=timeout)
+                self.message = None
 
-            artists = [f"`{x}`" for x in spotify.artists]
-            album = f'`{spotify.album}`'
-        else:
-            try:
-                async with bot.session.get(
-                    f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
-                    params={
-                        "market": "US",
-                    },
-                    headers={
-                        "Authorization": f'Bearer {auth_js["access_token"]}'
-                    },
-                ) as resp:
-                    js = await resp.json()
+            @discord.ui.button(label="Stop", style=discord.ButtonStyle.red, emoji="<:openrobot_stop_button:899878227969974322>")
+            async def stop(self, button: discord.ui.Button, interaction: discord.Interaction):
+                nonlocal stopped
+                stopped = True
 
-                for artist in js["artists"]:
-                    artists.append(
-                        f'[`{artist["name"]}`]({artist["external_urls"]["spotify"]})'
-                    )
+                await self.message.delete()
 
-                album = f'[`{js["album"]["name"]}`]({js["album"]["external_urls"]["spotify"]})'
-            except Exception as e:
-                if ctx.debug:
-                    raise e
+                self.stop()
 
-                artists = [f"`{x}`" for x in spotify.artists]
-                album = f'`{spotify.album}`'
-                
-        artists = ", ".join(artists)
-    else:
-        artists = ", ".join([f"`{x}`" for x in spotify.artists])
-        album = "`" + spotify.album + "`"
+            async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                if interaction.user != ctx.author and not await bot.is_owner(interaction.user):
+                    await interaction.response.send_message(f'This is not your interaction! This is {ctx.author}\'s interaction!', ephemeral=True)
+    
+                    return False
 
-    embed.set_author(name=f"{member}'s Spotify:", icon_url=member.avatar.url)
+                return True
+        
+        while True:
+            if stopped:
+                return
 
-    embed.description = f"""
+            if msg:
+                await asyncio.sleep(random.randint(3, 10)) # API Ratelimit and Cache update
+
+            spotify = discord.utils.find(
+                lambda a: isinstance(a, discord.Spotify), member.activities
+            )
+            if spotify is None:
+                if msg:
+                    return await ctx.send(f"**{member}** is not listening or connected to Spotify.")
+
+            if msg and latest_spotify:
+                is_new = msgIsNew(msg)
+
+                if spotify == latest_spotify:
+                    params = {
+                        "title": spotify.title,
+                        "cover_url": spotify.album_cover_url,
+                        "duration_seconds": spotify.duration.seconds,
+                        "start_timestamp": spotify.start.timestamp(),
+                        "artists": spotify.artists[0],
+                    }
+
+                    async with bot.session.get(
+                        "https://api.jeyy.xyz/discord/spotify", params=params
+                    ) as response:
+                        buf = BytesIO(await response.read())
+
+                    url = await bot.publish_cdn(
+                        buf,
+                        f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png',
+                    )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
+
+                    embed = msg.embeds[0]
+
+                    embed.set_image(url=url)
+
+                    if is_new:
+                        await msg.edit(embed=embed)
+                    else:
+                        try:
+                            await msg.delete()
+                        except:
+                            pass
+
+                        msg = await ctx.send(embed=embed)
+                else:
+                    params = {
+                        "title": spotify.title,
+                        "cover_url": spotify.album_cover_url,
+                        "duration_seconds": spotify.duration.seconds,
+                        "start_timestamp": spotify.start.timestamp(),
+                        "artists": spotify.artists[0],
+                    }
+
+                    async with bot.session.get(
+                        "https://api.jeyy.xyz/discord/spotify", params=params
+                    ) as response:
+                        buf = BytesIO(await response.read())
+
+                    url = await bot.publish_cdn(
+                        buf,
+                        f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png',
+                    )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
+
+                    embed = discord.Embed(color=spotify.colour)
+
+                    embed.set_image(url=url)
+
+                    artists = []
+
+                    do_spotify_api = True
+
+                    if do_spotify_api:
+                        try:
+                            async with bot.session.post(
+                                "https://accounts.spotify.com/api/token",
+                                params={"grant_type": "client_credentials"},
+                                headers={
+                                    "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
+                                    "Content-Type": "application/x-www-form-urlencoded",
+                                },
+                            ) as resp:
+                                auth_js = await resp.json()
+                        except Exception as e:
+                            if ctx.debug:
+                                raise e
+
+                            artists = [f"`{x}`" for x in spotify.artists]
+                            album = f'`{spotify.album}`'
+                        else:
+                            try:
+                                async with bot.session.get(
+                                    f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
+                                    params={
+                                        "market": "US",
+                                    },
+                                    headers={
+                                        "Authorization": f'Bearer {auth_js["access_token"]}'
+                                    },
+                                ) as resp:
+                                    js = await resp.json()
+
+                                for artist in js["artists"]:
+                                    artists.append(
+                                        f'[`{artist["name"]}`]({artist["external_urls"]["spotify"]})'
+                                    )
+
+                                album = f'[`{js["album"]["name"]}`]({js["album"]["external_urls"]["spotify"]})'
+                            except Exception as e:
+                                if ctx.debug:
+                                    raise e
+
+                                artists = [f"`{x}`" for x in spotify.artists]
+                                album = f'`{spotify.album}`'
+                                
+                        artists = ", ".join(artists)
+                    else:
+                        artists = ", ".join([f"`{x}`" for x in spotify.artists])
+                        album = "`" + spotify.album + "`"
+
+                    embed.set_author(name=f"{member}'s Spotify:", icon_url=member.avatar.url)
+
+                    embed.description = f"""
 > **{member}** is listening to [`{spotify.title}`]({spotify.track_url}) by {artists}
 > 
 > **Album:** {album}
 > **Duration:** `{str(spotify.duration).split('.')[0]}` | `{humanize.naturaldelta(spotify.duration, minimum_unit="milliseconds")}`
 > **Artists:** {artists}
 > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
-    """
+                    """
 
-    embed.set_thumbnail(url=spotify.album_cover_url)
+                    embed.set_thumbnail(url=spotify.album_cover_url)
 
-    await ctx.send(embed=embed)
+                    if is_new:
+                        await msg.edit(embed=embed)
+                    else:
+                        try:
+                            await msg.delete()
+                        except:
+                            pass
+
+                        view = StopView()
+
+                        view.message = await ctx.send(embed=embed, view=view)
+
+                latest_spotify = spotify
+            else:
+                params = {
+                    "title": spotify.title,
+                    "cover_url": spotify.album_cover_url,
+                    "duration_seconds": spotify.duration.seconds,
+                    "start_timestamp": spotify.start.timestamp(),
+                    "artists": spotify.artists[0],
+                }
+
+                async with bot.session.get(
+                    "https://api.jeyy.xyz/discord/spotify", params=params
+                ) as response:
+                    buf = BytesIO(await response.read())
+
+                url = await bot.publish_cdn(
+                    buf,
+                    f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png',
+                )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
+
+                embed = discord.Embed(color=spotify.colour)
+
+                embed.set_image(url=url)
+
+                artists = []
+
+                do_spotify_api = True
+
+                if do_spotify_api:
+                    try:
+                        async with bot.session.post(
+                            "https://accounts.spotify.com/api/token",
+                            params={"grant_type": "client_credentials"},
+                            headers={
+                                "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
+                                "Content-Type": "application/x-www-form-urlencoded",
+                            },
+                        ) as resp:
+                            auth_js = await resp.json()
+                    except Exception as e:
+                        if ctx.debug:
+                            raise e
+
+                        artists = [f"`{x}`" for x in spotify.artists]
+                        album = f'`{spotify.album}`'
+                    else:
+                        try:
+                            async with bot.session.get(
+                                f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
+                                params={
+                                    "market": "US",
+                                },
+                                headers={
+                                    "Authorization": f'Bearer {auth_js["access_token"]}'
+                                },
+                            ) as resp:
+                                js = await resp.json()
+
+                            for artist in js["artists"]:
+                                artists.append(
+                                    f'[`{artist["name"]}`]({artist["external_urls"]["spotify"]})'
+                                )
+
+                            album = f'[`{js["album"]["name"]}`]({js["album"]["external_urls"]["spotify"]})'
+                        except Exception as e:
+                            if ctx.debug:
+                                raise e
+
+                            artists = [f"`{x}`" for x in spotify.artists]
+                            album = f'`{spotify.album}`'
+                            
+                    artists = ", ".join(artists)
+                else:
+                    artists = ", ".join([f"`{x}`" for x in spotify.artists])
+                    album = "`" + spotify.album + "`"
+
+                embed.set_author(name=f"{member}'s Spotify:", icon_url=member.avatar.url)
+
+                embed.description = f"""
+> **{member}** is listening to [`{spotify.title}`]({spotify.track_url}) by {artists}
+> 
+> **Album:** {album}
+> **Duration:** `{str(spotify.duration).split('.')[0]}` | `{humanize.naturaldelta(spotify.duration, minimum_unit="milliseconds")}`
+> **Artists:** {artists}
+> **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
+                """
+
+                embed.set_thumbnail(url=spotify.album_cover_url)
+
+                if is_new:
+                    await msg.edit(embed=embed)
+                else:
+                    try:
+                        await msg.delete()
+                    except:
+                        pass
+
+                    view = StopView()
+
+                    view.message = await ctx.send(embed=embed, view=view)
+
+                latest_spotify = spotify
+    else:
+        spotify = discord.utils.find(
+            lambda a: isinstance(a, discord.Spotify), member.activities
+        )
+        if spotify is None:
+            return await ctx.send(f"**{member}** is not listening or connected to Spotify.")
+
+        params = {
+            "title": spotify.title,
+            "cover_url": spotify.album_cover_url,
+            "duration_seconds": spotify.duration.seconds,
+            "start_timestamp": spotify.start.timestamp(),
+            "artists": spotify.artists[0],
+        }
+
+        async with bot.session.get(
+            "https://api.jeyy.xyz/discord/spotify", params=params
+        ) as response:
+            buf = BytesIO(await response.read())
+
+        url = await bot.publish_cdn(
+            buf,
+            f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png',
+        )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
+
+        embed = discord.Embed(color=spotify.colour)
+
+        embed.set_image(url=url)
+
+        artists = []
+
+        do_spotify_api = True
+
+        if do_spotify_api:
+            try:
+                async with bot.session.post(
+                    "https://accounts.spotify.com/api/token",
+                    params={"grant_type": "client_credentials"},
+                    headers={
+                        "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                ) as resp:
+                    auth_js = await resp.json()
+            except Exception as e:
+                if ctx.debug:
+                    raise e
+
+                artists = [f"`{x}`" for x in spotify.artists]
+                album = f'`{spotify.album}`'
+            else:
+                try:
+                    async with bot.session.get(
+                        f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
+                        params={
+                            "market": "US",
+                        },
+                        headers={
+                            "Authorization": f'Bearer {auth_js["access_token"]}'
+                        },
+                    ) as resp:
+                        js = await resp.json()
+
+                    for artist in js["artists"]:
+                        artists.append(
+                            f'[`{artist["name"]}`]({artist["external_urls"]["spotify"]})'
+                        )
+
+                    album = f'[`{js["album"]["name"]}`]({js["album"]["external_urls"]["spotify"]})'
+                except Exception as e:
+                    if ctx.debug:
+                        raise e
+
+                    artists = [f"`{x}`" for x in spotify.artists]
+                    album = f'`{spotify.album}`'
+                    
+            artists = ", ".join(artists)
+        else:
+            artists = ", ".join([f"`{x}`" for x in spotify.artists])
+            album = "`" + spotify.album + "`"
+
+        embed.set_author(name=f"{member}'s Spotify:", icon_url=member.avatar.url)
+
+        embed.description = f"""
+> **{member}** is listening to [`{spotify.title}`]({spotify.track_url}) by {artists}
+> 
+> **Album:** {album}
+> **Duration:** `{str(spotify.duration).split('.')[0]}` | `{humanize.naturaldelta(spotify.duration, minimum_unit="milliseconds")}`
+> **Artists:** {artists}
+> **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
+        """
+
+        embed.set_thumbnail(url=spotify.album_cover_url)
+
+        await ctx.send(embed=embed)
 
 
 @bot.command(aliases=["docs"])
