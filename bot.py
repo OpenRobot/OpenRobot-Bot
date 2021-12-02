@@ -922,19 +922,21 @@ async def spotify_logout(ctx: commands.Context):
 
 
 @bot.command(aliases=["sp"])
-async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member] = None, *flags):
+async def spotify(
+    ctx: commands.Context, member: typing.Optional[discord.Member] = None, *flags
+):
     """
     Shows a member's currently listening track in spotify. Defaults to yourself.
 
     Flags:
     - `--no-sync`: Disables the Auto Spotify Sync feature (Automatically edits the message).
     """
-    
+
     member = member or ctx.author
 
     flags = [x.lower() for x in flags]
 
-    sync = '--no-sync' not in flags
+    sync = "--no-sync" not in flags
 
     if sync:
         latest_spotify = None
@@ -958,8 +960,14 @@ async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member]
                 super().__init__(timeout=timeout)
                 self.message = None
 
-            @discord.ui.button(label="Stop", style=discord.ButtonStyle.red, emoji="<:openrobot_stop_button:899878227969974322>")
-            async def stop(self, button: discord.ui.Button, interaction: discord.Interaction):
+            @discord.ui.button(
+                label="Stop",
+                style=discord.ButtonStyle.red,
+                emoji="<:openrobot_stop_button:899878227969974322>",
+            )
+            async def stop(
+                self, button: discord.ui.Button, interaction: discord.Interaction
+            ):
                 nonlocal stopped
                 stopped = True
 
@@ -968,26 +976,35 @@ async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member]
                 self.stop()
 
             async def interaction_check(self, interaction: discord.Interaction) -> bool:
-                if interaction.user != ctx.author and not await bot.is_owner(interaction.user):
-                    await interaction.response.send_message(f'This is not your interaction! This is {ctx.author}\'s interaction!', ephemeral=True)
-    
+                if interaction.user != ctx.author and not await bot.is_owner(
+                    interaction.user
+                ):
+                    await interaction.response.send_message(
+                        f"This is not your interaction! This is {ctx.author}'s interaction!",
+                        ephemeral=True,
+                    )
+
                     return False
 
                 return True
-        
+
         while True:
             if stopped:
                 return
 
             if msg:
-                await asyncio.sleep(random.randint(3, 10)) # API Ratelimit and Cache update
+                await asyncio.sleep(
+                    random.randint(3, 10)
+                )  # API Ratelimit and Cache update
 
             spotify = discord.utils.find(
                 lambda a: isinstance(a, discord.Spotify), member.activities
             )
             if spotify is None:
                 if msg:
-                    return await ctx.send(f"**{member}** is not listening or connected to Spotify.")
+                    return await ctx.send(
+                        f"**{member}** is not listening or connected to Spotify."
+                    )
 
             if msg and latest_spotify:
                 is_new = msgIsNew(msg)
@@ -1067,7 +1084,7 @@ async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member]
                                 raise e
 
                             artists = [f"`{x}`" for x in spotify.artists]
-                            album = f'`{spotify.album}`'
+                            album = f"`{spotify.album}`"
                         else:
                             try:
                                 async with bot.session.get(
@@ -1092,14 +1109,16 @@ async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member]
                                     raise e
 
                                 artists = [f"`{x}`" for x in spotify.artists]
-                                album = f'`{spotify.album}`'
-                                
+                                album = f"`{spotify.album}`"
+
                         artists = ", ".join(artists)
                     else:
                         artists = ", ".join([f"`{x}`" for x in spotify.artists])
                         album = "`" + spotify.album + "`"
 
-                    embed.set_author(name=f"{member}'s Spotify:", icon_url=member.avatar.url)
+                    embed.set_author(
+                        name=f"{member}'s Spotify:", icon_url=member.avatar.url
+                    )
 
                     embed.description = f"""
 > **{member}** is listening to [`{spotify.title}`]({spotify.track_url}) by {artists}
@@ -1168,7 +1187,7 @@ async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member]
                             raise e
 
                         artists = [f"`{x}`" for x in spotify.artists]
-                        album = f'`{spotify.album}`'
+                        album = f"`{spotify.album}`"
                     else:
                         try:
                             async with bot.session.get(
@@ -1193,14 +1212,16 @@ async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member]
                                 raise e
 
                             artists = [f"`{x}`" for x in spotify.artists]
-                            album = f'`{spotify.album}`'
-                            
+                            album = f"`{spotify.album}`"
+
                     artists = ", ".join(artists)
                 else:
                     artists = ", ".join([f"`{x}`" for x in spotify.artists])
                     album = "`" + spotify.album + "`"
 
-                embed.set_author(name=f"{member}'s Spotify:", icon_url=member.avatar.url)
+                embed.set_author(
+                    name=f"{member}'s Spotify:", icon_url=member.avatar.url
+                )
 
                 embed.description = f"""
 > **{member}** is listening to [`{spotify.title}`]({spotify.track_url}) by {artists}
@@ -1231,7 +1252,9 @@ async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member]
             lambda a: isinstance(a, discord.Spotify), member.activities
         )
         if spotify is None:
-            return await ctx.send(f"**{member}** is not listening or connected to Spotify.")
+            return await ctx.send(
+                f"**{member}** is not listening or connected to Spotify."
+            )
 
         params = {
             "title": spotify.title,
@@ -1275,7 +1298,7 @@ async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member]
                     raise e
 
                 artists = [f"`{x}`" for x in spotify.artists]
-                album = f'`{spotify.album}`'
+                album = f"`{spotify.album}`"
             else:
                 try:
                     async with bot.session.get(
@@ -1283,9 +1306,7 @@ async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member]
                         params={
                             "market": "US",
                         },
-                        headers={
-                            "Authorization": f'Bearer {auth_js["access_token"]}'
-                        },
+                        headers={"Authorization": f'Bearer {auth_js["access_token"]}'},
                     ) as resp:
                         js = await resp.json()
 
@@ -1300,8 +1321,8 @@ async def spotify(ctx: commands.Context, member: typing.Optional[discord.Member]
                         raise e
 
                     artists = [f"`{x}`" for x in spotify.artists]
-                    album = f'`{spotify.album}`'
-                    
+                    album = f"`{spotify.album}`"
+
             artists = ", ".join(artists)
         else:
             artists = ", ".join([f"`{x}`" for x in spotify.artists])

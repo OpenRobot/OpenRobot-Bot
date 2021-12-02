@@ -4,6 +4,7 @@ from io import BytesIO
 from discord.ext import tasks
 from cogs.utils.base import Bot
 
+
 class ChristmasEvent:
     def __init__(self, bot):
         self.bot: Bot = bot

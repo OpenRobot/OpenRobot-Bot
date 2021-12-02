@@ -52,17 +52,17 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         self.emoji = "<:jishaku_logo:901355736850890813>"
         self.full_name = (f"{self.emoji} " if self.emoji else "") + "Jishaku"
 
-    #def cog_load(self):
-        #try:
-            #self.bot.unload_extension("jishaku")
-        #except:
-            #pass
+    # def cog_load(self):
+    # try:
+    # self.bot.unload_extension("jishaku")
+    # except:
+    # pass
 
-    #def cog_unload(self):
-        #try:
-            #self.bot.load_extension("jishaku")
-        #except:
-            #pass
+    # def cog_unload(self):
+    # try:
+    # self.bot.load_extension("jishaku")
+    # except:
+    # pass
 
     @Feature.Command(
         name="jishaku",

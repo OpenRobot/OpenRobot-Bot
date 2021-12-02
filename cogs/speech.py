@@ -66,7 +66,9 @@ class Speech(Cog, emoji="\U0001f399"):
             text = " ".join(flag.text)
 
             if not flag.voice:
-                voices = (await self.bot.api.speech.text_to_speech_support(lang_code)).voices
+                voices = (
+                    await self.bot.api.speech.text_to_speech_support(lang_code)
+                ).voices
                 flag.voice = voices[0].id
 
             voice_id = "".join(flag.voice)
