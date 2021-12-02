@@ -1033,14 +1033,16 @@ async def spotify(
                     embed.set_image(url=url)
 
                     if is_new:
-                        await msg.edit(embed=embed)
+                        msg = await msg.edit(embed=embed)
                     else:
                         try:
                             await msg.delete()
                         except:
                             pass
 
-                        msg = await ctx.send(embed=embed)
+                        view = StopView()
+
+                        msg = view.message = await ctx.send(embed=embed, view=view)
                 else:
                     params = {
                         "title": spotify.title,
@@ -1141,7 +1143,7 @@ async def spotify(
 
                         view = StopView()
 
-                        view.message = await ctx.send(embed=embed, view=view)
+                        msg = view.message = await ctx.send(embed=embed, view=view)
 
                 latest_spotify = spotify
             else:
@@ -1234,17 +1236,9 @@ async def spotify(
 
                 embed.set_thumbnail(url=spotify.album_cover_url)
 
-                if is_new:
-                    await msg.edit(embed=embed)
-                else:
-                    try:
-                        await msg.delete()
-                    except:
-                        pass
+                view = StopView()
 
-                    view = StopView()
-
-                    view.message = await ctx.send(embed=embed, view=view)
+                msg = view.message = await ctx.send(embed=embed, view=view)
 
                 latest_spotify = spotify
     else:
