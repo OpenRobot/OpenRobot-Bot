@@ -8,6 +8,7 @@ import platform
 import speedtest
 import asyncio
 import re
+import cpuinfo
 from discord.ext import commands
 from humanize import naturalsize as get_size
 from jishaku.features.baseclass import Feature
@@ -220,6 +221,7 @@ Processor: {processor}```
             embed.add_field(
                 name="CPU:",
                 value=f"""```yml
+Name: {cpuinfo.get_cpu_info()['raw_brand']}
 Physical cores: {physical_cores}
 Total cores: {total_cores}
 Frequency: {current_cpu_freq}
