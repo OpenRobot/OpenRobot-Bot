@@ -79,7 +79,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         """
 
         summary = [
-            f"OpenRobot-Jishaku `v{package_version('jishaku')}`, discord.py `{package_version('discord.py')}`, "
+            f"OpenRobot-Jishaku `v{package_version('jishaku')}`, discord.py `v{package_version('discord.py')}`, "
             f"`Python {sys.version}` on `{sys.platform}`".replace("\n", ""),
             f"Module was loaded <t:{self.load_time.timestamp():.0f}:R>, "
             f"cog was loaded <t:{self.start_time.timestamp():.0f}:R>.",
