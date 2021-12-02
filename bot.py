@@ -1064,10 +1064,7 @@ async def spotify(
 
                 self.stop()
 
-        while True:
-            if stopped:
-                return
-
+        while not stopped:
             if msg:
                 await asyncio.sleep(
                     random.randint(5, 10)
@@ -1086,7 +1083,7 @@ async def spotify(
                     continue
 
             if msg and latest_spotify:
-                is_new = msgIsNew(msg)
+                is_new = await msgIsNew(msg)
 
                 if spotify.track_id == latest_spotify.track_id:
                     if ctx.debug:
@@ -1116,9 +1113,7 @@ async def spotify(
 
                     #if is_new:
                     try:
-                        view = StopView(f"{spotify.title} {spotify.artists[0]}")
-
-                        view.message = msg = await msg.edit(embed=embed, content=None, view=view)
+                        view.message = msg = await msg.edit(embed=embed, content=None)
                     except:
                         pass
                     #else:
