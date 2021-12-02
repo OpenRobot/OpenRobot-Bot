@@ -1039,7 +1039,10 @@ async def spotify(
                     embed.set_image(url=url)
 
                     #if is_new:
-                    msg = await msg.edit(embed=embed, content=None)
+                    try:
+                        msg = await msg.edit(embed=embed, content=None)
+                    except:
+                        pass
                     #else:
                         #try:
                             #await msg.delete()
@@ -1145,7 +1148,10 @@ async def spotify(
                     embed.set_thumbnail(url=spotify.album_cover_url)
 
                     if is_new:
-                        await msg.edit(embed=embed, content=None)
+                        try:
+                            msg = await msg.edit(embed=embed, content=None)
+                        except:
+                            pass
                     else:
                         try:
                             await msg.delete()
@@ -1160,7 +1166,7 @@ async def spotify(
             else:
                 if ctx.debug:
                     await ctx.send('3')
-                    
+
                 params = {
                     "title": spotify.title,
                     "cover_url": spotify.album_cover_url,
