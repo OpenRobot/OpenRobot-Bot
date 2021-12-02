@@ -1032,17 +1032,17 @@ async def spotify(
 
                     embed.set_image(url=url)
 
-                    if is_new:
-                        msg = await msg.edit(embed=embed)
-                    else:
-                        try:
-                            await msg.delete()
-                        except:
-                            pass
+                    #if is_new:
+                    msg = await msg.edit(embed=embed)
+                    #else:
+                        #try:
+                            #await msg.delete()
+                        #except:
+                            #pass
 
-                        view = StopView()
+                       #view = StopView()
 
-                        msg = view.message = await ctx.send(embed=embed, view=view)
+                        #msg = view.message = await ctx.send(embed=embed, view=view)
                 else:
                     params = {
                         "title": spotify.title,
