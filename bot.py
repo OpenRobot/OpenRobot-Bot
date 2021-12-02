@@ -1116,7 +1116,9 @@ async def spotify(
 
                     #if is_new:
                     try:
-                        msg = await msg.edit(embed=embed, content=None)
+                        view = StopView(f"{spotify.title} {spotify.artists[0]}")
+
+                        view.message = msg = await msg.edit(embed=embed, content=None, view=view)
                     except:
                         pass
                     #else:
@@ -1225,7 +1227,9 @@ async def spotify(
 
                     if is_new:
                         try:
-                            msg = await msg.edit(embed=embed, content=None)
+                            view = StopView(f"{spotify.title} {spotify.artists[0]}")
+
+                            view.message = msg = await msg.edit(embed=embed, content=None, view=view)
                         except:
                             pass
                     else:
