@@ -938,6 +938,86 @@ async def spotify(
 
     sync = "--no-sync" not in flags
 
+    class LyricButton(discord.ui.Button):
+        def __init__(self, query: str):
+            super().__init__(label="Lyrics", emoji='🎶', style=discord.ButtonStyle.blurple)
+            self.embeds = []
+            self.query = query
+            self.response = None
+
+            bot.loop.create_task(self.get_lyrics())
+
+        async def get_lyrics(self):
+            if self.embeds:
+                return self.embeds
+
+            lyric = await bot.api.lyrics(self.query)
+
+            if not lyric or not lyric.lyrics:
+                return
+
+            self.response = lyric
+
+            embed = discord.Embed(color=bot.color)
+
+            title = lyric.title
+            artist = lyric.artist
+            lyrics = lyric.lyrics
+            track_image = lyric.images.track
+            artist_image = lyric.images.background
+
+            if title and not getattr(title, "lower", lambda: title)() == "none":
+                embed.title = title
+            else:
+                embed.title = f"{self.query} Search Result:"
+
+            if artist and not getattr(artist, "lower", lambda: artist)() == "none":
+                embed.set_author(
+                    name=f"Artist: {artist}",
+                    icon_url=artist_image or discord.Embed.Empty,
+                )
+            else:
+                pass
+
+            embed.set_thumbnail(url=track_image or discord.Embed.Empty)
+
+            pag = commands.Paginator(prefix="", suffix="", max_size=4000)
+
+            for line in lyrics.split("\n"):
+                pag.add_line(line)
+
+            embed.description = discord.utils.escape_markdown(pag.pages[0])
+
+            embed.set_footer(text=f"Invoked by: {ctx.author}")
+
+            embeds = []
+
+            if len(pag.pages) >= 2:
+                for page in pag.pages[1:]:
+                    e = discord.Embed(color=bot.color)
+                    e.description = discord.utils.escape_markdown(page)
+                    e.set_footer(text=f"Invoked by: {ctx.author}")
+
+                    embeds.append(e)
+
+            self.embeds = [embed] + embeds  # await ctx.send(embed=embed)
+
+            return self.embeds
+
+        async def callback(self, interaction: discord.Interaction):
+            await interaction.response.defer(ephemeral=True)
+
+            embeds = await self.get_lyrics()
+
+            if not embeds:
+                return await interaction.followup.send('No lyrics found.', ephemeral=True)
+
+            if len(embeds) == 1:
+                return await interaction.followup.send(embed=embeds[0], ephemeral=True)
+
+            for embed in embeds:
+                await interaction.followup.send(embed=embed, ephemeral=True)
+
     if sync:
         latest_spotify = None
 
@@ -956,9 +1036,10 @@ async def spotify(
         stopped = False
 
         class StopView(discord.ui.View):
-            def __init__(self, *, timeout: float = None):
+            def __init__(self, query: str, *, timeout: float = None):
                 super().__init__(timeout=timeout)
                 self.message = None
+                self.add_item(LyricButton(query))
 
             @discord.ui.button(
                 label="Stop",
@@ -968,25 +1049,20 @@ async def spotify(
             async def stop(
                 self, button: discord.ui.Button, interaction: discord.Interaction
             ):
+                if interaction.user != ctx.author and not await bot.is_owner(
+                    interaction.user
+                ):
+                    return await interaction.response.send_message(
+                        f"This is not your interaction! This is {ctx.author}'s interaction!",
+                        ephemeral=True,
+                    )
+
                 nonlocal stopped
                 stopped = True
 
                 await self.message.delete()
 
                 self.stop()
-
-            async def interaction_check(self, interaction: discord.Interaction) -> bool:
-                if interaction.user != ctx.author and not await bot.is_owner(
-                    interaction.user
-                ):
-                    await interaction.response.send_message(
-                        f"This is not your interaction! This is {ctx.author}'s interaction!",
-                        ephemeral=True,
-                    )
-
-                    return False
-
-                return True
 
         while True:
             if stopped:
@@ -1049,7 +1125,7 @@ async def spotify(
                         #except:
                             #pass
 
-                       #view = StopView()
+                       #view = StopView(f"{spotify.title} {spotify.artists[0]}")
 
                         #msg = view.message = await ctx.send(embed=embed, view=view)
 
@@ -1158,7 +1234,7 @@ async def spotify(
                         except:
                             pass
 
-                        view = StopView()
+                        view = StopView(f"{spotify.title} {spotify.artists[0]}")
 
                         msg = view.message = await ctx.send(embed=embed, view=view)
 
@@ -1256,7 +1332,7 @@ async def spotify(
 
                 embed.set_thumbnail(url=spotify.album_cover_url)
 
-                view = StopView()
+                view = StopView(f"{spotify.title} {spotify.artists[0]}")
 
                 msg = view.message = await ctx.send(embed=embed, view=view)
 
@@ -1355,7 +1431,10 @@ async def spotify(
 
         embed.set_thumbnail(url=spotify.album_cover_url)
 
-        await ctx.send(embed=embed)
+        view = discord.ui.View(timeout=None)
+        view.add_item(LyricButton(f"{spotify.title} {spotify.artists[0]}"))
+
+        await ctx.send(embed=embed, view=view)
 
 
 @bot.command(aliases=["docs"])
