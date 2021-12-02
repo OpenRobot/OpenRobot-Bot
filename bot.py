@@ -7,6 +7,7 @@ import re
 import os
 import json
 import time
+import urllib
 import typing
 import random
 import string
@@ -971,63 +972,35 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
             if ctx.debug:
                 raise e
 
-            artists = ", ".join(spotify.artists)
-            album = spotify.album
+            artists = [f"`{x}`" for x in spotify.artists]
+            album = f'`{spotify.album}`'
         else:
             try:
-                for artist in spotify.artists:
-                    try:
-                        async with bot.session.get(
-                            "https://api.spotify.com/v1/search",
-                            params={
-                                "q": artist,
-                                "type": "artist",
-                                "market": "US",
-                                "limit": 1,
-                                "offset": 0,
-                            },
-                            headers={
-                                "Authorization": f'Bearer {auth_js["access_token"]}'
-                            },
-                        ) as resp:
-                            js = await resp.json()
-
-                        artists.append(
-                            f'[`{js["artists"]["items"][0]["name"]}`]({js["artists"]["items"][0]["external_urls"]["spotify"]})'
-                        )
-                    except Exception as e:
-                        if ctx.debug:
-                            raise e
-
-                        artists.append(artist)
-
-                artists = ", ".join(artists)
-            except Exception as e:
-                if ctx.debug:
-                    raise e
-
-                artists = ", ".join(spotify.artists)
-
-            try:
                 async with bot.session.get(
-                    "https://api.spotify.com/v1/search",
+                    f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
                     params={
-                        "q": spotify.album,
-                        "type": "album",
                         "market": "US",
-                        "limit": 1,
-                        "offset": 0,
                     },
-                    headers={"Authorization": f'Bearer {auth_js["access_token"]}'},
+                    headers={
+                        "Authorization": f'Bearer {auth_js["access_token"]}'
+                    },
                 ) as resp:
                     js = await resp.json()
 
-                album = f'[`{js["albums"]["items"][0]["name"]}`]({js["albums"]["items"][0]["external_urls"]["spotify"]})'
+                for artist in js["artists"]:
+                    artists.append(
+                        f'[`{artist["name"]}`]({artist["external_urls"]["spotify"]})'
+                    )
+
+                album = f'[`{js["album"]["name"]}`]({js["album"]["external_urls"]["spotify"]})'
             except Exception as e:
                 if ctx.debug:
                     raise e
 
-                album = spotify.album
+                artists = [f"`{x}`" for x in spotify.artists]
+                album = f'`{spotify.album}`'
+                
+        artists = ", ".join(artists)
     else:
         artists = ", ".join([f"`{x}`" for x in spotify.artists])
         album = "`" + spotify.album + "`"
@@ -1040,7 +1013,7 @@ async def spotify(ctx: commands.Context, *, member: discord.Member = None):
 > **Album:** {album}
 > **Duration:** `{str(spotify.duration).split('.')[0]}` | `{humanize.naturaldelta(spotify.duration, minimum_unit="milliseconds")}`
 > **Artists:** {artists}
-> **Lyrics:** moved to `{ctx.prefix}lyrics --from-spotify`/`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
+> **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
     """
 
     embed.set_thumbnail(url=spotify.album_cover_url)
