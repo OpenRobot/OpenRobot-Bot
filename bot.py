@@ -1002,14 +1002,20 @@ async def spotify(
             )
             if spotify is None:
                 if msg:
-                    return await ctx.send(
+                    continue
+                else:
+                    msg = await ctx.send(
                         f"**{member}** is not listening or connected to Spotify."
                     )
+                    continue
 
             if msg and latest_spotify:
                 is_new = msgIsNew(msg)
 
                 if spotify.track_id == latest_spotify.track_id:
+                    if ctx.debug:
+                        await ctx.send('1')
+
                     params = {
                         "title": spotify.title,
                         "cover_url": spotify.album_cover_url,
@@ -1033,7 +1039,7 @@ async def spotify(
                     embed.set_image(url=url)
 
                     #if is_new:
-                    msg = await msg.edit(embed=embed)
+                    msg = await msg.edit(embed=embed, content=None)
                     #else:
                         #try:
                             #await msg.delete()
@@ -1043,7 +1049,12 @@ async def spotify(
                        #view = StopView()
 
                         #msg = view.message = await ctx.send(embed=embed, view=view)
+
+                    latest_spotify = spotify
                 else:
+                    if ctx.debug:
+                        await ctx.send('2')
+
                     params = {
                         "title": spotify.title,
                         "cover_url": spotify.album_cover_url,
@@ -1134,7 +1145,7 @@ async def spotify(
                     embed.set_thumbnail(url=spotify.album_cover_url)
 
                     if is_new:
-                        await msg.edit(embed=embed)
+                        await msg.edit(embed=embed, content=None)
                     else:
                         try:
                             await msg.delete()
@@ -1147,6 +1158,9 @@ async def spotify(
 
                 latest_spotify = spotify
             else:
+                if ctx.debug:
+                    await ctx.send('3')
+                    
                 params = {
                     "title": spotify.title,
                     "cover_url": spotify.album_cover_url,
