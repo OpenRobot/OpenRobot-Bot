@@ -1425,8 +1425,7 @@ async def spotify(
 > **Album:** {album}
 > **Duration:** `{str(spotify.duration).split('.')[0]}` | `{humanize.naturaldelta(spotify.duration, minimum_unit="milliseconds")}`
 > **Artists:** {artists}
-> **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
-        """
+        """ # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
         embed.set_thumbnail(url=spotify.album_cover_url)
 
