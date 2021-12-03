@@ -929,14 +929,14 @@ async def spotify(
     Shows a member's currently listening track in spotify. Defaults to yourself.
 
     Flags:
-    - `--no-sync`: Disables the Auto Spotify Sync feature (Automatically edits the message).
+    - `--sync`: Disables the Auto Spotify Sync feature (Automatically edits the message).
     """
 
     member = member or ctx.author
 
     flags = [x.lower() for x in flags]
 
-    sync = "--no-sync" not in flags
+    sync = "--sync" in flags
 
     class LyricButton(discord.ui.Button):
         def __init__(self, query: str):
