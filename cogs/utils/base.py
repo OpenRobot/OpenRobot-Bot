@@ -27,7 +27,7 @@ class Bot(commands.Bot):
         self.spotify: aiospotify.Client = aiospotify.Client(
             **config.AIOSPOTIFY_CRIDENTIALS, session=self.session
         )
-        self.color: discord.Colour = None
+        self.__color = discord.Colour(0x38B6FF)
         self.config = config
         self.mystbin: mystbin.Client = mystbin.Client(session=self.session)
         self.api: AsyncClient = AsyncClient(
@@ -77,3 +77,14 @@ class Bot(commands.Bot):
                 'Command "{}" is not found'.format(ctx.invoked_with)
             )
             self.dispatch("command_error", ctx, exc)
+
+    def _color(self):
+        return self.__color
+
+    @property
+    def color(self):
+        return self._color()
+
+    @color.setter
+    def color(self, color: discord.Colour):
+        self.__color = color

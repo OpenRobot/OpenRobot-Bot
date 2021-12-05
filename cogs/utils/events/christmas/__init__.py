@@ -1,3 +1,4 @@
+import random
 import discord
 import datetime
 from io import BytesIO
@@ -14,7 +15,7 @@ class ChristmasEvent:
             name="Merry Christmas!! Ho Ho Ho!", type=discord.ActivityType.playing
         )
         self._old_description = self.bot.description
-        self.description = f"Merry Christmas from the OpenRobot Team!! Ho Ho Ho!\n\n{self._old_description}"
+        self.description = f"\U0001f385 Merry Christmas from the OpenRobot Team!! Ho Ho Ho!\n\n{self._old_description}"
 
         self.start_time = datetime.datetime(
             year=2021,
@@ -38,6 +39,19 @@ class ChristmasEvent:
         self.bot.banner = self.get_banner(christmas=False, url=True)
 
         self._start_triggered = False
+
+        self._color = self.bot._color
+
+        self.colors = [
+            discord.Colour(0x165B33),
+            discord.Colour(0x146B3A),
+            discord.Colour(0xF8B229),
+            discord.Colour(0xEA4630),
+            discord.Colour(0xBB2528),
+            discord.Colour(0xD8D8D8),
+            discord.Colour.green(),
+            discord.Colour.red(),
+        ]
 
     def get_avatar(self, *, christmas=True, url=False) -> bytes:
         if url:
@@ -96,14 +110,21 @@ class ChristmasEvent:
     async def _start_task_before_loop(self):
         await self.bot.wait_until_ready()
 
+    def color(self):
+        return random.choice(self.colors)
+
     async def _start_event(self):
         await self.bot.change_presence(activity=self.activity)
         await self.bot.user.edit(avatar=self.get_avatar())
         self.bot.banner = self.get_banner(christmas=True, url=True)
         self.bot.description = self.description
 
+        self.bot._color = self.color
+
     async def _end_event(self):
         await self.bot.change_presence(activity=self._old_activity)
         await self.bot.user.edit(avatar=self.get_avatar(christmas=False))
         self.bot.banner = self.get_banner(christmas=False, url=True)
         self.bot.description = self._old_description
+
+        self.bot._color = self._color
