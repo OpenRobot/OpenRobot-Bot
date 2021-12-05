@@ -940,7 +940,9 @@ async def spotify(
 
     class LyricButton(discord.ui.Button):
         def __init__(self, query: str):
-            super().__init__(label="Lyrics", emoji='🎶', style=discord.ButtonStyle.blurple)
+            super().__init__(
+                label="Lyrics", emoji="🎶", style=discord.ButtonStyle.blurple
+            )
             self.embeds = []
             self.query = query
             self.response = None
@@ -1010,7 +1012,9 @@ async def spotify(
             embeds = await self.get_lyrics()
 
             if not embeds:
-                return await interaction.followup.send('No lyrics found.', ephemeral=True)
+                return await interaction.followup.send(
+                    "No lyrics found.", ephemeral=True
+                )
 
             if len(embeds) == 1:
                 return await interaction.followup.send(embed=embeds[0], ephemeral=True)
@@ -1087,7 +1091,7 @@ async def spotify(
 
                 if spotify.track_id == latest_spotify.track_id:
                     if ctx.debug:
-                        await ctx.send('1')
+                        await ctx.send("1")
 
                     params = {
                         "title": spotify.title,
@@ -1111,25 +1115,25 @@ async def spotify(
 
                     embed.set_image(url=url)
 
-                    #if is_new:
+                    # if is_new:
                     try:
                         view.message = msg = await msg.edit(embed=embed, content=None)
                     except:
                         pass
-                    #else:
-                        #try:
-                            #await msg.delete()
-                        #except:
-                            #pass
+                    # else:
+                    # try:
+                    # await msg.delete()
+                    # except:
+                    # pass
 
-                       #view = StopView(f"{spotify.title} {spotify.artists[0]}")
+                    # view = StopView(f"{spotify.title} {spotify.artists[0]}")
 
-                        #msg = view.message = await ctx.send(embed=embed, view=view)
+                    # msg = view.message = await ctx.send(embed=embed, view=view)
 
                     latest_spotify = spotify
                 else:
                     if ctx.debug:
-                        await ctx.send('2')
+                        await ctx.send("2")
 
                     params = {
                         "title": spotify.title,
@@ -1224,7 +1228,9 @@ async def spotify(
                         try:
                             view = StopView(f"{spotify.title} {spotify.artists[0]}")
 
-                            view.message = msg = await msg.edit(embed=embed, content=None, view=view)
+                            view.message = msg = await msg.edit(
+                                embed=embed, content=None, view=view
+                            )
                         except:
                             pass
                     else:
@@ -1240,7 +1246,7 @@ async def spotify(
                 latest_spotify = spotify
             else:
                 if ctx.debug:
-                    await ctx.send('3')
+                    await ctx.send("3")
 
                 params = {
                     "title": spotify.title,
@@ -1425,7 +1431,7 @@ async def spotify(
 > **Album:** {album}
 > **Duration:** `{str(spotify.duration).split('.')[0]}` | `{humanize.naturaldelta(spotify.duration, minimum_unit="milliseconds")}`
 > **Artists:** {artists}
-        """ # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
+        """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
         embed.set_thumbnail(url=spotify.album_cover_url)
 
