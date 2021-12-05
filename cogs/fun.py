@@ -415,6 +415,12 @@ A bingo game has started in this channel.
                         f"You are not in the game.", ephemeral=True
                     )
 
+                if interaction.user == ctx.author:
+                    return await interaction.response.send_message(
+                        "You cannot leave the game if you are the host. Use the `Cancel The Game` button instead.",
+                        ephemeral=True,
+                    )
+
                 players.remove(interaction.user)
 
                 base_content = f"""
@@ -495,7 +501,6 @@ A bingo game has started in this channel.
                     content=f"__**The game has been canceled by the host, {ctx.author.mention}!**__\n\n{base_content}",
                     allowed_mentions=discord.AllowedMentions(users=False),
                     view=self.view,
-                    allowed_mentions=discord.AllowedMentions(users=False),
                 )
 
                 self.view.started = False
