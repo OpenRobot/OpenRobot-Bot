@@ -171,9 +171,10 @@ class Error(Cog):
         lines = traceback.format_exception(etype, error, trace)
         original_traceback = "".join(lines)
 
-        pretty_traceback = "\n".join(
-            OpenRobotFormatter(no_color=True).format_exception(error)
-        )
+        #pretty_traceback = "\n".join(
+            #OpenRobotFormatter(no_color=True).format_exception(error)
+        #)
+        pretty_traceback = original_traceback
 
         paginator = commands.Paginator(max_size=4000, prefix="```py")
 
