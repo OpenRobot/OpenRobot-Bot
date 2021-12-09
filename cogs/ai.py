@@ -227,7 +227,7 @@ AI: 5 times 6 is 30"""
             )
 
             if ctx.debug:
-                await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in create_repository_response}, indent=4)), filename='create_repository_response.json'))
+                await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in create_repository_response.items()}, indent=4)), filename='create_repository_response.json'))
 
             branch_name = create_repository_response['repositoryMetadata']['defaultBranch']
 
@@ -242,7 +242,7 @@ AI: 5 times 6 is 30"""
             )
 
             if ctx.debug:
-                await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in put_file_reponse}, indent=4)), filename='put_file_reponse.json'))
+                await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in put_file_reponse.items()}, indent=4)), filename='put_file_reponse.json'))
 
             try:
                 assosiate_repository_response = self.codeguru.associate_repository(
@@ -254,7 +254,7 @@ AI: 5 times 6 is 30"""
                 )
 
                 if ctx.debug:
-                    await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in assosiate_repository_response}, indent=4)), filename='assosiate_repository_response.json'))
+                    await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in assosiate_repository_response.items()}, indent=4)), filename='assosiate_repository_response.json'))
 
                 AssociationArn = assosiate_repository_response['RepositoryAssociation']['AssociationArn']
 
@@ -271,7 +271,7 @@ AI: 5 times 6 is 30"""
                 )
 
                 if ctx.debug:
-                    await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in response}, indent=4)), filename='create_code_review.json'))
+                    await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in response.items()}, indent=4)), filename='create_code_review.json'))
 
                 CodeReviewArn = response['CodeReview']['CodeReviewArn']
 
@@ -356,9 +356,9 @@ AI: 5 times 6 is 30"""
         else:
             return await ctx.send('Could not recognize the `code` argument.')
 
-        await task(ctx, code)
-
         await ctx.send('Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is.')
+
+        await task(ctx, code)
 
     @commands.command("nsfw-check", aliases=["nsfwcheck", "nsfw_check", "check"])
     async def nsfw_check(
