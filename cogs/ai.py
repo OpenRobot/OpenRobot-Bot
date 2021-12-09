@@ -393,10 +393,10 @@ AI: 5 times 6 is 30"""
 
                 for file in js:
                     if file['type'] == 'dir':
-                        folders.append(file['name'])
+                        folders.append(file)
                     elif file['type'] == 'file':
                         if file['name'].endswith(('.py', '.java')):
-                            l.append(file['name'])
+                            l.append(file)
 
                 for folder in folders:
                     async with self.bot.session.get(f'https://api.github.com/repos/{author}/{repo}/contents/{folder["path"]}') as resp:
@@ -410,10 +410,10 @@ AI: 5 times 6 is 30"""
 
                     for file in js:
                         if file['type'] == 'dir':
-                            folders.append(file['name'])
+                            folders.append(file)
                         elif file['type'] == 'file':
                             if file['name'].endswith(('.py', '.java')):
-                                l.append(file['name'])
+                                l.append(file)
 
                 if not l:
                     return await ctx.send('No Python and Java files found in that repository.')
