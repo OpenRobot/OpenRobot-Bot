@@ -27,7 +27,7 @@ from openrobot.api_wrapper import error
 openai.api_key = OPENAI_KEY
 
 # Regex:
-GIST_REGEX = re.compile(r'https?:\/\/gist\.github\.com\/(?P<author>[a-zA-Z0-9]+)\/(?P<gist_id>[a-zA-Z0-9]+)(#file-(?P<file_name>[a-zA-Z0-9|-]+))?')
+GIST_REGEX = re.compile(r'https?:\/\/gist\.github\.com\/(?P<author>[a-zA-Z0-9]+)\/(?P<gist_id>[a-zA-Z0-9]+)(#file-(?P<file_name>.+))?')
 
 class AI(Cog, emoji="🤖"):
     def __init__(self, bot):
@@ -337,7 +337,10 @@ AI: 5 times 6 is 30"""
 
                 author = regex_result.group('author')
                 gist_id = regex_result.group('gist_id')
-                file_name = regex_result.group('file_name').replace('-', '.')
+                file_name = regex_result.group('file_name')
+
+                if file_name:
+                    file_name = file_name.replace('-', '.')
 
                 l = [author, gist_id]
 
@@ -371,7 +374,7 @@ AI: 5 times 6 is 30"""
                     self.stop()
 
                 @discord.ui.button(label='Java', emoji='<:java:918350372370796615>', style=discord.ButtonStyle.blurple)
-                async def java(self, button: discord.ui.Button, interaction: discord.Interaction):
+                async def python(self, button: discord.ui.Button, interaction: discord.Interaction):
                     self.language = 'java'
 
                     await self.message.delete()
