@@ -374,7 +374,7 @@ AI: 5 times 6 is 30"""
                     self.stop()
 
                 @discord.ui.button(label='Java', emoji='<:java:918350372370796615>', style=discord.ButtonStyle.blurple)
-                async def python(self, button: discord.ui.Button, interaction: discord.Interaction):
+                async def java(self, button: discord.ui.Button, interaction: discord.Interaction):
                     self.language = 'java'
 
                     await self.message.delete()
