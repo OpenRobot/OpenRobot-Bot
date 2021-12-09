@@ -229,13 +229,13 @@ AI: 5 times 6 is 30"""
             if ctx.debug:
                 await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in create_repository_response.items()}, indent=4)), filename='create_repository_response.json'))
 
-            branch_name = create_repository_response['repositoryMetadata']['defaultBranch']
+            #branch_name = create_repository_response['repositoryMetadata']['defaultBranch']
 
             extension = 'py' if code.language in ['py', 'python'] else 'java'
 
             put_file_reponse = self.codecommit.put_file(
                 repositoryName = name,
-                branchName = branch_name,
+                #branchName = branch_name,
                 fileContent = code.content.encode(),
                 filePath = f'main.{extension}',
                 fileMode = 'NORMAL',
@@ -264,7 +264,7 @@ AI: 5 times 6 is 30"""
                     Type = {
                         'RepositoryAnalysis': {
                             'RepositoryHead': {
-                                'BranchName': branch_name,
+                                #'BranchName': branch_name,
                             },
                         },
                     },
