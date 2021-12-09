@@ -445,19 +445,32 @@ AI: 5 times 6 is 30"""
 
                 d = {}
 
+                commit_id = None
+
                 for file in l:
                     async with self.bot.session.get(file['download_url']) as resp:
                         content = await resp.text()
 
                     d['path'] = content
 
-                    put_file_reponse = self.codecommit.put_file(
-                        repositoryName = name,
-                        branchName = branch_name,
-                        fileContent = content.encode(),
-                        filePath = file['path'],
-                        fileMode = 'NORMAL',
-                    )
+                    if not commit_id:
+                        put_file_reponse = self.codecommit.put_file(
+                            repositoryName = name,
+                            branchName = branch_name,
+                            fileContent = content.encode(),
+                            filePath = file['path'],
+                            fileMode = 'NORMAL',
+                        )
+                        commit_id = put_file_reponse['commitId']
+                    else:
+                        put_file_reponse = self.codecommit.put_file(
+                            repositoryName = name,
+                            branchName = branch_name,
+                            fileContent = content.encode(),
+                            filePath = file['path'],
+                            fileMode = 'NORMAL',
+                            parentCommitId = commit_id,
+                        )
 
                 await task(ctx, None, repo_name=name, repo_code=d)
 
