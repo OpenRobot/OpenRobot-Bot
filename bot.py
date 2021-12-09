@@ -168,7 +168,7 @@ class Bot(BaseBot):
         if self.tb_pool:
             await self.tb_pool.close()
 
-        await self.spotify.close()
+        #await self.spotify.close() Broken: AttributeError: 'HTTPClient' object has no attribute 'close'
 
         await self.session.close()
 
