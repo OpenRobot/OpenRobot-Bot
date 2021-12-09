@@ -444,6 +444,8 @@ class CodeReviewPaginator(ListPageSource):
             color=menu.ctx.bot.color,
         )
 
+        embed.description = f"**File:** {entries['FilePath']}\n" if entries["FromGitHub"] else ""
+
         embed.set_author(name='Your Code Review Results:', url=menu.ctx.message.jump_url)
 
         RecommendationCategory = entries['RecommendationCategory']
@@ -460,10 +462,10 @@ class CodeReviewPaginator(ListPageSource):
 
         RecommendationCategory = RecommendationCategory.replace('A W S', 'AWS')
 
-        embed.description = f"""
+        embed.description += f"""
 **Recomendation:** {entries['Description']}
 
-**Recomendation for code:** `Line {entries['StartLine']}` to `Line {entries['EndLine']}` ```py
+**Recomendation for code:** `Line {entries['StartLine']}`{f" to `Line {entries['EndLine']}`" if entries['StartLine'] != entries['EndLine'] else ""} ```py
 {code}```
 
 **Category:** `{RecommendationCategory}`

@@ -120,6 +120,14 @@ class CodeblockConverter(Converter):
         if x:
             return x[0]
 
+        if ctx.message.attachments:
+            for attachment in ctx.message.attachments:
+                if attachment.content_type.startswith(("text/x-python", "text/x-java")): # For some reason its text/x-...
+                    async with ctx.bot.session.get(attachment.url) as resp:
+                        text = await resp.text()
+
+                    return Codeblock('python', text)
+
         return codeblock_converter(argument)
 
 
