@@ -51,6 +51,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
 
         self.emoji = "<:jishaku_logo:901355736850890813>"
         self.full_name = (f"{self.emoji} " if self.emoji else "") + "Jishaku"
+        self.aliases = []
 
     # def cog_load(self):
     # try:
