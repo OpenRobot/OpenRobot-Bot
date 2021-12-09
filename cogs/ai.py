@@ -326,7 +326,10 @@ AI: 5 times 6 is 30"""
                         break
 
                 if not recommendations:
-                    return await ctx.send("No recommendations found in the code.")
+                    try:
+                        return await ctx.author.send(f'No recommendations found for Code Review {ctx.message.jump_url}.')
+                    except:
+                        return await ctx.reply("No recommendations found in the code.")
 
                 if repo_name and repo_code:
                     for recommendation in recommendations:
@@ -339,6 +342,8 @@ AI: 5 times 6 is 30"""
 
                 await MenuPages(CodeReviewPaginator(recommendations, per_page=1), try_send_in_dm=True, timeout=None).start(ctx)
             except Exception as e:
+                await ctx.command.reset_cooldown(ctx)
+                
                 if ctx.debug:
                     raise e
 
@@ -377,8 +382,6 @@ AI: 5 times 6 is 30"""
                 l = []
 
                 folders = []
-
-                _path = None
 
                 async with self.bot.session.get(f'https://api.github.com/repos/{author}/{repo}/contents/') as resp:
                     js = await resp.json()
@@ -457,6 +460,7 @@ AI: 5 times 6 is 30"""
                 try:
                     mystbin = await self.bot.mystbin.get(code)
                 except:
+                    await ctx.command.reset_cooldown(ctx)
                     return await ctx.send('Could not recognize the `code` argument.')
                 else:
                     code = mystbin.paste_content
@@ -489,8 +493,10 @@ AI: 5 times 6 is 30"""
             code = Codeblock(view.language, code)
         elif isinstance(code, Codeblock):
             if code.language not in ['java', 'python', 'py']:
+                await ctx.command.reset_cooldown(ctx)
                 return await ctx.send('Currently only Java and Python code is supported.')
         else:
+            await ctx.command.reset_cooldown(ctx)
             return await ctx.send('Could not recognize the `code` argument.')
 
         await ctx.send('Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is.')
