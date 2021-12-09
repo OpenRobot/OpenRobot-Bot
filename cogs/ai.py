@@ -287,24 +287,30 @@ AI: 5 times 6 is 30"""
 
                     await asyncio.sleep(3)
 
-                token = name
+                token = None
 
                 recommendations = []
 
                 while True:
                     try:
-                        recommendation = self.codeguru.list_recommendations(
-                            NextToken = token,
-                            MaxResults = 100,
-                            CodeReviewArn = CodeReviewArn,
-                        )
+                        if token:
+                            recommendation = self.codeguru.list_recommendations(
+                                NextToken = token,
+                                MaxResults = 100,
+                                CodeReviewArn = CodeReviewArn,
+                            )
+                        else:
+                            recommendation = self.codeguru.list_recommendations(
+                                MaxResults = 100,
+                                CodeReviewArn = CodeReviewArn,
+                            )
 
                         if not recommendation['RecommendationSummaries']:
                             break
 
-                        token = recommendation['NextToken']
-
                         recommendations.extend(recommendation['RecommendationSummaries'])
+
+                        token = recommendation['NextToken']
                     except:
                         break
 
@@ -351,7 +357,32 @@ AI: 5 times 6 is 30"""
                 else:
                     code = mystbin.paste_content
 
-            code = Codeblock(None, code)
+            class View(discord.ui.View):
+                def __init__(self, *, timeout: int = None):
+                    super().__init__(timeout=timeout)
+                    self.language = None
+                    self.message = None
+
+                @discord.ui.button(label='Python', emoji='<:python:918350483096236043>', style=discord.ButtonStyle.blurple)
+                async def python(self, button: discord.ui.Button, interaction: discord.Interaction):
+                    self.language = 'py'
+
+                    await self.message.delete()
+                    self.stop()
+
+                @discord.ui.button(label='Java', emoji='<:java:918350372370796615>', style=discord.ButtonStyle.blurple)
+                async def python(self, button: discord.ui.Button, interaction: discord.Interaction):
+                    self.language = 'java'
+
+                    await self.message.delete()
+                    self.stop()
+
+            view = View()
+
+            view.message = await ctx.send('What language is this code written in? If you select the wrong language, things might break.', view=view)
+            await view.wait()
+
+            code = Codeblock(view.language, code)
         elif isinstance(code, Codeblock):
             if code.language not in ['java', 'python', 'py']:
                 return await ctx.send('Currently only Java and Python code is supported.')
