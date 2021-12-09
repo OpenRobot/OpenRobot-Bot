@@ -233,9 +233,11 @@ AI: 5 times 6 is 30"""
 
             extension = 'py' if code.language in ['py', 'python'] else 'java'
 
+            branch_name = 'main'
+
             put_file_reponse = self.codecommit.put_file(
                 repositoryName = name,
-                #branchName = branch_name,
+                branchName = branch_name,
                 fileContent = code.content.encode(),
                 filePath = f'main.{extension}',
                 fileMode = 'NORMAL',
@@ -264,7 +266,7 @@ AI: 5 times 6 is 30"""
                     Type = {
                         'RepositoryAnalysis': {
                             'RepositoryHead': {
-                                #'BranchName': branch_name,
+                                'BranchName': branch_name,
                             },
                         },
                     },
