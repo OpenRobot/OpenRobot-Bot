@@ -415,6 +415,9 @@ AI: 5 times 6 is 30"""
                             if file['name'].endswith(('.py', '.java')):
                                 l.append(file['name'])
 
+                if not l:
+                    return await ctx.send('No Python and Java files found in that repository.')
+
                 await ctx.send('Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is.')
 
                 random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 50)))
