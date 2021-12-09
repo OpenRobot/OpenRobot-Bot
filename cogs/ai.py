@@ -356,12 +356,7 @@ AI: 5 times 6 is 30"""
         else:
             return await ctx.send('Could not recognize the `code` argument.')
 
-        def exception_catching_callback(task):
-            if task.exception():
-                task.print_stack()
-
-        task = self.bot.loop.create_task(task(ctx, code))
-        task.add_done_callback(exception_catching_callback)
+        await task(ctx, code)
 
         await ctx.send('Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is.')
 
