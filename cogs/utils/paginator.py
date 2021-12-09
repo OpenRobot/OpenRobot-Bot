@@ -456,12 +456,12 @@ class CodeReviewPaginator(ListPageSource):
 
         code = entries['Code'].split('\n')
 
-        code = code[entries['StartLine']-1:entries['EndLine']]
+        code = '\n'.join(code[entries['StartLine']-1:entries['EndLine']])
 
         RecommendationCategory = RecommendationCategory.replace('A W S', 'AWS')
 
         embed.description = f"""
-**Recomendation:** `{entries['Description']}`
+**Recomendation:** {entries['Description']}
 
 **Recomendation for code:** `Line {entries['StartLine']}` to `Line {entries['EndLine']}` ```py
 {code}```
