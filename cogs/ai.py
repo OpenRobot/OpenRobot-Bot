@@ -28,8 +28,8 @@ from openrobot.api_wrapper import error
 openai.api_key = OPENAI_KEY
 
 # Regex:
-GIST_REGEX = re.compile(r'https?:\/\/gist\.github\.com\/(?P<author>[a-zA-Z0-9]+)\/(?P<gist_id>[a-zA-Z0-9]+)(#file-(?P<file_name>.+))?')
-GITHUB_REGEX = re.compile(r'https?:\/\/github\.com\/(?P<author>[a-zA-Z0-9]+)\/(?P<repo>[a-zA-Z0-9]+)')
+GIST_REGEX = re.compile(r'https?:\/\/gist\.github\.com\/(?P<author>.+)\/(?P<gist_id>[a-zA-Z0-9]+)(#file-(?P<file_name>.+))?')
+GITHUB_REGEX = re.compile(r'https?:\/\/github\.com\/(?P<author>[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38})\/(?P<repo>[A-Za-z0-9_.-]+)')
 
 class AI(Cog, emoji="🤖"):
     def __init__(self, bot):
