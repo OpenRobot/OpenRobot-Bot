@@ -226,6 +226,9 @@ AI: 5 times 6 is 30"""
                 repositoryDescription = f'<p>Code Reviewer Repository for {ctx.author.name} (<a href="{ctx.message.jump_url}">{ctx.message.jump_url}</a>)</p>', # HTML
             )
 
+            if ctx.debug:
+                await ctx.send(file=discord.File(StringIO(json.dumps(create_repository_response, indent=4)), filename='create_repository_response.json'))
+
             branch_name = create_repository_response['repositoryMetadata']['defaultBranch']
 
             extension = 'py' if code.language in ['py', 'python'] else 'java'
@@ -238,6 +241,9 @@ AI: 5 times 6 is 30"""
                 fileMode = 'NORMAL',
             )
 
+            if ctx.debug:
+                await ctx.send(file=discord.File(StringIO(json.dumps(put_file_reponse, indent=4)), filename='put_file_reponse.json'))
+
             try:
                 assosiate_repository_response = self.codeguru.associate_repository(
                     Repository = {
@@ -246,6 +252,9 @@ AI: 5 times 6 is 30"""
                         },
                     },
                 )
+
+                if ctx.debug:
+                    await ctx.send(file=discord.File(StringIO(json.dumps(assosiate_repository_response, indent=4)), filename='assosiate_repository_response.json'))
 
                 AssociationArn = assosiate_repository_response['RepositoryAssociation']['AssociationArn']
 
@@ -260,6 +269,9 @@ AI: 5 times 6 is 30"""
                         },
                     },
                 )
+
+                if ctx.debug:
+                    await ctx.send(file=discord.File(StringIO(json.dumps(response, indent=4)), filename='create_code_review.json'))
 
                 CodeReviewArn = response['CodeReview']['CodeReviewArn']
 
