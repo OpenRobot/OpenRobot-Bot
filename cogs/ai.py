@@ -314,6 +314,9 @@ AI: 5 times 6 is 30"""
                     except:
                         break
 
+                if not recommendations:
+                    return await ctx.send("No recommendations found in the code.")
+
                 for recommendation in recommendations:
                     recommendation['Code'] = code.content
 
