@@ -375,7 +375,7 @@ AI: 5 times 6 is 30"""
                         code = await resp.text()
                     else:
                         return await ctx.send('Invalid Gist URL.')
-            elif regex_result := GITHUB_REGEX.match(code):
+            elif regex_result := GITHUB_REGEX.fullmatch(code):
                 author = regex_result.group('author')
                 repo = regex_result.group('repo')
                 
