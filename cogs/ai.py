@@ -461,7 +461,6 @@ AI: 5 times 6 is 30"""
                             filePath = file['path'],
                             fileMode = 'NORMAL',
                         )
-                        commit_id = put_file_reponse['commitId']
                     else:
                         put_file_reponse = self.codecommit.put_file(
                             repositoryName = name,
@@ -471,6 +470,8 @@ AI: 5 times 6 is 30"""
                             fileMode = 'NORMAL',
                             parentCommitId = commit_id,
                         )
+                        
+                    commit_id = put_file_reponse['commitId']
 
                 await task(ctx, None, repo_name=name, repo_code=d)
 
