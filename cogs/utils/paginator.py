@@ -2,6 +2,7 @@ import discord
 import asyncio
 import datetime
 import json
+import re
 from discord import ui
 from discord.ext import menus
 from discord.ext.menus import ListPageSource, Menu
@@ -17,6 +18,7 @@ class ViewMenuPages(ui.View, menus.MenuPages):
         delete_message_after=False,
         clear_buttons_after=False,
         force_paginate=False,
+        try_send_in_dm=False,
     ):
         super().__init__(timeout=timeout)
         self._source = source
@@ -26,6 +28,7 @@ class ViewMenuPages(ui.View, menus.MenuPages):
         self.delete_message_after = delete_message_after
         self.clear_buttons_after = clear_buttons_after
         self.force_paginate = force_paginate
+        self.try_send_in_dm = try_send_in_dm
 
     async def start(self, ctx, *, channel=None, wait=False):
         # We wont be using wait, you can implement them yourself. This is to match the MenuPages signature.
@@ -47,7 +50,16 @@ class ViewMenuPages(ui.View, menus.MenuPages):
         return value
 
     async def send_initial_message(self, ctx, channel):
-        self.message = await super().send_initial_message(ctx, channel)
+        if self.try_send_in_dm:
+            try:
+                page = await self._source.get_page(0)
+                kwargs = await self._get_kwargs_from_page(page)
+                self.message = await ctx.author.send(**kwargs)
+            except:
+                self.message = await super().send_initial_message(ctx, channel)
+        else:
+            self.message = await super().send_initial_message(ctx, channel)
+
         await self.update_buttons()
         return self.message
 
@@ -422,5 +434,40 @@ __**{self.entries.index(page) + 1})**__
 **Voice ID:** `{page.id}`
 **Name:** `{page.name}`
             """
+
+        return embed
+
+
+class CodeReviewPaginator(ListPageSource):
+    async def format_page(self, menu, entries):
+        embed = discord.Embed(
+            color=menu.ctx.bot.color,
+        )
+
+        embed.set_author(name='Your Code Review Results:', url=menu.ctx.message.jump_url)
+
+        RecommendationCategory = entries['RecommendationCategory']
+
+        regex = re.findall(r'[A-Z]+', RecommendationCategory)
+        regex = regex[1:]
+
+        for i in regex:
+            RecommendationCategory = RecommendationCategory.replace(i, ' ' + i)
+
+        code = entries['Code'].split('\n')
+
+        code = code[entries['StartLine']-1:entries['EndLine']]
+
+        RecommendationCategory = RecommendationCategory.replace('A W S', 'AWS')
+
+        embed.description = f"""
+**Recomendation:** `{entries['Description']}`
+
+**Recomendation for code:** `Line {entries['StartLine']}` to `Line {entries['EndLine']}` ```py
+{code}```
+
+**Category:** `{RecommendationCategory}`
+**Severity:** `{entries['Severity']}`
+        """
 
         return embed

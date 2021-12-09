@@ -4,7 +4,7 @@ import discord
 import datetime
 from discord.ext import commands
 from discord.ext.commands import Converter, Context
-
+from jishaku.codeblocks import codeblock_converter, Codeblock
 
 class ImageConverter(Converter):
     def __init__(self, **kwargs):
@@ -110,6 +110,17 @@ class AudioConverter(Converter):
                         return attachment.url
 
         return None
+
+class CodeblockConverter(Converter):
+    async def convert(self, ctx: Context, argument: str) -> Codeblock | str:
+        x = re.findall(
+            r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+            argument,
+        )
+        if x:
+            return x[0]
+
+        return codeblock_converter(argument)
 
 
 # https://github.com/Axelware/Life-bot/blob/949937a37d349b816abfe99c50bd878878f6a94a/bot/utilities/objects/time.py#L5-L12

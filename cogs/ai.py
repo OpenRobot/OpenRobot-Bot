@@ -3,24 +3,39 @@ import openai
 import json
 import aiohttp
 import random
+import boto3
+import re
+import string
+import asyncio
 from io import StringIO, BytesIO
-from config import OPENAI_KEY
+from config import OPENAI_KEY, AWS_CRIDENTIALS
 from discord.ext import commands
 from cogs.utils import (
     Cog,
     ImageConverter,
     MenuPages,
+    Codeblock,
     CelebrityPaginator,
     LegacyFlagConverter,
     LegacyFlagItems,
+    CodeblockConverter,
     TranslateLanguagesPagniator,
+    CodeReviewPaginator,
 )
 from openrobot.api_wrapper import error
 
 openai.api_key = OPENAI_KEY
 
+# Regex:
+GIST_REGEX = re.compile(r'https?:\/\/gist\.github\.com\/(?P<author>[a-zA-Z0-9]+)\/(?P<gist_id>[a-zA-Z0-9]+)(#file-(?P<file_name>[a-zA-Z0-9|-]+))?')
 
 class AI(Cog, emoji="🤖"):
+    def __init__(self, bot):
+        super().__init__(bot)
+
+        self.codecommit = boto3.client("codecommit", **AWS_CRIDENTIALS)
+        self.codeguru = boto3.client("codeguru-reviewer", **AWS_CRIDENTIALS)
+
     def get_ai_text(self):
         ai_text = """The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, intelligent and very friendly.
 
@@ -187,6 +202,151 @@ AI: 5 times 6 is 30"""
         embed.description = s
 
         await ctx.send(embed=embed)
+
+    @commands.command(name='review-code', aliases=['review_code', 'reviewcode', 'code-review', 'code-reviewer', 'codereview', 'codereviewer', 'code_review', 'code_reviewer'])
+    async def review_code(self, ctx: commands.Context, *, code: CodeblockConverter = commands.Option(description='The code/link to be reviewed.')):
+        """
+        Reviews a code and sends suggestions to improve it.
+
+        This can either take a physical codeblock/code or a link.
+        Note that this currently can only take Java and Python code.
+
+        Currently supported Links:
+        - [GitHub Gist](https://gist.github.com/)
+        - [Mystbin](https://mystb.in)
+        """
+        
+        async def task(ctx: commands.Context, code: Codeblock):
+            random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 50)))
+
+            name = f'codeguru-reviewer-{ctx.author.id}-{random_name}'
+
+            create_repository_response = self.codecommit.create_repository(
+                repositoryName = name,
+                repositoryDescription = f'<p>Code Reviewer Repository for {ctx.author.name} (<a href="{ctx.message.jump_url}">{ctx.message.jump_url}</a>)</p>', # HTML
+            )
+
+            branch_name = create_repository_response['repositoryMetadata']['defaultBranch']
+
+            extension = 'py' if code.language in ['py', 'python'] else 'java'
+
+            put_file_reponse = self.codecommit.put_file(
+                repositoryName = name,
+                branchName = branch_name,
+                fileContent = code.content.encode(),
+                filePath = f'main.{extension}',
+                fileMode = 'NORMAL',
+            )
+
+            try:
+                assosiate_repository_response = self.codeguru.associate_repository(
+                    Repository = {
+                        'CodeCommit': {
+                            'Name': name,
+                        },
+                    },
+                )
+
+                AssociationArn = assosiate_repository_response['RepositoryAssociation']['AssociationArn']
+
+                response = self.codeguru.create_code_review(
+                    Name = name,
+                    RepositoryAssociationArn = AssociationArn,
+                    Type = {
+                        'RepositoryAnalysis': {
+                            'RepositoryHead': {
+                                'BranchName': branch_name,
+                            },
+                        },
+                    },
+                )
+
+                CodeReviewArn = response['CodeReview']['CodeReviewArn']
+
+                while True:
+                    response = self.codeguru.describe_code_review(
+                        CodeReviewArn = CodeReviewArn,
+                    )
+
+                    if response['CodeReview']['State'].lower() == 'completed':
+                        break
+
+                    await asyncio.sleep(3)
+
+                token = name
+
+                recommendations = []
+
+                while True:
+                    try:
+                        recommendation = self.codeguru.list_recommendations(
+                            NextToken = token,
+                            MaxResults = 100,
+                            CodeReviewArn = CodeReviewArn,
+                        )
+
+                        if not recommendation['RecommendationSummaries']:
+                            break
+
+                        token = recommendation['NextToken']
+
+                        recommendations.extend(recommendation['RecommendationSummaries'])
+                    except:
+                        break
+
+                for recommendation in recommendations:
+                    recommendation['Code'] = code.content
+
+                await MenuPages(CodeReviewPaginator(recommendations, per_page=1), try_send_in_dm=True, timeout=None).start(ctx)
+            except Exception as e:
+                if ctx.debug:
+                    raise e
+
+                try:
+                    return await ctx.author.send(f'Sorry. Something wen\'t wrong and I failed to create the code review for {ctx.message.jump_url}.')
+                except:
+                    return await ctx.reply(f'Sorry. Something wen\'t wrong and I failed to create the code review.')
+            finally:
+                delete_repository_response = self.codecommit.delete_repository(
+                    repositoryName = name,
+                )
+
+        if isinstance(code, str):
+            if GIST_REGEX.match(code):
+                regex_result = GIST_REGEX.match(code)
+
+                author = regex_result.group('author')
+                gist_id = regex_result.group('gist_id')
+                file_name = regex_result.group('file_name').replace('-', '.')
+
+                l = [author, gist_id]
+
+                if file_name:
+                    l.append(file_name)
+
+                async with self.bot.session.get('https://gist.githubusercontent.com/' + '/'.join(l)) as resp:
+                    if 200 >= resp.status < 300:
+                        code = await resp.text()
+                    else:
+                        return await ctx.send('Invalid Gist URL.')
+            else:
+                try:
+                    mystbin = await self.bot.mystbin.get(code)
+                except:
+                    return await ctx.send('Could not recognize the `code` argument.')
+                else:
+                    code = mystbin.paste_content
+
+            code = Codeblock(None, code)
+        elif isinstance(code, Codeblock):
+            if code.language not in ['java', 'python', 'py']:
+                return await ctx.send('Currently only Java and Python code is supported.')
+        else:
+            return await ctx.send('Could not recognize the `code` argument.')
+
+        self.bot.loop.create_task(task(ctx, code))
+
+        await ctx.send('Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is.')
 
     @commands.command("nsfw-check", aliases=["nsfwcheck", "nsfw_check", "check"])
     async def nsfw_check(

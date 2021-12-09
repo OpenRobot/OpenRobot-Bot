@@ -1454,11 +1454,6 @@ def codeblock(code: str, *, language=""):
     return f"```{language}\n{code}```"
 
 
-@bot.command()
-async def load(ctx, *, s):
-    bot.load_extension(s)
-
-
 bot.codeblock = codeblock
 
 
