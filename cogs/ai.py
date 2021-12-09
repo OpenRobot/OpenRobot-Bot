@@ -29,7 +29,7 @@ openai.api_key = OPENAI_KEY
 
 # Regex:
 GIST_REGEX = re.compile(r'https?:\/\/gist\.github\.com\/(?P<author>[a-zA-Z0-9]+)\/(?P<gist_id>[a-zA-Z0-9]+)(#file-(?P<file_name>.+))?')
-GITHUB_REGEX = re.compile(r'http?:\/\/github\.com\/(?P<author>[a-zA-Z0-9]+)\/(?P<repo>[a-zA-Z0-9]+)')
+GITHUB_REGEX = re.compile(r'https?:\/\/github\.com\/(?P<author>[a-zA-Z0-9]+)\/(?P<repo>[a-zA-Z0-9]+)')
 
 class AI(Cog, emoji="🤖"):
     def __init__(self, bot):
@@ -342,8 +342,8 @@ AI: 5 times 6 is 30"""
 
                 await MenuPages(CodeReviewPaginator(recommendations, per_page=1), try_send_in_dm=True, timeout=None).start(ctx)
             except Exception as e:
-                await ctx.command.reset_cooldown(ctx)
-                
+                ctx.command.reset_cooldown(ctx)
+
                 if ctx.debug:
                     raise e
 
@@ -460,7 +460,7 @@ AI: 5 times 6 is 30"""
                 try:
                     mystbin = await self.bot.mystbin.get(code)
                 except:
-                    await ctx.command.reset_cooldown(ctx)
+                    ctx.command.reset_cooldown(ctx)
                     return await ctx.send('Could not recognize the `code` argument.')
                 else:
                     code = mystbin.paste_content
@@ -493,10 +493,10 @@ AI: 5 times 6 is 30"""
             code = Codeblock(view.language, code)
         elif isinstance(code, Codeblock):
             if code.language not in ['java', 'python', 'py']:
-                await ctx.command.reset_cooldown(ctx)
+                ctx.command.reset_cooldown(ctx)
                 return await ctx.send('Currently only Java and Python code is supported.')
         else:
-            await ctx.command.reset_cooldown(ctx)
+            ctx.command.reset_cooldown(ctx)
             return await ctx.send('Could not recognize the `code` argument.')
 
         await ctx.send('Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is.')
