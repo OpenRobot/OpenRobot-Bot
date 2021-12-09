@@ -33,3 +33,5 @@ class Cog(commands.Cog):
     def __init_subclass__(cls, **kwargs):
         cls.emoji = kwargs.pop("emoji", None)
         cls.full_name = (f"{cls.emoji} " if cls.emoji else "") + cls.__cog_name__
+
+        cls.aliases = kwargs.pop("aliases", [])
