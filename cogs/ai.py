@@ -374,6 +374,7 @@ AI: 5 times 6 is 30"""
                     if 200 >= resp.status < 300:
                         code = await resp.text()
                     else:
+                        ctx.command.reset_cooldown(ctx)
                         return await ctx.send('Invalid Gist URL.')
             elif regex_result := GITHUB_REGEX.fullmatch(code):
                 author = regex_result.group('author')
@@ -387,6 +388,8 @@ AI: 5 times 6 is 30"""
                     js = await resp.json()
 
                 if isinstance(js, dict) and resp.status != 200:
+                    ctx.command.reset_cooldown(ctx)
+
                     if (msg := js.get('message')) and msg != 'Not Found':
                         return await ctx.send(msg)
                     elif msg == 'Not Found':
@@ -406,6 +409,8 @@ AI: 5 times 6 is 30"""
                         js = await resp.json()
 
                     if isinstance(js, dict) and resp.status != 200:
+                        ctx.command.reset_cooldown(ctx)
+
                         if (msg := js.get('message')) and msg != 'Not Found':
                             return await ctx.send(msg)
                         elif msg == 'Not Found':
@@ -419,6 +424,7 @@ AI: 5 times 6 is 30"""
                                 l.append(file)
 
                 if not l:
+                    ctx.command.reset_cooldown(ctx)
                     return await ctx.send('No Python and Java files found in that repository.')
 
                 await ctx.send('Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is.')
