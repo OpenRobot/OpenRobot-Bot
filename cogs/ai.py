@@ -341,7 +341,7 @@ AI: 5 times 6 is 30"""
                         recommendation['Code'] = code.content
                         recommendation['FromGithub'] = False
 
-                await MenuPages(CodeReviewPaginator(recommendations, per_page=1), try_send_in_dm=True, timeout=None).start(ctx)
+                await MenuPages(CodeReviewPaginator(recommendations, per_page=1), try_send_in_dm=True, timeout=None, reply="channel").start(ctx)
             except Exception as e:
                 ctx.command.reset_cooldown(ctx)
 

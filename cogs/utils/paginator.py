@@ -19,6 +19,7 @@ class ViewMenuPages(ui.View, menus.MenuPages):
         clear_buttons_after=False,
         force_paginate=False,
         try_send_in_dm=False,
+        reply=None,
     ):
         super().__init__(timeout=timeout)
         self._source = source
@@ -29,6 +30,7 @@ class ViewMenuPages(ui.View, menus.MenuPages):
         self.clear_buttons_after = clear_buttons_after
         self.force_paginate = force_paginate
         self.try_send_in_dm = try_send_in_dm
+        self.reply = reply
 
     async def start(self, ctx, *, channel=None, wait=False):
         # We wont be using wait, you can implement them yourself. This is to match the MenuPages signature.
@@ -50,15 +52,30 @@ class ViewMenuPages(ui.View, menus.MenuPages):
         return value
 
     async def send_initial_message(self, ctx, channel):
-        if self.try_send_in_dm:
-            try:
+        if self.reply == 'channel':
+            if self.try_send_in_dm:
+                try:
+                    page = await self._source.get_page(0)
+                    kwargs = await self._get_kwargs_from_page(page)
+                    self.message = await ctx.author.send(**kwargs)
+                except:
+                    page = await self._source.get_page(0)
+                    kwargs = await self._get_kwargs_from_page(page)
+                    self.message = await ctx.reply(**kwargs)
+            else:
                 page = await self._source.get_page(0)
                 kwargs = await self._get_kwargs_from_page(page)
-                self.message = await ctx.author.send(**kwargs)
-            except:
-                self.message = await super().send_initial_message(ctx, channel)
+                self.message = await ctx.reply(**kwargs)
         else:
-            self.message = await super().send_initial_message(ctx, channel)
+            if self.try_send_in_dm:
+                try:
+                    page = await self._source.get_page(0)
+                    kwargs = await self._get_kwargs_from_page(page)
+                    self.message = await ctx.author.send(**kwargs)
+                except:
+                    self.message = await super().send_initial_message(ctx, channel)
+            else:
+                self.message = await super().send_initial_message(ctx, channel)
 
         await self.update_buttons()
         return self.message
