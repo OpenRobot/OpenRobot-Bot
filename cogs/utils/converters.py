@@ -6,6 +6,7 @@ from discord.ext import commands
 from discord.ext.commands import Converter, Context
 from jishaku.codeblocks import codeblock_converter, Codeblock
 
+
 class ImageConverter(Converter):
     def __init__(self, **kwargs):
         self.options = kwargs
@@ -111,6 +112,7 @@ class AudioConverter(Converter):
 
         return None
 
+
 class CodeblockConverter(Converter):
     async def convert(self, ctx: Context, argument: str) -> Codeblock | str:
         x = re.findall(
@@ -122,16 +124,18 @@ class CodeblockConverter(Converter):
 
         if ctx.message.attachments:
             for attachment in ctx.message.attachments:
-                if attachment.content_type.startswith("text/x-python"): # For some reason its text/x-...
+                if attachment.content_type.startswith(
+                    "text/x-python"
+                ):  # For some reason its text/x-...
                     async with ctx.bot.session.get(attachment.url) as resp:
                         text = await resp.text()
 
-                    return Codeblock('python', text)
+                    return Codeblock("python", text)
                 elif attachment.content_type.startswith("text/x-java"):
                     async with ctx.bot.session.get(attachment.url) as resp:
                         text = await resp.text()
 
-                    return Codeblock('java', text)
+                    return Codeblock("java", text)
 
         return codeblock_converter(argument)
 

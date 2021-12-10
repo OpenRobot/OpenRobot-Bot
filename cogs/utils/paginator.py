@@ -52,7 +52,7 @@ class ViewMenuPages(ui.View, menus.MenuPages):
         return value
 
     async def send_initial_message(self, ctx, channel):
-        if self.reply == 'channel':
+        if self.reply == "channel":
             if self.try_send_in_dm:
                 try:
                     page = await self._source.get_page(0)
@@ -461,25 +461,29 @@ class CodeReviewPaginator(ListPageSource):
             color=menu.ctx.bot.color,
         )
 
-        embed.description = f"**File:** {entries['FilePath']}\n" if entries["FromGitHub"] else ""
+        embed.description = (
+            f"**File:** {entries['FilePath']}\n" if entries["FromGitHub"] else ""
+        )
 
-        embed.set_author(name='Your Code Review Results:', url=menu.ctx.message.jump_url)
+        embed.set_author(
+            name="Your Code Review Results:", url=menu.ctx.message.jump_url
+        )
 
-        RecommendationCategory = entries['RecommendationCategory']
+        RecommendationCategory = entries["RecommendationCategory"]
 
-        regex = re.findall(r'[A-Z]+', RecommendationCategory)
+        regex = re.findall(r"[A-Z]+", RecommendationCategory)
         regex = regex[1:]
 
         for i in regex:
-            RecommendationCategory = RecommendationCategory.replace(i, ' ' + i)
+            RecommendationCategory = RecommendationCategory.replace(i, " " + i)
 
         RecommendationCategory = RecommendationCategory.strip()
 
-        code = entries['Code'].split('\n')
+        code = entries["Code"].split("\n")
 
-        code = '\n'.join(code[entries['StartLine']-1:entries['EndLine']])
+        code = "\n".join(code[entries["StartLine"] - 1 : entries["EndLine"]])
 
-        RecommendationCategory = RecommendationCategory.replace('A W S', 'AWS')
+        RecommendationCategory = RecommendationCategory.replace("A W S", "AWS")
 
         embed.description += f"""
 **Recomendation:** {entries['Description']}
@@ -490,7 +494,7 @@ class CodeReviewPaginator(ListPageSource):
 **Category:** `{RecommendationCategory}`
         """
 
-        if entries.get('Severity'):
+        if entries.get("Severity"):
             embed.description += f"**Severity:** `{entries['Severity']}`"
 
         return embed

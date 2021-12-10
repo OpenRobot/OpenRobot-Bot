@@ -176,7 +176,11 @@ class OpenRobotHelp(commands.HelpCommand):
         else:
             embed.description = cog.description + "\n\n" if cog.description else ""
 
-        embed.description += f"Aliases: {', '.join([f'`{x}`' for x in cog.aliases])}" if cog.aliases else ""
+        embed.description += (
+            f"Aliases: {', '.join([f'`{x}`' for x in cog.aliases])}"
+            if cog.aliases
+            else ""
+        )
 
         embed.description += ", ".join(
             [f"`{command.qualified_name}`" for command in filtered]

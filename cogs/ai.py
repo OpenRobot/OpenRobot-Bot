@@ -28,8 +28,13 @@ from openrobot.api_wrapper import error
 openai.api_key = OPENAI_KEY
 
 # Regex:
-GIST_REGEX = re.compile(r'https?:\/\/gist\.github\.com\/(?P<author>.+)\/(?P<gist_id>[a-zA-Z0-9]+)(#file-(?P<file_name>.+))?')
-GITHUB_REGEX = re.compile(r'https?:\/\/github\.com\/(?P<author>[a-zA-Z0-9\d](?:[a-zA-Z0-9\d]|-(?=[a-zA-Z0-9\d])){0,38})\/(?P<repo>[A-Za-z0-9_.-]+)')
+GIST_REGEX = re.compile(
+    r"https?:\/\/gist\.github\.com\/(?P<author>.+)\/(?P<gist_id>[a-zA-Z0-9]+)(#file-(?P<file_name>.+))?"
+)
+GITHUB_REGEX = re.compile(
+    r"https?:\/\/github\.com\/(?P<author>[a-zA-Z0-9\d](?:[a-zA-Z0-9\d]|-(?=[a-zA-Z0-9\d])){0,38})\/(?P<repo>[A-Za-z0-9_.-]+)"
+)
+
 
 class AI(Cog, emoji="🤖"):
     def __init__(self, bot):
@@ -205,10 +210,29 @@ AI: 5 times 6 is 30"""
 
         await ctx.send(embed=embed)
 
-    @commands.command(name='review-code', aliases=['review_code', 'reviewcode', 'code-review', 'code-reviewer', 'codereview', 'codereviewer', 'code_review', 'code_reviewer'])
+    @commands.command(
+        name="review-code",
+        aliases=[
+            "review_code",
+            "reviewcode",
+            "code-review",
+            "code-reviewer",
+            "codereview",
+            "codereviewer",
+            "code_review",
+            "code_reviewer",
+        ],
+    )
     @commands.max_concurrency(1, commands.BucketType.user)
-    @commands.cooldown(1, 250, commands.BucketType.user) # 5 minute cooldown
-    async def review_code(self, ctx: commands.Context, *, code: CodeblockConverter = commands.Option(None, description='The code/link to be reviewed.')):
+    @commands.cooldown(1, 250, commands.BucketType.user)  # 5 minute cooldown
+    async def review_code(
+        self,
+        ctx: commands.Context,
+        *,
+        code: CodeblockConverter = commands.Option(
+            None, description="The code/link to be reviewed."
+        ),
+    ):
         """
         Reviews a code and sends suggestions to improve it.
 
@@ -219,82 +243,143 @@ AI: 5 times 6 is 30"""
         - [GitHub Gist](https://gist.github.com/)
         - [GitHub Repository](https://github.com/) (Public Repositories)
         - [Mystbin](https://mystb.in/)
-        
+
         Attachments are also supported.
         """
-        
-        async def task(ctx: commands.Context, code: Codeblock, *, repo_name: str = None, repo_code: dict[str, str] = None):
-            if not repo_name:
-                random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 50)))
 
-                name = f'codeguru-reviewer-{ctx.author.id}-{random_name}'
+        async def task(
+            ctx: commands.Context,
+            code: Codeblock,
+            *,
+            repo_name: str = None,
+            repo_code: dict[str, str] = None,
+        ):
+            if not repo_name:
+                random_name = "".join(
+                    random.choices(
+                        string.ascii_letters + string.digits, k=random.randint(10, 50)
+                    )
+                )
+
+                name = f"codeguru-reviewer-{ctx.author.id}-{random_name}"
 
                 create_repository_response = self.codecommit.create_repository(
-                    repositoryName = name,
-                    repositoryDescription = f'<p>Code Reviewer Repository for {ctx.author.name} (<a href="{ctx.message.jump_url}">{ctx.message.jump_url}</a>)</p>', # HTML
+                    repositoryName=name,
+                    repositoryDescription=f'<p>Code Reviewer Repository for {ctx.author.name} (<a href="{ctx.message.jump_url}">{ctx.message.jump_url}</a>)</p>',  # HTML
                 )
 
                 if ctx.debug:
-                    await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in create_repository_response.items()}, indent=4)), filename='create_repository_response.json'))
+                    await ctx.send(
+                        file=discord.File(
+                            StringIO(
+                                json.dumps(
+                                    {
+                                        str(k): str(v)
+                                        for k, v in create_repository_response.items()
+                                    },
+                                    indent=4,
+                                )
+                            ),
+                            filename="create_repository_response.json",
+                        )
+                    )
 
-                #branch_name = create_repository_response['repositoryMetadata']['defaultBranch']
+                # branch_name = create_repository_response['repositoryMetadata']['defaultBranch']
 
-                extension = 'py' if code.language in ['py', 'python'] else 'java'
+                extension = "py" if code.language in ["py", "python"] else "java"
 
-                branch_name = 'main'
+                branch_name = "main"
 
                 put_file_reponse = self.codecommit.put_file(
-                    repositoryName = name,
-                    branchName = branch_name,
-                    fileContent = code.content.encode(),
-                    filePath = f'main.{extension}',
-                    fileMode = 'NORMAL',
+                    repositoryName=name,
+                    branchName=branch_name,
+                    fileContent=code.content.encode(),
+                    filePath=f"main.{extension}",
+                    fileMode="NORMAL",
                 )
 
                 if ctx.debug:
-                    await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in put_file_reponse.items()}, indent=4)), filename='put_file_reponse.json'))
+                    await ctx.send(
+                        file=discord.File(
+                            StringIO(
+                                json.dumps(
+                                    {
+                                        str(k): str(v)
+                                        for k, v in put_file_reponse.items()
+                                    },
+                                    indent=4,
+                                )
+                            ),
+                            filename="put_file_reponse.json",
+                        )
+                    )
             else:
                 name = repo_name
 
-                branch_name = 'main'
+                branch_name = "main"
 
             try:
                 assosiate_repository_response = self.codeguru.associate_repository(
-                    Repository = {
-                        'CodeCommit': {
-                            'Name': name,
+                    Repository={
+                        "CodeCommit": {
+                            "Name": name,
                         },
                     },
                 )
 
                 if ctx.debug:
-                    await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in assosiate_repository_response.items()}, indent=4)), filename='assosiate_repository_response.json'))
+                    await ctx.send(
+                        file=discord.File(
+                            StringIO(
+                                json.dumps(
+                                    {
+                                        str(k): str(v)
+                                        for k, v in assosiate_repository_response.items()
+                                    },
+                                    indent=4,
+                                )
+                            ),
+                            filename="assosiate_repository_response.json",
+                        )
+                    )
 
-                AssociationArn = assosiate_repository_response['RepositoryAssociation']['AssociationArn']
+                AssociationArn = assosiate_repository_response["RepositoryAssociation"][
+                    "AssociationArn"
+                ]
 
                 response = self.codeguru.create_code_review(
-                    Name = name,
-                    RepositoryAssociationArn = AssociationArn,
-                    Type = {
-                        'RepositoryAnalysis': {
-                            'RepositoryHead': {
-                                'BranchName': branch_name,
+                    Name=name,
+                    RepositoryAssociationArn=AssociationArn,
+                    Type={
+                        "RepositoryAnalysis": {
+                            "RepositoryHead": {
+                                "BranchName": branch_name,
                             },
                         },
                     },
                 )
 
                 if ctx.debug:
-                    await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in response.items()}, indent=4)), filename='create_code_review.json'))
+                    await ctx.send(
+                        file=discord.File(
+                            StringIO(
+                                json.dumps(
+                                    {str(k): str(v) for k, v in response.items()},
+                                    indent=4,
+                                )
+                            ),
+                            filename="create_code_review.json",
+                        )
+                    )
 
-                CodeReviewArn = response['CodeReview']['CodeReviewArn']
+                CodeReviewArn = response["CodeReview"]["CodeReviewArn"]
 
                 while True:
                     response = self.codeguru.describe_code_review(
-                        CodeReviewArn = CodeReviewArn,
+                        CodeReviewArn=CodeReviewArn,
                     )
 
-                    if response['CodeReview']['State'].lower() == 'completed':
+                    if response["CodeReview"]["State"].lower() == "completed":
                         break
 
                     await asyncio.sleep(3)
@@ -307,41 +392,50 @@ AI: 5 times 6 is 30"""
                     try:
                         if token:
                             recommendation = self.codeguru.list_recommendations(
-                                NextToken = token,
-                                MaxResults = 100,
-                                CodeReviewArn = CodeReviewArn,
+                                NextToken=token,
+                                MaxResults=100,
+                                CodeReviewArn=CodeReviewArn,
                             )
                         else:
                             recommendation = self.codeguru.list_recommendations(
-                                MaxResults = 100,
-                                CodeReviewArn = CodeReviewArn,
+                                MaxResults=100,
+                                CodeReviewArn=CodeReviewArn,
                             )
 
-                        if not recommendation['RecommendationSummaries']:
+                        if not recommendation["RecommendationSummaries"]:
                             break
 
-                        recommendations.extend(recommendation['RecommendationSummaries'])
+                        recommendations.extend(
+                            recommendation["RecommendationSummaries"]
+                        )
 
-                        token = recommendation['NextToken']
+                        token = recommendation["NextToken"]
                     except:
                         break
 
                 if not recommendations:
                     try:
-                        return await ctx.author.send(f'No recommendations found for Code Review {ctx.message.jump_url}.')
+                        return await ctx.author.send(
+                            f"No recommendations found for Code Review {ctx.message.jump_url}."
+                        )
                     except:
                         return await ctx.reply("No recommendations found in the code.")
 
                 if repo_name and repo_code:
                     for recommendation in recommendations:
-                        recommendation['Code'] = repo_code[recommendation['FilePath']]
-                        recommendation['FromGitHub'] = True
+                        recommendation["Code"] = repo_code[recommendation["FilePath"]]
+                        recommendation["FromGitHub"] = True
                 else:
                     for recommendation in recommendations:
-                        recommendation['Code'] = code.content
-                        recommendation['FromGithub'] = False
+                        recommendation["Code"] = code.content
+                        recommendation["FromGithub"] = False
 
-                await MenuPages(CodeReviewPaginator(recommendations, per_page=1), try_send_in_dm=True, timeout=None, reply="channel").start(ctx)
+                await MenuPages(
+                    CodeReviewPaginator(recommendations, per_page=1),
+                    try_send_in_dm=True,
+                    timeout=None,
+                    reply="channel",
+                ).start(ctx)
             except Exception as e:
                 ctx.command.reset_cooldown(ctx)
 
@@ -349,130 +443,161 @@ AI: 5 times 6 is 30"""
                     raise e
 
                 try:
-                    return await ctx.author.send(f'Sorry. Something wen\'t wrong and I failed to create the code review for {ctx.message.jump_url}.')
+                    return await ctx.author.send(
+                        f"Sorry. Something wen't wrong and I failed to create the code review for {ctx.message.jump_url}."
+                    )
                 except:
-                    return await ctx.reply(f'Sorry. Something wen\'t wrong and I failed to create the code review.')
+                    return await ctx.reply(
+                        f"Sorry. Something wen't wrong and I failed to create the code review."
+                    )
             finally:
                 delete_repository_response = self.codecommit.delete_repository(
-                    repositoryName = name,
+                    repositoryName=name,
                 )
 
         if isinstance(code, str):
             if regex_result := GIST_REGEX.match(code):
-                author = regex_result.group('author')
-                gist_id = regex_result.group('gist_id')
-                file_name = regex_result.group('file_name')
+                author = regex_result.group("author")
+                gist_id = regex_result.group("gist_id")
+                file_name = regex_result.group("file_name")
 
                 if file_name:
-                    file_name = file_name.replace('-', '.')
+                    file_name = file_name.replace("-", ".")
 
                 l = [author, gist_id]
 
                 if file_name:
                     l.append(file_name)
 
-                async with self.bot.session.get('https://gist.githubusercontent.com/' + '/'.join(l)) as resp:
+                async with self.bot.session.get(
+                    "https://gist.githubusercontent.com/" + "/".join(l)
+                ) as resp:
                     if 200 >= resp.status < 300:
                         code = await resp.text()
                     else:
                         ctx.command.reset_cooldown(ctx)
-                        return await ctx.send('Invalid Gist URL.')
+                        return await ctx.send("Invalid Gist URL.")
             elif regex_result := GITHUB_REGEX.fullmatch(code):
-                author = regex_result.group('author')
-                repo = regex_result.group('repo')
-                
+                author = regex_result.group("author")
+                repo = regex_result.group("repo")
+
                 l = []
 
                 folders = []
 
-                async with self.bot.session.get(f'https://api.github.com/repos/{author}/{repo}/contents/') as resp:
+                async with self.bot.session.get(
+                    f"https://api.github.com/repos/{author}/{repo}/contents/"
+                ) as resp:
                     js = await resp.json()
 
                 if isinstance(js, dict) and resp.status != 200:
                     ctx.command.reset_cooldown(ctx)
 
-                    if (msg := js.get('message')) and msg != 'Not Found':
+                    if (msg := js.get("message")) and msg != "Not Found":
                         return await ctx.send(msg)
-                    elif msg == 'Not Found':
-                        return await ctx.send('Invalid GitHub URL.')
+                    elif msg == "Not Found":
+                        return await ctx.send("Invalid GitHub URL.")
                     else:
-                        return await ctx.send('Unknown error.')
+                        return await ctx.send("Unknown error.")
 
                 for file in js:
-                    if file['type'] == 'dir':
+                    if file["type"] == "dir":
                         folders.append(file)
-                    elif file['type'] == 'file':
-                        if file['name'].endswith(('.py', '.java')):
+                    elif file["type"] == "file":
+                        if file["name"].endswith((".py", ".java")):
                             l.append(file)
 
                 for folder in folders:
-                    async with self.bot.session.get(f'https://api.github.com/repos/{author}/{repo}/contents/{folder["path"]}') as resp:
+                    async with self.bot.session.get(
+                        f'https://api.github.com/repos/{author}/{repo}/contents/{folder["path"]}'
+                    ) as resp:
                         js = await resp.json()
 
                     if isinstance(js, dict) and resp.status != 200:
                         ctx.command.reset_cooldown(ctx)
 
-                        if (msg := js.get('message')) and msg != 'Not Found':
+                        if (msg := js.get("message")) and msg != "Not Found":
                             return await ctx.send(msg)
-                        elif msg == 'Not Found':
-                            return await ctx.send('Invalid GitHub URL.')
+                        elif msg == "Not Found":
+                            return await ctx.send("Invalid GitHub URL.")
 
                     for file in js:
-                        if file['type'] == 'dir':
+                        if file["type"] == "dir":
                             folders.append(file)
-                        elif file['type'] == 'file':
-                            if file['name'].endswith(('.py', '.java')):
+                        elif file["type"] == "file":
+                            if file["name"].endswith((".py", ".java")):
                                 l.append(file)
 
                 if not l:
                     ctx.command.reset_cooldown(ctx)
-                    return await ctx.send('No Python and Java files found in that repository.')
+                    return await ctx.send(
+                        "No Python and Java files found in that repository."
+                    )
 
-                await ctx.send('Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is.')
+                await ctx.send(
+                    "Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is."
+                )
 
-                random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 50)))
+                random_name = "".join(
+                    random.choices(
+                        string.ascii_letters + string.digits, k=random.randint(10, 50)
+                    )
+                )
 
-                name = f'codeguru-reviewer-{ctx.author.id}-{random_name}'
+                name = f"codeguru-reviewer-{ctx.author.id}-{random_name}"
 
                 create_repository_response = self.codecommit.create_repository(
-                    repositoryName = name,
-                    repositoryDescription = f'<p>Code Reviewer Repository for {ctx.author.name} (<a href="{ctx.message.jump_url}">{ctx.message.jump_url}</a>)</p>', # HTML
+                    repositoryName=name,
+                    repositoryDescription=f'<p>Code Reviewer Repository for {ctx.author.name} (<a href="{ctx.message.jump_url}">{ctx.message.jump_url}</a>)</p>',  # HTML
                 )
 
                 if ctx.debug:
-                    await ctx.send(file=discord.File(StringIO(json.dumps({str(k): str(v) for k, v in create_repository_response.items()}, indent=4)), filename='create_repository_response.json'))
+                    await ctx.send(
+                        file=discord.File(
+                            StringIO(
+                                json.dumps(
+                                    {
+                                        str(k): str(v)
+                                        for k, v in create_repository_response.items()
+                                    },
+                                    indent=4,
+                                )
+                            ),
+                            filename="create_repository_response.json",
+                        )
+                    )
 
-                branch_name = 'main'
+                branch_name = "main"
 
                 d = {}
 
                 commit_id = None
 
                 for file in l:
-                    async with self.bot.session.get(file['download_url']) as resp:
+                    async with self.bot.session.get(file["download_url"]) as resp:
                         content = await resp.text()
 
-                    d[file['path']] = content
+                    d[file["path"]] = content
 
                     if not commit_id:
                         put_file_reponse = self.codecommit.put_file(
-                            repositoryName = name,
-                            branchName = branch_name,
-                            fileContent = content.encode(),
-                            filePath = file['path'],
-                            fileMode = 'NORMAL',
+                            repositoryName=name,
+                            branchName=branch_name,
+                            fileContent=content.encode(),
+                            filePath=file["path"],
+                            fileMode="NORMAL",
                         )
                     else:
                         put_file_reponse = self.codecommit.put_file(
-                            repositoryName = name,
-                            branchName = branch_name,
-                            fileContent = content.encode(),
-                            filePath = file['path'],
-                            fileMode = 'NORMAL',
-                            parentCommitId = commit_id,
+                            repositoryName=name,
+                            branchName=branch_name,
+                            fileContent=content.encode(),
+                            filePath=file["path"],
+                            fileMode="NORMAL",
+                            parentCommitId=commit_id,
                         )
 
-                    commit_id = put_file_reponse['commitId']
+                    commit_id = put_file_reponse["commitId"]
 
                 await task(ctx, None, repo_name=name, repo_code=d)
 
@@ -482,7 +607,7 @@ AI: 5 times 6 is 30"""
                     mystbin = await self.bot.mystbin.get(code)
                 except:
                     ctx.command.reset_cooldown(ctx)
-                    return await ctx.send('Could not recognize the `code` argument.')
+                    return await ctx.send("Could not recognize the `code` argument.")
                 else:
                     code = mystbin.paste_content
 
@@ -492,35 +617,54 @@ AI: 5 times 6 is 30"""
                     self.language = None
                     self.message = None
 
-                @discord.ui.button(label='Python', emoji='<:python:918350483096236043>', style=discord.ButtonStyle.blurple)
-                async def python(self, button: discord.ui.Button, interaction: discord.Interaction):
-                    self.language = 'py'
+                @discord.ui.button(
+                    label="Python",
+                    emoji="<:python:918350483096236043>",
+                    style=discord.ButtonStyle.blurple,
+                )
+                async def python(
+                    self, button: discord.ui.Button, interaction: discord.Interaction
+                ):
+                    self.language = "py"
 
                     await self.message.delete()
                     self.stop()
 
-                @discord.ui.button(label='Java', emoji='<:java:918350372370796615>', style=discord.ButtonStyle.blurple)
-                async def java(self, button: discord.ui.Button, interaction: discord.Interaction):
-                    self.language = 'java'
+                @discord.ui.button(
+                    label="Java",
+                    emoji="<:java:918350372370796615>",
+                    style=discord.ButtonStyle.blurple,
+                )
+                async def java(
+                    self, button: discord.ui.Button, interaction: discord.Interaction
+                ):
+                    self.language = "java"
 
                     await self.message.delete()
                     self.stop()
 
             view = View()
 
-            view.message = await ctx.send('What language is this code written in? If you select the wrong language, things might break.', view=view)
+            view.message = await ctx.send(
+                "What language is this code written in? If you select the wrong language, things might break.",
+                view=view,
+            )
             await view.wait()
 
             code = Codeblock(view.language, code)
         elif isinstance(code, Codeblock):
-            if code.language not in ['java', 'python', 'py']:
+            if code.language not in ["java", "python", "py"]:
                 ctx.command.reset_cooldown(ctx)
-                return await ctx.send('Currently only Java and Python code is supported.')
+                return await ctx.send(
+                    "Currently only Java and Python code is supported."
+                )
         else:
             ctx.command.reset_cooldown(ctx)
-            return await ctx.send('Could not recognize the `code` argument.')
+            return await ctx.send("Could not recognize the `code` argument.")
 
-        await ctx.send('Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is.')
+        await ctx.send(
+            "Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is."
+        )
 
         await task(ctx, code)
 
