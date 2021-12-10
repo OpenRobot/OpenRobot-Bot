@@ -206,6 +206,7 @@ AI: 5 times 6 is 30"""
         await ctx.send(embed=embed)
 
     @commands.command(name='review-code', aliases=['review_code', 'reviewcode', 'code-review', 'code-reviewer', 'codereview', 'codereviewer', 'code_review', 'code_reviewer'])
+    @commands.max_concurrency(1, commands.BucketType.user)
     @commands.cooldown(1, 250, commands.BucketType.user) # 5 minute cooldown
     async def review_code(self, ctx: commands.Context, *, code: CodeblockConverter = commands.Option(None, description='The code/link to be reviewed.')):
         """
@@ -451,7 +452,7 @@ AI: 5 times 6 is 30"""
                     async with self.bot.session.get(file['download_url']) as resp:
                         content = await resp.text()
 
-                    d['path'] = content
+                    d[file['path']] = content
 
                     if not commit_id:
                         put_file_reponse = self.codecommit.put_file(
@@ -470,7 +471,7 @@ AI: 5 times 6 is 30"""
                             fileMode = 'NORMAL',
                             parentCommitId = commit_id,
                         )
-                        
+
                     commit_id = put_file_reponse['commitId']
 
                 await task(ctx, None, repo_name=name, repo_code=d)
