@@ -456,6 +456,8 @@ class CodeReviewPaginator(ListPageSource):
         for i in regex:
             RecommendationCategory = RecommendationCategory.replace(i, ' ' + i)
 
+        RecommendationCategory = RecommendationCategory.strip()
+
         code = entries['Code'].split('\n')
 
         code = '\n'.join(code[entries['StartLine']-1:entries['EndLine']])
