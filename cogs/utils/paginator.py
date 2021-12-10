@@ -469,7 +469,9 @@ class CodeReviewPaginator(ListPageSource):
 {code}```
 
 **Category:** `{RecommendationCategory}`
-**Severity:** `{entries['Severity']}`
         """
+
+        if entries.get('Severity'):
+            embed.description += f"**Severity:** `{entries['Severity']}`"
 
         return embed
