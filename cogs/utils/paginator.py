@@ -9,7 +9,7 @@ from discord.ext.menus import ListPageSource, Menu
 import humanize
 
 
-class ViewMenuPages(ui.View, menus.MenuPages):
+class BaseViewMenuPages(ui.View, menus.MenuPages):
     def __init__(
         self,
         source,
@@ -32,12 +32,17 @@ class ViewMenuPages(ui.View, menus.MenuPages):
         self.try_send_in_dm = try_send_in_dm
         self.reply = reply
 
+    async def prepare(self):
+        pass
+
     async def start(self, ctx, *, channel=None, wait=False):
         # We wont be using wait, you can implement them yourself. This is to match the MenuPages signature.
         await self._source._prepare_once()
+        await self.prepare()
 
         channel = channel or ctx.channel
         self.ctx = ctx
+
         self.message = await self.send_initial_message(ctx, channel)
 
     async def _get_kwargs_from_page(self, page):
@@ -137,6 +142,11 @@ class ViewMenuPages(ui.View, menus.MenuPages):
         else:
             return True
 
+
+BaseMenuPages = BaseViewMenuPages
+
+
+class ViewMenuPages(BaseViewMenuPages):
     @ui.button(
         emoji="<:openrobot_rewind_button:899931475720413187>",
         style=discord.ButtonStyle.gray,
@@ -232,6 +242,153 @@ class ViewMenuPages(ui.View, menus.MenuPages):
 
 
 MenuPages = ViewMenuPages
+
+
+class CodeReviewPages(BaseViewMenuPages):
+    @ui.button(emoji="\U0001f44d", style=discord.ButtonStyle.green, row=1)
+    async def good_recommendation(self, button, interaction):
+        bot = self.ctx.bot
+
+        AI = bot.get_cog("AI")
+
+        codeguru = AI.codeguru
+
+        entries = self._source.entries
+
+        entry = entries[self.current_page]
+
+        CodeReviewArn = entry["CodeReviewArn"]
+
+        RecommendationId = entry["RecommendationId"]
+
+        codeguru.put_recommendation_feedback(
+            CodeReviewArn=CodeReviewArn,
+            RecommendationId=RecommendationId,
+            Reactions=['ThumbsUp']
+        )
+
+        button.disabled = True
+
+        await interaction.message.edit(view=self)
+
+    @ui.button(emoji="\U0001f44e", style=discord.ButtonStyle.green, row=1)
+    async def bad_recommendation(self, button, interaction):
+        bot = self.ctx.bot
+
+        AI = bot.get_cog("AI")
+
+        codeguru = AI.codeguru
+
+        entries = self._source.entries
+
+        entry = entries[self.current_page]
+
+        CodeReviewArn = entry["CodeReviewArn"]
+
+        RecommendationId = entry["RecommendationId"]
+
+        codeguru.put_recommendation_feedback(
+            CodeReviewArn=CodeReviewArn,
+            RecommendationId=RecommendationId,
+            Reactions=['ThumbsDown']
+        )
+
+        button.disabled = True
+
+        await interaction.message.edit(view=self)
+
+    @ui.button(
+        emoji="<:openrobot_rewind_button:899931475720413187>",
+        style=discord.ButtonStyle.gray,
+        row=2,
+    )
+    async def first_page(self, button, interaction):
+        await self.show_page(0)
+        await self.update_buttons()
+
+    @ui.button(
+        emoji="<:openrobot_previous_button:899937597877542922>",
+        label="Previous",
+        style=discord.ButtonStyle.gray,
+        row=2,
+    )
+    async def before_page(self, button, interaction):
+        await self.show_checked_page(self.current_page - 1)
+        await self.update_buttons()
+
+    @ui.button(label="\u200b", style=discord.ButtonStyle.gray, row=2)
+    async def page_button(self, button, interaction):
+        await interaction.response.defer()
+
+        m = await self.ctx.send(
+            f"Enter page number you would like to see (1/{self._source.get_max_pages()})"
+        )
+
+        def check(msg):
+            page_num = self.try_int(msg.content)
+            if page_num is None:
+                return False
+            else:
+                return 1 <= page_num <= self._source.get_max_pages()
+
+        try:
+            msg = await self.ctx.bot.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await m.delete()
+            return await self.ctx.send("Took to long...", delete_after=10)
+        else:
+            page_num = int(msg.content) - 1
+
+            await self.show_checked_page(page_num)
+
+        try:
+            await m.delete()
+        except:
+            pass
+
+        try:
+            await msg.delete()
+        except:
+            pass
+
+        await self.update_buttons()
+
+    @ui.button(
+        emoji="<:openrobot_next_button:899878229437984799>",
+        label="Next",
+        style=discord.ButtonStyle.gray,
+        row=2,
+    )
+    async def next_page(self, button, interaction):
+        await self.show_checked_page(self.current_page + 1)
+        await self.update_buttons()
+
+    @ui.button(
+        emoji="<:openrobot_fast_forward_button:899878227777060894>",
+        style=discord.ButtonStyle.gray,
+        row=2,
+    )
+    async def last_page(self, button, interaction):
+        await self.show_page(self._source.get_max_pages() - 1)
+        await self.update_buttons()
+
+    @ui.button(
+        emoji="<:openrobot_stop_button:899878227969974322>",
+        label="Quit",
+        style=discord.ButtonStyle.red,
+        row=3,
+    )
+    async def stop_page(self, button, interaction):
+        self.stop()
+        if self.delete_message_after:
+            await self.message.delete(delay=0)
+        elif self.clear_buttons_after is True:
+            await self.message.edit(view=None)
+        else:
+            for child in self.children:
+                child.disabled = True
+
+            await self.message.edit(view=self)
 
 
 class ClassicPaginator(ListPageSource):

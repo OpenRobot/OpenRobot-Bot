@@ -22,6 +22,7 @@ from cogs.utils import (
     CodeblockConverter,
     TranslateLanguagesPagniator,
     CodeReviewPaginator,
+    CodeReviewPages,
 )
 from openrobot.api_wrapper import error
 
@@ -424,13 +425,15 @@ AI: 5 times 6 is 30"""
                 if repo_name and repo_code:
                     for recommendation in recommendations:
                         recommendation["Code"] = repo_code[recommendation["FilePath"]]
+                        recommendation["CodeReviewArn"] = CodeReviewArn
                         recommendation["FromGitHub"] = True
                 else:
                     for recommendation in recommendations:
                         recommendation["Code"] = code.content
+                        recommendation["CodeReviewArn"] = CodeReviewArn
                         recommendation["FromGithub"] = False
 
-                await MenuPages(
+                await CodeReviewPages(
                     CodeReviewPaginator(recommendations, per_page=1),
                     try_send_in_dm=True,
                     timeout=None,
