@@ -303,7 +303,7 @@ class CodeReviewPages(BaseViewMenuPages):
         )
 
         button.disabled = True
-        self.bad_recommendation.disabled = False
+        self.good_recommendation.disabled = False
 
         await interaction.message.edit(view=self)
 
