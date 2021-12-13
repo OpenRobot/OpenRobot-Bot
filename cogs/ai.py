@@ -431,7 +431,7 @@ AI: 5 times 6 is 30"""
                     for recommendation in recommendations:
                         recommendation["Code"] = code.content
                         recommendation["CodeReviewArn"] = CodeReviewArn
-                        recommendation["FromGithub"] = False
+                        recommendation["FromGitHub"] = False
 
                 await CodeReviewPages(
                     CodeReviewPaginator(recommendations, per_page=1),
