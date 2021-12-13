@@ -435,8 +435,9 @@ AI: 5 times 6 is 30"""
 
                 await CodeReviewPages(
                     CodeReviewPaginator(recommendations, per_page=1),
-                    try_send_in_dm=True,
                     timeout=None,
+                    force_paginate=True,
+                    try_send_in_dm=True,
                     reply="channel",
                 ).start(ctx)
             except Exception as e:
