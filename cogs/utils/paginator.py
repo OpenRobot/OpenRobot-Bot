@@ -5,7 +5,7 @@ import json
 import re
 from discord import ui
 from discord.ext import menus
-from discord.ext.menus import ListPageSource, Menu
+from discord.ext.menus import ListPageSource
 import humanize
 
 
@@ -93,21 +93,29 @@ class BaseViewMenuPages(ui.View, menus.MenuPages):
         self.page_button.label = (
             f"{self.current_page + 1}/{self._source.get_max_pages()}"
         )
-        if self.current_page == 0:
+
+        if len(self._source.get_max_pages()) == 1:
             self.first_page.disabled = True
             self.before_page.disabled = True
-            self.last_page.disabled = False
-            self.next_page.disabled = False
-        elif self.current_page == (self._source.get_max_pages() - 1):
+            self.page_button.disabled = True
             self.last_page.disabled = True
             self.next_page.disabled = True
-            self.first_page.disabled = False
-            self.before_page.disabled = False
         else:
-            self.last_page.disabled = False
-            self.next_page.disabled = False
-            self.first_page.disabled = False
-            self.before_page.disabled = False
+            if self.current_page == 0:
+                self.first_page.disabled = True
+                self.before_page.disabled = True
+                self.last_page.disabled = False
+                self.next_page.disabled = False
+            elif self.current_page == (self._source.get_max_pages() - 1):
+                self.last_page.disabled = True
+                self.next_page.disabled = True
+                self.first_page.disabled = False
+                self.before_page.disabled = False
+            else:
+                self.last_page.disabled = False
+                self.next_page.disabled = False
+                self.first_page.disabled = False
+                self.before_page.disabled = False
 
         await self.message.edit(view=self)
 
@@ -245,7 +253,7 @@ MenuPages = ViewMenuPages
 
 
 class CodeReviewPages(BaseViewMenuPages):
-    @ui.button(emoji="\U0001f44d", style=discord.ButtonStyle.green, row=1)
+    @ui.button(emoji="\U0001f44d", style=discord.ButtonStyle.blurple, row=1)
     async def good_recommendation(self, button, interaction):
         bot = self.ctx.bot
 
@@ -268,10 +276,11 @@ class CodeReviewPages(BaseViewMenuPages):
         )
 
         button.disabled = True
+        self.bad_recommendation.disabled = False
 
         await interaction.message.edit(view=self)
 
-    @ui.button(emoji="\U0001f44e", style=discord.ButtonStyle.green, row=1)
+    @ui.button(emoji="\U0001f44e", style=discord.ButtonStyle.blurple, row=1)
     async def bad_recommendation(self, button, interaction):
         bot = self.ctx.bot
 
@@ -294,6 +303,7 @@ class CodeReviewPages(BaseViewMenuPages):
         )
 
         button.disabled = True
+        self.bad_recommendation.disabled = False
 
         await interaction.message.edit(view=self)
 
