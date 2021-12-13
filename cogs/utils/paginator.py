@@ -94,7 +94,7 @@ class BaseViewMenuPages(ui.View, menus.MenuPages):
             f"{self.current_page + 1}/{self._source.get_max_pages()}"
         )
 
-        if len(self._source.get_max_pages()) == 1:
+        if len(self._source.get_max_pages()) <= 1:
             self.first_page.disabled = True
             self.before_page.disabled = True
             self.page_button.disabled = True
