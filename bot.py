@@ -1322,12 +1322,9 @@ async def spotify(
     def get_possible_members_in_same_session(spotify: discord.Spotify):
         l = []
 
-        for user in bot.users:
-            if user == member:
+        for mem in bot.get_all_members():
+            if mem == member:
                 continue
-
-            guild = user.mutual_guilds[0]
-            mem = guild.get_member(user.id)
 
             spot = discord.utils.find(lambda a: isinstance(a, discord.Spotify), mem.activities)
 
