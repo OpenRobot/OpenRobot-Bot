@@ -1323,7 +1323,7 @@ async def spotify(
         l = []
 
         for mem in bot.get_all_members():
-            if mem == member:
+            if mem.id == member.id: # idk it wont work, so yeah...
                 continue
 
             spot = discord.utils.find(lambda a: isinstance(a, discord.Spotify), mem.activities)
