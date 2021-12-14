@@ -328,6 +328,7 @@ async def activity(
     channel: discord.VoiceChannel = commands.Option(
         description="The voice channel to start the activity. Defaults to the channel you are in."
     ),
+    *,
     activity: typing.Literal[
         "Watch Together",
         "Poker Night",
@@ -339,8 +340,46 @@ async def activity(
         "Checkers",
         "Fishington",
         "Betrayal",
-    ] = commands.Option(description="The activity to start."),
+    ] = commands.Option(None, description="The activity to start."),
 ):
+    if channel.permissions_for(ctx.me).create_instant_invite is False:
+        return await ctx.send(f"I need the `Create Invite` permissions for {channel.mention} to start the activity!")
+
+    if activity is None:
+        activities = discord_activity.ActivityType.__dict__['_member_names_']
+
+        class Select(discord.ui.Select):
+            def __init__(self):
+                super().__init__(
+                    placeholder="Select an activity",
+                    options=[discord.SelectOption(label=x.replace('_', ' ').title(), description=f"Start a {x.replace('_', ' ').title()} activity.") for x in activities],
+                )
+
+            async def callback(self, interaction: discord.Interaction):
+                nonlocal activity
+                activity = self.values[0]
+
+                await interaction.message.delete()
+
+        class View(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=None)
+
+                self.add_item(Select())
+
+            async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                if interaction.user != ctx.author and not await bot.is_owner(ctx.author):
+                    await interaction.response.send_message("This is not your interaction!", ephemeral=True)
+
+                    return False
+
+                return True
+
+        view = View()
+        await ctx.send('Please select an activity to start.', embed=view)
+
+        await view.wait()
+
     act = getattr(discord_activity.ActivityType, activity.replace(" ", "_").lower())
 
     try:
