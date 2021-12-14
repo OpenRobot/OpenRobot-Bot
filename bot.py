@@ -336,12 +336,16 @@ async def system(ctx: commands.Context):
     async with ctx.typing():
         embed = discord.Embed(color=bot.color)
 
+        msg = await ctx.send("Retrieving Basic Information...")
+
         embed.description = f"""```yml
 Python Version: Python {platform.python_version()}
 Discord.py Version: {discord.__version__}
 Guilds: {len(bot.guilds)}
 Members: {len(list(bot.get_all_members()))}```
         """
+
+        await msg.edit(content="Retrieving System Information...")
 
         uname = platform.uname()
         system_name = uname.system
@@ -358,6 +362,8 @@ Machine: {machine}
 Processor: {processor}```
         """,
         )
+
+        await msg.edit(content="Retrieving CPU Information...")
 
         physical_cores = psutil.cpu_count(logical=False)
         total_cores = psutil.cpu_count(logical=True)
@@ -378,6 +384,8 @@ Usage: {cpu_usage}```
         """,
         )
 
+        await msg.edit(content="Retrieving Memory Information...")
+
         svmem = psutil.virtual_memory()
         total_mem = f"{get_size(svmem.total)}"
         available_mem = f"{get_size(svmem.available)}"
@@ -394,6 +402,8 @@ Percentage: {mem_perc}```
         """,
         )
 
+        await msg.edit(content="Retrieving Code Information...")
+
         line_count = bot.line_count()
 
         embed.add_field(
@@ -407,6 +417,8 @@ Coroutines: {line_count.coroutines}
 Comments: {line_count.comments}```
         """,
         )
+
+        await msg.edit(content="Retrieving Disk Information...")
 
         disk_io = psutil.disk_io_counters()
         disk_io_bytes_read = f"{get_size(disk_io.read_bytes)}"
@@ -429,6 +441,8 @@ Read: {disk_io_bytes_read}
 Send: {disk_io_bytes_send}```
         """,
         )
+
+        await msg.edit(content="Retrieving Network/Speedtest Information...")
 
         proc = await asyncio.create_subprocess_shell(
             "speedtest -f json",
@@ -510,6 +524,8 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
             )
 
         embed.set_footer(text=f"PID: {os.getpid()}")
+
+        await msg.delete()
 
         await ctx.send(embed=embed)
 
