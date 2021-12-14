@@ -1322,8 +1322,10 @@ async def spotify(
     def get_possible_members_in_same_session(member, spotify: discord.Spotify):
         l = []
 
+        member_checked = []
+
         for mem in bot.get_all_members():
-            if mem.id == member.id: # idk it wont work, so yeah...
+            if mem.id == member.id or mem in member_checked: # idk it wont work, so yeah...
                 continue
 
             spot = discord.utils.find(lambda a: isinstance(a, discord.Spotify), mem.activities)
@@ -1331,6 +1333,8 @@ async def spotify(
             if spot:
                 if spot._sync_id == spotify._sync_id:
                     l.append(member)
+
+            member_checked.append(mem)
 
         return l
 
