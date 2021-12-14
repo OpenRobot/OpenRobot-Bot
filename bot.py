@@ -336,7 +336,7 @@ async def system(ctx: commands.Context):
     async with ctx.typing():
         embed = discord.Embed(color=bot.color)
 
-        msg = await ctx.send("Retrieving Basic Information...")
+        msg = await ctx.send("Retrieving Basic Information...", allowed_mentions=discord.AllowedMentions.none())
 
         embed.description = f"""```yml
 Python Version: Python {platform.python_version()}
@@ -345,7 +345,7 @@ Guilds: {len(bot.guilds)}
 Members: {len(list(bot.get_all_members()))}```
         """
 
-        await msg.edit(content="Retrieving System Information...")
+        await msg.edit(content="Retrieving System Information...", allowed_mentions=discord.AllowedMentions.none())
 
         uname = platform.uname()
         system_name = uname.system
@@ -363,7 +363,7 @@ Processor: {processor}```
         """,
         )
 
-        await msg.edit(content="Retrieving CPU Information...")
+        await msg.edit(content="Retrieving CPU Information...", allowed_mentions=discord.AllowedMentions.none())
 
         physical_cores = psutil.cpu_count(logical=False)
         total_cores = psutil.cpu_count(logical=True)
@@ -384,7 +384,7 @@ Usage: {cpu_usage}```
         """,
         )
 
-        await msg.edit(content="Retrieving Memory Information...")
+        await msg.edit(content="Retrieving Memory Information...", allowed_mentions=discord.AllowedMentions.none())
 
         svmem = psutil.virtual_memory()
         total_mem = f"{get_size(svmem.total)}"
@@ -404,7 +404,7 @@ Percentage: {mem_perc}```
         """,
         )
 
-        await msg.edit(content="Retrieving Code Information...")
+        await msg.edit(content="Retrieving Code Information...", allowed_mentions=discord.AllowedMentions.none())
 
         line_count = bot.line_count()
 
@@ -420,7 +420,7 @@ Comments: {line_count.comments}```
         """,
         )
 
-        await msg.edit(content="Retrieving Disk Information...")
+        await msg.edit(content="Retrieving Disk Information...", allowed_mentions=discord.AllowedMentions.none())
 
         disk_io = psutil.disk_io_counters()
         disk_io_bytes_read = f"{get_size(disk_io.read_bytes)}"
@@ -444,7 +444,7 @@ Send: {disk_io_bytes_send}```
         """,
         )
 
-        await msg.edit(content="Retrieving Network/Speedtest Information...")
+        await msg.edit(content="Retrieving Network/Speedtest Information...", allowed_mentions=discord.AllowedMentions.none())
 
         proc = await asyncio.create_subprocess_shell(
             "speedtest -f json",
