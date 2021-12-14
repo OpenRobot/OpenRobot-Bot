@@ -1319,6 +1319,20 @@ async def spotify(
             for embed in embeds:
                 await interaction.followup.send(embed=embed, ephemeral=True)
 
+    def get_possible_members_in_same_session(spotify: discord.Spotify):
+        l = []
+
+        for user in bot.users:
+            guild = user.mutual_guilds[0]
+            member = guild.get_member(user.id)
+
+            spot = discord.utils.find(lambda a: isinstance(a, discord.Spotify), member.activities)
+
+            if spot == spotify:
+                l.append(member)
+
+        return l
+
     if sync:
         latest_spotify = None
 
@@ -1395,7 +1409,7 @@ async def spotify(
                         "cover_url": spotify.album_cover_url,
                         "duration_seconds": spotify.duration.seconds,
                         "start_timestamp": spotify.start.timestamp(),
-                        "artists": spotify.artists[0],
+                        "artists": spotify.artists,
                     }
 
                     async with bot.session.get(
@@ -1411,6 +1425,18 @@ async def spotify(
                     embed = msg.embeds[0]
 
                     embed.set_image(url=url)
+
+                    embed.description = '\n'.join(embed.description.split('\n')[:-1])
+
+                    members_listening = get_possible_members_in_same_session(spotify)
+
+                    embed.description += '> \n> **Possible Members Listening:** '
+
+                    if not members_listening:
+                        embed.description += 'None.'
+                    else:
+                        for member in members_listening:
+                            embed.description += f'\n> - {member.mention} - `{member}`'
 
                     # if is_new:
                     try:
@@ -1437,7 +1463,7 @@ async def spotify(
                         "cover_url": spotify.album_cover_url,
                         "duration_seconds": spotify.duration.seconds,
                         "start_timestamp": spotify.start.timestamp(),
-                        "artists": spotify.artists[0],
+                        "artists": spotify.artists,
                     }
 
                     async with bot.session.get(
@@ -1519,6 +1545,16 @@ async def spotify(
 > **Artists:** {artists}
                     """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
+                    members_listening = get_possible_members_in_same_session(spotify)
+
+                    embed.description += '> \n> **Possible Members Listening:** '
+
+                    if not members_listening:
+                        embed.description += 'None.'
+                    else:
+                        for member in members_listening:
+                            embed.description += f'\n> - {member.mention} - `{member}`'
+
                     embed.set_thumbnail(url=spotify.album_cover_url)
 
                     if is_new:
@@ -1550,7 +1586,7 @@ async def spotify(
                     "cover_url": spotify.album_cover_url,
                     "duration_seconds": spotify.duration.seconds,
                     "start_timestamp": spotify.start.timestamp(),
-                    "artists": spotify.artists[0],
+                    "artists": spotify.artists,
                 }
 
                 async with bot.session.get(
@@ -1632,6 +1668,16 @@ async def spotify(
 > **Artists:** {artists}
                 """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
+                members_listening = get_possible_members_in_same_session(spotify)
+
+                embed.description += '> \n> **Possible Members Listening:** '
+
+                if not members_listening:
+                    embed.description += 'None.'
+                else:
+                    for member in members_listening:
+                        embed.description += f'\n> - {member.mention} - `{member}`'
+
                 embed.set_thumbnail(url=spotify.album_cover_url)
 
                 view = StopView(f"{spotify.title} {spotify.artists[0]}")
@@ -1653,7 +1699,7 @@ async def spotify(
             "cover_url": spotify.album_cover_url,
             "duration_seconds": spotify.duration.seconds,
             "start_timestamp": spotify.start.timestamp(),
-            "artists": spotify.artists[0],
+            "artists": spotify.artists,
         }
 
         async with bot.session.get(
@@ -1730,6 +1776,16 @@ async def spotify(
 > **Listening Since:** {discord.utils.format_dt(spotify.start, style="F")} [{discord.utils.format_dt(spotify.start, style="R")}]
 > **Artists:** {artists}
         """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
+
+        members_listening = get_possible_members_in_same_session(spotify)
+
+        embed.description += '> \n> **Possible Members Listening:** '
+
+        if not members_listening:
+            embed.description += 'None.'
+        else:
+            for member in members_listening:
+                embed.description += f'\n> - {member.mention} - `{member}`'
 
         embed.set_thumbnail(url=spotify.album_cover_url)
 
