@@ -361,6 +361,8 @@ async def activity(
 
                 await interaction.message.delete()
 
+                self.view.stop()
+
         class View(discord.ui.View):
             def __init__(self):
                 super().__init__(timeout=None)
