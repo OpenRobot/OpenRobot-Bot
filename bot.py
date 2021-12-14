@@ -1329,7 +1329,7 @@ async def spotify(
             spot = discord.utils.find(lambda a: isinstance(a, discord.Spotify), mem.activities)
 
             if spot:
-                if spot._session_id == spotify._session_id:
+                if spot._sync_id == spotify._sync_id:
                     l.append(member)
 
         return l
