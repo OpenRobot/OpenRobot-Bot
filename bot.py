@@ -431,6 +431,8 @@ Comments: {line_count.comments}```
         total_gib = total // (2**30)
         used_gib = used // (2**30)
         free_gib = free // (2**30)
+        percentage_used = used_gib/total_gib * 100
+        percentage_free = free_gib/total_gib * 100
 
         embed.add_field(
             name="Disk:",
@@ -438,6 +440,7 @@ Comments: {line_count.comments}```
 Total: {total_gib} GiB
 Used: {used_gib} GiB
 Free: {free_gib} GiB
+Percentage Used: {round(percentage_used, 1)}%
 
 Read: {disk_io_bytes_read}
 Send: {disk_io_bytes_send}```
