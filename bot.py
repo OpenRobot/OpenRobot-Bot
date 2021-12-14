@@ -1320,6 +1320,8 @@ async def spotify(
                 await interaction.followup.send(embed=embed, ephemeral=True)
 
     def get_possible_members_in_same_session(member, spotify: discord.Spotify):
+        return [] # For now, just return a empty list. TODO: Work on this later
+
         l = []
 
         member_checked = []
