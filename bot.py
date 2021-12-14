@@ -1319,7 +1319,7 @@ async def spotify(
             for embed in embeds:
                 await interaction.followup.send(embed=embed, ephemeral=True)
 
-    def get_possible_members_in_same_session(spotify: discord.Spotify):
+    def get_possible_members_in_same_session(member, spotify: discord.Spotify):
         l = []
 
         for mem in bot.get_all_members():
@@ -1429,7 +1429,7 @@ async def spotify(
 
                     embed.description = '\n'.join(embed.description.split('\n')[:-1])
 
-                    members_listening = get_possible_members_in_same_session(spotify)
+                    members_listening = get_possible_members_in_same_session(member, spotify)
 
                     embed.description += '> \n> **Possible Members Listening:** '
 
@@ -1546,7 +1546,7 @@ async def spotify(
 > **Artists:** {artists}
                     """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-                    members_listening = get_possible_members_in_same_session(spotify)
+                    members_listening = get_possible_members_in_same_session(member, spotify)
 
                     embed.description += '> \n> **Possible Members Listening:** '
 
@@ -1669,7 +1669,7 @@ async def spotify(
 > **Artists:** {artists}
                 """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-                members_listening = get_possible_members_in_same_session(spotify)
+                members_listening = get_possible_members_in_same_session(member, spotify)
 
                 embed.description += '> \n> **Possible Members Listening:** '
 
@@ -1778,7 +1778,7 @@ async def spotify(
 > **Artists:** {artists}
         """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-        members_listening = get_possible_members_in_same_session(spotify)
+        members_listening = get_possible_members_in_same_session(member, spotify)
 
         embed.description += '> \n> **Possible Members Listening:** '
 
