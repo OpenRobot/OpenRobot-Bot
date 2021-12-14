@@ -890,6 +890,13 @@ async def screenshot(
     else:
         await ctx.message.add_reaction("<a:openrobot_searching_gif:899928367799885834>")
 
+    if not re.match(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', url):
+        await ctx.message.remove_reaction(
+            "<a:openrobot_searching_gif:899928367799885834>", bot.user
+        )
+        
+        return await ctx.send('URL must be HTTP/HTTPS.')
+
     try:
         buffer: BytesIO = await bot.screenshot(url, delay=delay)
     except Exception as e:
