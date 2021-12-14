@@ -346,7 +346,7 @@ async def activity(
         return await ctx.send(f"I need the `Create Invite` permissions for {channel.mention} to start the activity!")
 
     if activity is None:
-        activities = discord_activity.ActivityType.__dict__['_member_names_']
+        activities = discord_activity.ActivityType._member_names_
 
         class Select(discord.ui.Select):
             def __init__(self):
