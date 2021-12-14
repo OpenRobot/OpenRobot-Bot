@@ -59,12 +59,12 @@ class LineCount:
             setattr(self, k, v)
 
     def __repr__(self):
-        s = '<LineCount: '
+        s = "<LineCount: "
 
         for k, v in self.__dict__.items():
-            s += f'{k}={v} '
+            s += f"{k}={v} "
 
-        s = s[:-1] + '>'
+        s = s[:-1] + ">"
 
         return s
 
@@ -336,7 +336,10 @@ async def system(ctx: commands.Context):
     async with ctx.typing():
         embed = discord.Embed(color=bot.color)
 
-        msg = await ctx.send("Retrieving Basic Information...", allowed_mentions=discord.AllowedMentions.none())
+        msg = await ctx.send(
+            "Retrieving Basic Information...",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
         embed.description = f"""```yml
 Python Version: Python {platform.python_version()}
@@ -345,7 +348,10 @@ Guilds: {len(bot.guilds)}
 Members: {len(list(bot.get_all_members()))}```
         """
 
-        await msg.edit(content="Retrieving System Information...", allowed_mentions=discord.AllowedMentions.none())
+        await msg.edit(
+            content="Retrieving System Information...",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
         uname = platform.uname()
         system_name = uname.system
@@ -363,7 +369,10 @@ Processor: {processor}```
         """,
         )
 
-        await msg.edit(content="Retrieving CPU Information...", allowed_mentions=discord.AllowedMentions.none())
+        await msg.edit(
+            content="Retrieving CPU Information...",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
         physical_cores = psutil.cpu_count(logical=False)
         total_cores = psutil.cpu_count(logical=True)
@@ -384,7 +393,10 @@ Usage: {cpu_usage}```
         """,
         )
 
-        await msg.edit(content="Retrieving Memory Information...", allowed_mentions=discord.AllowedMentions.none())
+        await msg.edit(
+            content="Retrieving Memory Information...",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
         svmem = psutil.virtual_memory()
         total_mem = f"{get_size(svmem.total)}"
@@ -404,7 +416,10 @@ Percentage: {mem_perc}```
         """,
         )
 
-        await msg.edit(content="Retrieving Code Information...", allowed_mentions=discord.AllowedMentions.none())
+        await msg.edit(
+            content="Retrieving Code Information...",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
         line_count = bot.line_count()
 
@@ -420,7 +435,10 @@ Comments: {line_count.comments}```
         """,
         )
 
-        await msg.edit(content="Retrieving Disk Information...", allowed_mentions=discord.AllowedMentions.none())
+        await msg.edit(
+            content="Retrieving Disk Information...",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
         disk_io = psutil.disk_io_counters()
         disk_io_bytes_read = f"{get_size(disk_io.read_bytes)}"
@@ -428,11 +446,11 @@ Comments: {line_count.comments}```
 
         total, used, free = shutil.disk_usage("/")
 
-        total_gib = total // (2**30)
-        used_gib = used // (2**30)
-        free_gib = free // (2**30)
-        percentage_used = used_gib/total_gib * 100
-        percentage_free = free_gib/total_gib * 100
+        total_gib = total // (2 ** 30)
+        used_gib = used // (2 ** 30)
+        free_gib = free // (2 ** 30)
+        percentage_used = used_gib / total_gib * 100
+        percentage_free = free_gib / total_gib * 100
 
         embed.add_field(
             name="Disk:",
@@ -447,7 +465,10 @@ Send: {disk_io_bytes_send}```
         """,
         )
 
-        await msg.edit(content="Retrieving Network/Speedtest Information...", allowed_mentions=discord.AllowedMentions.none())
+        await msg.edit(
+            content="Retrieving Network/Speedtest Information...",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
         proc = await asyncio.create_subprocess_shell(
             "speedtest -f json",
@@ -556,7 +577,9 @@ async def activity(
     ] = commands.Option(None, description="The activity to start."),
 ):
     if channel.permissions_for(ctx.me).create_instant_invite is False:
-        return await ctx.send(f"I need the `Create Invite` permissions for {channel.mention} to start the activity!")
+        return await ctx.send(
+            f"I need the `Create Invite` permissions for {channel.mention} to start the activity!"
+        )
 
     if activity is None:
         activities = discord_activity.ActivityType._member_names_
@@ -565,7 +588,13 @@ async def activity(
             def __init__(self):
                 super().__init__(
                     placeholder="Select an activity",
-                    options=[discord.SelectOption(label=x.replace('_', ' ').title(), description=f"Start a {x.replace('_', ' ').title()} activity.") for x in activities],
+                    options=[
+                        discord.SelectOption(
+                            label=x.replace("_", " ").title(),
+                            description=f"Start a {x.replace('_', ' ').title()} activity.",
+                        )
+                        for x in activities
+                    ],
                 )
 
             async def callback(self, interaction: discord.Interaction):
@@ -583,15 +612,19 @@ async def activity(
                 self.add_item(Select())
 
             async def interaction_check(self, interaction: discord.Interaction) -> bool:
-                if interaction.user != ctx.author and not await bot.is_owner(ctx.author):
-                    await interaction.response.send_message("This is not your interaction!", ephemeral=True)
+                if interaction.user != ctx.author and not await bot.is_owner(
+                    ctx.author
+                ):
+                    await interaction.response.send_message(
+                        "This is not your interaction!", ephemeral=True
+                    )
 
                     return False
 
                 return True
 
         view = View()
-        await ctx.send('Please select an activity to start.', view=view)
+        await ctx.send("Please select an activity to start.", view=view)
 
         await view.wait()
 
@@ -890,12 +923,15 @@ async def screenshot(
     else:
         await ctx.message.add_reaction("<a:openrobot_searching_gif:899928367799885834>")
 
-    if not re.match(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', url):
+    if not re.match(
+        r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+        url,
+    ):
         await ctx.message.remove_reaction(
             "<a:openrobot_searching_gif:899928367799885834>", bot.user
         )
-        
-        return await ctx.send('URL must be HTTP/HTTPS.')
+
+        return await ctx.send("URL must be HTTP/HTTPS.")
 
     try:
         buffer: BytesIO = await bot.screenshot(url, delay=delay)
@@ -1481,7 +1517,7 @@ async def spotify(
 > **Duration:** `{str(spotify.duration).split('.')[0]}` | `{humanize.naturaldelta(spotify.duration, minimum_unit="milliseconds")}`
 > **Listening Since:** {discord.utils.format_dt(spotify.start, style="F")} [{discord.utils.format_dt(spotify.start, style="R")}]
 > **Artists:** {artists}
-                    """ # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
+                    """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
                     embed.set_thumbnail(url=spotify.album_cover_url)
 
@@ -1594,7 +1630,7 @@ async def spotify(
 > **Duration:** `{str(spotify.duration).split('.')[0]}` | `{humanize.naturaldelta(spotify.duration, minimum_unit="milliseconds")}`
 > **Listening Since:** {discord.utils.format_dt(spotify.start, style="F")} [{discord.utils.format_dt(spotify.start, style="R")}]
 > **Artists:** {artists}
-                """ # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
+                """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
                 embed.set_thumbnail(url=spotify.album_cover_url)
 

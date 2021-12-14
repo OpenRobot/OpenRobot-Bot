@@ -272,7 +272,7 @@ class CodeReviewPages(BaseViewMenuPages):
         codeguru.put_recommendation_feedback(
             CodeReviewArn=CodeReviewArn,
             RecommendationId=RecommendationId,
-            Reactions=['ThumbsUp']
+            Reactions=["ThumbsUp"],
         )
 
         button.disabled = True
@@ -299,7 +299,7 @@ class CodeReviewPages(BaseViewMenuPages):
         codeguru.put_recommendation_feedback(
             CodeReviewArn=CodeReviewArn,
             RecommendationId=RecommendationId,
-            Reactions=['ThumbsDown']
+            Reactions=["ThumbsDown"],
         )
 
         button.disabled = True

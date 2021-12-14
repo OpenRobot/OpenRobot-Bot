@@ -46,7 +46,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
     The frontend subclass that mixes in to form the final Jishaku cog.
     """
 
-    bot: Bot # Liner purposes
+    bot: Bot  # Liner purposes
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -194,7 +194,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         Most of the code is inspired by [Ami#7836](https://discord.com/users/801742991185936384).
         """
 
-        return await self.bot.get_command('system')(ctx)
+        return await self.bot.get_command("system")(ctx)
 
     @Feature.Command(
         parent="jsk", name="restart", aliases=["rs", "rst", "reboot", "rbt", "rb"]
