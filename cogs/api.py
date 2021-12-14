@@ -1348,6 +1348,7 @@ __**Info:**__
         self,
         ctx,
         ip: str = commands.Option(description='The IP to ban.'),
+        *,
         reason: str = commands.Option(None, description='The reason for the ban.'),
     ):
         """
