@@ -1323,13 +1323,17 @@ async def spotify(
         l = []
 
         for user in bot.users:
+            if user == member:
+                continue
+
             guild = user.mutual_guilds[0]
-            member = guild.get_member(user.id)
+            mem = guild.get_member(user.id)
 
-            spot = discord.utils.find(lambda a: isinstance(a, discord.Spotify), member.activities)
+            spot = discord.utils.find(lambda a: isinstance(a, discord.Spotify), mem.activities)
 
-            if spot == spotify:
-                l.append(member)
+            if spot:
+                if spot._session_id == spotify._session_id:
+                    l.append(member)
 
         return l
 
