@@ -12,22 +12,28 @@ import typing
 import random
 import string
 import base64
+import psutil
+import shutil
 import asyncio
 import asyncpg
 import jishaku
 import aiohttp
 import inspect
 import mystbin
+import cpuinfo
 import pathlib
 import humanize
+import platform
 import aioredis
 import datetime
 import textwrap
+import speedtest
 import aiospotify
 import async_timeout
 
 from threading import Thread
 from io import BytesIO, StringIO
+from humanize import naturalsize as get_size
 
 from openrobot import discord_activities as discord_activity
 
@@ -51,6 +57,16 @@ class LineCount:
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
+
+    def __repr__(self):
+        s = '<LineCount: '
+
+        for k, v in self.__dict__.items():
+            s += f'{k}={v} '
+
+        s = s[:-1] + '>'
+
+        return s
 
 
 class Bot(BaseBot):
@@ -317,9 +333,185 @@ async def system(ctx: commands.Context):
     if ctx.interaction is not None:
         await ctx.interaction.response.defer()
 
-    return await bot.get_command("jishaku system")(
-        ctx
-    )  # yes i am too lazy to move the code here, sorry!
+    async with ctx.typing():
+        embed = discord.Embed(color=bot.color)
+
+        embed.description = f"""```yml
+Python Version: Python {platform.python_version()}
+Discord.py Version: {discord.__version__}
+Guilds: {len(bot.guilds)}
+Members: {len(list(bot.get_all_members()))}```
+        """
+
+        uname = platform.uname()
+        system_name = uname.system
+        node_name = uname.node
+        machine = uname.machine
+        processor = uname.processor
+
+        embed.add_field(
+            name="System:",
+            value=f"""```yml
+OS: {system_name}
+Name: {node_name}
+Machine: {machine}
+Processor: {processor}```
+        """,
+        )
+
+        physical_cores = psutil.cpu_count(logical=False)
+        total_cores = psutil.cpu_count(logical=True)
+
+        cpufreq = psutil.cpu_freq()
+        current_cpu_freq = f"{cpufreq.current:.2f}Mhz"
+
+        cpu_usage = f"{psutil.cpu_percent()}%"
+
+        embed.add_field(
+            name="CPU:",
+            value=f"""```yml
+Name: {cpuinfo.get_cpu_info()['brand_raw']}
+Physical cores: {physical_cores}
+Total cores: {total_cores}
+Frequency: {current_cpu_freq}
+Usage: {cpu_usage}```
+        """,
+        )
+
+        svmem = psutil.virtual_memory()
+        total_mem = f"{get_size(svmem.total)}"
+        available_mem = f"{get_size(svmem.available)}"
+        used_mem = f"{get_size(svmem.used)}"
+        mem_perc = f"{svmem.percent}%"
+
+        embed.add_field(
+            name="Memory:",
+            value=f"""```yml
+Total: {total_mem}
+Available: {available_mem}
+Used: {used_mem}
+Percentage: {mem_perc}```
+        """,
+        )
+
+        line_count = bot.line_count()
+
+        embed.add_field(
+            name="Code Stats:",
+            value=f"""```yml
+Files: {line_count.files}
+Lines: {line_count.lines}
+Classes: {line_count.classes}
+Functions: {line_count.functions}
+Coroutines: {line_count.coroutines}
+Comments: {line_count.comments}```
+        """,
+        )
+
+        disk_io = psutil.disk_io_counters()
+        disk_io_bytes_read = f"{get_size(disk_io.read_bytes)}"
+        disk_io_bytes_send = f"{get_size(disk_io.write_bytes)}"
+
+        total, used, free = shutil.disk_usage("/")
+
+        total_gib = total // (2**30)
+        used_gib = used // (2**30)
+        free_gib = free // (2**30)
+
+        embed.add_field(
+            name="Disk:",
+            value=f"""```yml
+Total: {total_gib} GiB
+Used: {used_gib} GiB
+Free: {free_gib} GiB
+
+Read: {disk_io_bytes_read}
+Send: {disk_io_bytes_send}```
+        """,
+        )
+
+        proc = await asyncio.create_subprocess_shell(
+            "speedtest -f json",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        stdout, stderr = await proc.communicate()
+
+        if ctx.debug:
+            await ctx.send("Stdout: " + (stdout.decode() or "Empty."))
+            await ctx.send("Stderr: " + (stderr.decode() or "Empty."))
+            await ctx.send("Return Code: " + str(proc.returncode))
+
+        if not stdout or proc.returncode != 0 or stderr:
+            s = speedtest.Speedtest()
+            s.get_best_server()
+            s.download()
+            s.upload(pre_allocate=False)
+
+            data = s.results.dict()
+
+            try:
+                s.get_servers([23373, 37568])
+
+                s.download()
+                s.upload(pre_allocate=False)
+
+                data2 = s.results.dict()
+
+                if (
+                    data["download"] < data2["download"]
+                    and data["upload"] < data2["upload"]
+                ):
+                    data = data2
+            except Exception as e:
+                if ctx.debug:
+                    raise e
+
+                pass
+
+            embed.add_field(
+                name="Speedtest:",
+                value=f"""`{data['client']['isp']}, {data['client']['country']}` --> `{data['server']['sponsor']} - {data['server']['name']}, {data['server']['cc']}`: 
+```yml
+Download: {round(data['download'] / 1000000, 2)} Mbps ({round(data['download'] / 1000000 / 1000, 2)} Gbps)
+Upload: {round(data['upload'] / 1000000, 2)} Mbps ({round(data['upload'] / 1000000 / 1000, 2)} Gbps)
+Ping: {round(data['ping'], 2)} ms
+
+Bytes Sent: {round(data['bytes_sent'], 5)}
+Bytes Recieved: {round(data['bytes_received'], 5)}
+```Result URL: {'https://' + '.'.join(s.results.share().replace('http://', '').split('.')[:-1])}
+            """,
+                inline=False,
+            )
+        else:
+            data = json.loads(stdout.decode())
+
+            embed.add_field(
+                name="Speedtest:",
+                value=f"""`{data['isp']}` --> `{data['server']['name']} - {data['server']['location']}, {data['server']['country']}`:
+```yml
+Download: 
+- Result: {round(data['download']['bandwidth'] / 125000, 2)} Mbps ({round(data['download']['bandwidth'] / 125000 / 1000, 2)} Gbps)
+- Data Used: {get_size(data['download']['bytes'])}
+
+Upload:
+- Result: {round(data['upload']['bandwidth'] / 125000, 2)} Mbps ({round(data['upload']['bandwidth'] / 125000 / 1000, 2)} Gbps)
+- Data Used: {get_size(data['upload']['bytes'])}
+
+Ping:
+- Jitter: {round(data['ping']['jitter'], 2)} ms
+- Latency: {round(data['ping']['latency'], 2)} ms
+
+Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data else 'Not available.'}
+```Result URL: {data['result']['url']}
+            """,
+                inline=False,
+            )
+
+        embed.set_footer(text=f"PID: {os.getpid()}")
+
+        await ctx.send(embed=embed)
 
 
 @bot.command(aliases=["act"])

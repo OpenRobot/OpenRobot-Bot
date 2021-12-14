@@ -6,6 +6,7 @@ import boto3
 import aioredis
 import aiospotify
 import aiohttp
+import psutil
 from .ping import Ping
 from .error import Error
 from .driver import Driver
@@ -40,6 +41,8 @@ class Bot(commands.Bot):
         )
         self.driver = Driver
         self.cdn = boto3.client("s3", **config.AWS_CRIDENTIALS)
+
+        self.process = psutil.Process()
 
         # Databases
         self.pool: asyncpg.Pool = None
