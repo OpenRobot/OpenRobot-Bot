@@ -389,6 +389,7 @@ Usage: {cpu_usage}```
         svmem = psutil.virtual_memory()
         total_mem = f"{get_size(svmem.total)}"
         available_mem = f"{get_size(svmem.available)}"
+        free_mem = f"{get_size(svmem.free)}"
         used_mem = f"{get_size(svmem.used)}"
         mem_perc = f"{svmem.percent}%"
 
@@ -397,6 +398,7 @@ Usage: {cpu_usage}```
             value=f"""```yml
 Total: {total_mem}
 Available: {available_mem}
+Free: {free_mem}
 Used: {used_mem}
 Percentage: {mem_perc}```
         """,
