@@ -376,7 +376,7 @@ async def activity(
                 return True
 
         view = View()
-        await ctx.send('Please select an activity to start.', embed=view)
+        await ctx.send('Please select an activity to start.', view=view)
 
         await view.wait()
 
