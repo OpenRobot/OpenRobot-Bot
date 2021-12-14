@@ -1347,10 +1347,8 @@ __**Info:**__
     async def api_ip_ban(
         self,
         ctx,
-        *,
-        flags: APIIPBan = commands.Option(
-            description="Flags: <--ip <ip>> [--reason <reason>]"
-        ),
+        ip: str = commands.Option(description='The IP to ban.'),
+        reason: str = commands.Option(None, description='The reason for the ban.'),
     ):
         """
         IP bans a IP from using your token. This can accept either IPv4 or IPv6.
@@ -1359,9 +1357,6 @@ __**Info:**__
         - `--ip`: The IPv4 or IPv6 to ban.
         - `--reason`: The reason of the ban. Defaults to None.
         """
-
-        ip = flags.ip
-        reason = flags.reason
 
         if not self.is_valid_ip(ip):
             return await ctx.send(f"IP {ip} is invalid.")
