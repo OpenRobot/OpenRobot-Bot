@@ -414,7 +414,7 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
 
                 embed.description = f"""
 Guessed Words: {', '.join([f'`{x}`' for x in hangman.guessed_words])}
-Word: {hangman.word_guess}
+Word: {discord.utils.escape_markdown(hangman.word_guess)}
 Tries Left: {hangman.tries}
 ```{hangman.draw()}```
 
@@ -440,7 +440,7 @@ Please reply to this message with a letter.
             except Exception as e:
                 if not isinstance(e, games.HangmanExcpetion):
                     return await ctx.send(f"```py\n{e}```")
-                    
+
                 await ctx.send(f"```py\n{e}```")
 
                 if msg:
