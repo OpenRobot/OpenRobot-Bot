@@ -408,7 +408,7 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
 
         msg = None
 
-        while not hangman.lose and not hangman.win and not stopped:
+        while (not hangman.lose and not hangman.win) or (not stopped):
             try:
                 embed = discord.Embed(color=self.bot.color)
 
