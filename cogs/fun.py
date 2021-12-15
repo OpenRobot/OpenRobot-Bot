@@ -427,7 +427,7 @@ Please reply to this message with a letter.
 
                 msg = await ctx.send(embed=embed, view=view)
 
-                m = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel and m.reference and m.reference.resolved == msg and len(m.content) == 1 and not m.content.replace(' ', '').strip())
+                m = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel and m.reference and m.reference.resolved == msg and len(m.content) == 1 and m.content.replace(' ', ''))
 
                 correct = hangman.guess(m.content)
 
