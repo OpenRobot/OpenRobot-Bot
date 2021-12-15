@@ -28,7 +28,7 @@ class Hangman:
             l = FRUITS + FOOD + DRINKS + COLORS + ANIMALS + COUNTRY + VEHICLES + LANGUAGES + BUILDINGS
         else:
             try:
-                l = getattr(words, category)
+                l = getattr(words, category.upper())
             except Exception as e:
                 raise InvaildCategory(category) from e
 
