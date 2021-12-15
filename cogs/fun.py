@@ -2,6 +2,7 @@ import discord
 import asyncio
 import random
 from discord.ext import commands
+from discord.message import DeletedReferencedMessage
 from cogs.utils import Cog, games
 
 
@@ -329,6 +330,139 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
             def disable_all(self):
                 for child in self.children:
                     child.disabled = True
+
+    @commands.command("hangman")
+    @commands.max_concurrency(1, commands.BucketType.user)
+    async def hangman_cmd(self, ctx: commands.Context):
+        """
+        Plays hangman.
+
+        You need to guess the letter to win in 6 tries.
+        Note that it is advised for you to know how to play hangman before playing using this command.
+        """
+
+        class View(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=None)
+                self.category = None
+                self.interaction = None
+
+            async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                if interaction.user != ctx.author and not ctx.bot.is_owner(interaction.user):
+                    await interaction.response.send_message(
+                        f"Only {ctx.author.mention} can play this game. To play your own game of Hangman, invoke the `hangman` command.",
+                        ephemeral=True,
+                    )
+                    return False
+
+                return True
+
+            @discord.ui.select(placeholder='Select a Category', options=[
+                discord.SelectOption(label='Fruits', emoji='🍎', description='Play Hangman with Fruits category.'),
+                discord.SelectOption(label='Food', emoji='🍝', description='Play Hangman with Food category.'),
+                discord.SelectOption(label='Drinks', emoji='🍹', description='Play Hangman with Drinks category.'),
+                discord.SelectOption(label='Colors', emoji='🔴', description='Play Hangman with Coffee category.'),
+                discord.SelectOption(label='Animals', emoji='🐶', description='Play Hangman with Animals category.'),
+                discord.SelectOption(label='Countries', emoji='\U0001f1fa\U0001f1f8', description='Play Hangman with Countries category.'),
+                discord.SelectOption(label='Vehicles', emoji='🚗', description='Play Hangman with Vehicles category.'),
+                discord.SelectOption(label='Languages', description='Play Hangman with Languages category.'),
+                discord.SelectOption(label='Buildings', emoji='🏘️', description='Play Hangman with Buildings category.'),
+                discord.SelectOption(label='Random', emoji='🎲', description='Randomly picks a category'),
+            ])
+            async def callback(self, select: discord.ui.Select, interaction: discord.Interaction):
+                await interaction.response.defer()
+
+                self.interaction = interaction
+
+                self.category = select.values[0] if select.values[0] != 'Random' else None
+
+                self.stop()
+
+        view = View()
+
+        msg = await ctx.send('Choose a category to play Hangman with.', view=view)
+
+        await view.wait()
+
+        await msg.delete()
+
+        hangman = games.Hangman(ctx, view.category)
+
+        category = hangman.word[1].lower().capitalize()
+
+        await view.interaction.followup.send(f'You are playing Hangman with the **{category}** category.', ephemeral=True)
+
+        stopped = False
+
+        class StopButton(discord.ui.Button):
+            def __init__(self):
+                super().__init__(style=discord.ButtonStyle.red, label="Stop", emoji='<:openrobot_stop_button:899878227969974322>')
+
+            async def callback(self, interaction: discord.Interaction):
+                nonlocal stopped
+                stopped = True
+
+                await interaction.message.delete()
+
+                self.view.stop()
+
+        msg = None
+
+        while not hangman.lose and not hangman.win and not stopped:
+            try:
+                embed = discord.Embed(color=self.bot.color)
+
+                embed.description = f"""
+Guessed Words: {', '.join([f'`{x}`' for x in hangman.guessed_words])}
+Word: {hangman.word_guess}
+Tries Left: {hangman.tries_left}
+```{hangman.draw()}```
+
+Please reply to this message with a letter.
+                """
+
+                view = discord.ui.View(timeout=None)
+
+                view.add_item(StopButton())
+
+                msg = await ctx.send(embed=embed, view=view)
+
+                m = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel and m.reference and m.reference.resolved == msg and len(m.content) == 1 and not m.content.replace(' ', '').strip())
+
+                correct = hangman.guess(m.content)
+
+                if correct:
+                    await m.reply("Good guess!", delete_after=10)
+                else:
+                    await m.reply("Incorrect guess.", delete_after=10)
+
+                await msg.delete()
+            except Exception as e:
+                await ctx.send(f"```py\n{e}```")
+
+                if msg:
+                    try:
+                        await msg.delete()
+                    except:
+                        pass
+
+        if stopped:
+            return
+
+        if hangman.win:
+            try:
+                await msg.delete()
+            except:
+                pass
+
+            return await ctx.send("Congrats! You won!", delete_after=10)
+        elif hangman.lose:
+            try:
+                await msg.delete()
+            except:
+                pass
+
+            return await ctx.send(f"OOF! You Lost! The word was `{hangman.word[0]}`.", delete_after=10)
 
     @commands.command("bingo")
     @commands.max_concurrency(1, commands.BucketType.channel)
