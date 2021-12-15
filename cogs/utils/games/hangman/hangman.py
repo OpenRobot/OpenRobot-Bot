@@ -54,7 +54,7 @@ class Hangman:
         if len(letter) != 1:
             raise InvalidLetter('You must guess a single letter.')
 
-        if letter.replace(' ', '').strip():
+        if not letter.replace(' ', '').strip():
             raise InvalidLetter('You cannot guess a space.')
 
         if letter in self.guessed_words:
