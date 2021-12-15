@@ -382,7 +382,7 @@ COUNTRY_DICT = {
     "zimbabwe": "zw"
 }
 
-COUNTRY = list(COUNTRY_DICT.keys())
+COUNTRIES = list(COUNTRY_DICT.keys())
 
 VEHICLES = [
     "car",
