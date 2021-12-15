@@ -25,7 +25,7 @@ class Hangman:
 
     def generate_word(self, category: str = None, *, set_as_word: bool = True):
         if category == None:
-            l = FRUITS + FOOD + DRINKS + COLORS + ANIMALS + COUNTRY + VEHICLES + LANGUAGES + BUILDINGS
+            l = FRUITS + FOOD + DRINKS + COLORS + ANIMALS + COUNTRIES + VEHICLES + LANGUAGES + BUILDINGS
         else:
             try:
                 l = getattr(words, category.upper())
@@ -39,7 +39,7 @@ class Hangman:
                 'DRINKS' if choice in DRINKS else \
                     'COLORS' if choice in COLORS else \
                         'ANIMALS' if choice in ANIMALS else \
-                            'COUNTRY' if choice in COUNTRY else \
+                            'COUNTRY' if choice in COUNTRIES else \
                                 'VEHICLES' if choice in VEHICLES else \
                                     'LANGUAGES' if choice in LANGUAGES else \
                                         'BUILDINGS' if choice in BUILDINGS else \
