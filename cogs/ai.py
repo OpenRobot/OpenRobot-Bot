@@ -23,6 +23,10 @@ from cogs.utils import (
     TranslateLanguagesPagniator,
     CodeReviewPaginator,
     CodeReviewPages,
+    command,
+    group,
+    Command,
+    Group,
 )
 from openrobot.api_wrapper import error
 
@@ -159,8 +163,7 @@ AI: 5 times 6 is 30"""
 
         ai_str = f"""What are some key points I should know when studying {topic.title()}?
 
-1.
-        """
+1."""
 
         try:
             response = openai.Completion.create(
@@ -211,7 +214,7 @@ AI: 5 times 6 is 30"""
 
         await ctx.send(embed=embed)
 
-    @commands.command(
+    @command(
         name="review-code",
         aliases=[
             "review_code",
@@ -223,6 +226,7 @@ AI: 5 times 6 is 30"""
             "code_review",
             "code_reviewer",
         ],
+        example="review-code My-URL-Or-Code",
     )
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.cooldown(1, 250, commands.BucketType.user)  # 5 minute cooldown
@@ -539,7 +543,9 @@ AI: 5 times 6 is 30"""
                     )
 
                 await ctx.send(
-                    "Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is."
+                    "Code review has started. I will try to DM you with the code review results. If I cannot DM you, "
+                    "I will post the results in this channel replying to your message.\nCode reviews can take up from "
+                    "seconds to minutes depending on how large the code is. "
                 )
 
                 random_name = "".join(
@@ -672,7 +678,7 @@ AI: 5 times 6 is 30"""
 
         await task(ctx, code)
 
-    @commands.command("nsfw-check", aliases=["nsfwcheck", "nsfw_check", "check"])
+    @command("nsfw-check", aliases=["nsfwcheck", "nsfw_check", "check"], example="nsfw-check My-Image-URL-Or-Attachment")
     async def nsfw_check(
         self,
         ctx: commands.Context,
@@ -758,7 +764,7 @@ AI: 5 times 6 is 30"""
 
         await ctx.send(embed=embed)
 
-    @commands.command(slash_command=False)
+    @command(slash_command=False, example="celebrity My-Image-URL-Or-Attachment")
     async def celebrity(
         self,
         ctx: commands.Context,
@@ -852,7 +858,7 @@ AI: 5 times 6 is 30"""
         menu = MenuPages(CelebrityPaginator(l), delete_message_after=True)
         await menu.start(ctx)
 
-    @commands.command()
+    @command(example="ocr My-Image-URL-Or-Attachment")
     async def ocr(
         self,
         ctx: commands.Context,
@@ -922,11 +928,12 @@ AI: 5 times 6 is 30"""
 
             return await ctx.send("No text found in image.")
 
-    @commands.group(
+    @group(
         invoke_without_command=True,
         aliases=["tr"],
         usage="<text> <flags>",
         slash_command=False,
+        example="translate Hola --to en",
     )
     async def translate(self, ctx: commands.Context, *, flags: str):
         """
@@ -1028,7 +1035,7 @@ AI: 5 times 6 is 30"""
                     "Something wen't wrong while aquiring the translation from our API."
                 )
 
-    @translate.command(aliases=["langs", "language", "lang"])
+    @translate.command(aliases=["langs", "language", "lang"], cls=Command, example="translate languages")
     async def languages(
         self,
         ctx: commands.Context,

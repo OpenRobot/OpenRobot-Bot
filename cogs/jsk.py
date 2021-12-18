@@ -2,22 +2,14 @@ import discord
 import sys
 import math
 import json
-import os
 import time
-import platform
-import speedtest
 import asyncio
 import re
-import cpuinfo
 from discord.ext import commands
-from humanize import naturalsize as get_size
-from jishaku.features.baseclass import Feature
-from cogs.utils import Bot
+from cogs.utils import Bot, Command, Group
 from jishaku.cog import STANDARD_FEATURES, OPTIONAL_FEATURES
 from jishaku.features.baseclass import Feature
-from jishaku.flags import Flags
 from jishaku.modules import package_version
-from jishaku.paginators import PaginatorInterface
 from jishaku.models import copy_context_with
 from jishaku.exception_handling import ReplResponseReactor
 
@@ -73,6 +65,8 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         invoke_without_command=True,
         ignore_extra=False,
         slash_command=False,
+        cls=Group,
+        example="jishaku"
     )
     async def jsk(self, ctx: commands.Context):
         """
@@ -186,7 +180,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
 
         await ctx.send(embed=embed)
 
-    @Feature.Command(parent="jsk", name="system", aliases=["sys"])
+    @Feature.Command(parent="jsk", name="system", aliases=["sys"], cls=Command, example="jishaku system")
     async def system(self, ctx: commands.Context):
         """
         Gets systen information e.g CPU, Memory, Disk, etc.
@@ -197,7 +191,8 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         return await self.bot.get_command("system")(ctx)
 
     @Feature.Command(
-        parent="jsk", name="restart", aliases=["rs", "rst", "reboot", "rbt", "rb"]
+        parent="jsk", name="restart", aliases=["rs", "rst", "reboot", "rbt", "rb"], cls=Command,
+        example="jishaku restart"
     )
     async def jsk_restart(self, ctx: commands.Context):
         m = await ctx.send(
@@ -220,7 +215,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
 
         await self.bot.close()  # Let systemd handle the rest
 
-    @Feature.Command(parent="jsk", name="debug", aliases=["dbg"])
+    @Feature.Command(parent="jsk", name="debug", aliases=["dbg"], cls=Command, example="jishaku debug <Command>")
     async def jsk_debug(self, ctx: commands.Context, *, command_string: str):
         """
         Run a command timing execution and catching exceptions.
@@ -246,7 +241,7 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
             f"Command `{alt_ctx.command.qualified_name}` finished in `{end - start:.3f}s`, returning `{returned}`"
         )
 
-    @Feature.Command(parent="jsk", name="sync", aliases=["pull"])
+    @Feature.Command(parent="jsk", name="sync", aliases=["pull"], cls=Command, example="jishaku sync")
     async def jsk_sync(self, ctx: commands.Context, *, extra: str = None):
         """
         Syncs the bot with GitHub.
@@ -291,7 +286,7 @@ Exited with code {proc.returncode}.```
 
                 @discord.ui.button(label="Restart", style=discord.ButtonStyle.blurple)
                 async def restart(
-                    self, button: discord.ui.Button, interaction: discord.Interaction
+                        self, button: discord.ui.Button, interaction: discord.Interaction
                 ):
                     self.value = "restart"
 
@@ -306,7 +301,7 @@ Exited with code {proc.returncode}.```
 
                 @discord.ui.button(label="Reload", style=discord.ButtonStyle.blurple)
                 async def reload(
-                    self, button: discord.ui.Button, interaction: discord.Interaction
+                        self, button: discord.ui.Button, interaction: discord.Interaction
                 ):
                     self.value = "reload"
 
@@ -323,7 +318,7 @@ Exited with code {proc.returncode}.```
                     label="Do Nothing", style=discord.ButtonStyle.blurple
                 )
                 async def do_nothing(
-                    self, button: discord.ui.Button, interaction: discord.Interaction
+                        self, button: discord.ui.Button, interaction: discord.Interaction
                 ):
                     self.value = "do_nothing"
 
@@ -337,7 +332,7 @@ Exited with code {proc.returncode}.```
                     self.stop()
 
                 async def interaction_check(
-                    self, interaction: discord.Interaction
+                        self, interaction: discord.Interaction
                 ) -> bool:
                     if interaction.user != ctx.author:
                         await interaction.response.send_message(
@@ -360,10 +355,10 @@ Exited with code {proc.returncode}.```
             val = await view.wait()
 
             if (
-                val
-                or not view.value
-                or view.value == "do_nothing"
-                or view.value not in ["do_nothing", "restart", "reload"]
+                    val
+                    or not view.value
+                    or view.value == "do_nothing"
+                    or view.value not in ["do_nothing", "restart", "reload"]
             ):
                 return
 
@@ -375,7 +370,7 @@ Exited with code {proc.returncode}.```
                     x.split(" | ")[0][:-3].replace("/", ".")
                     for x in re.findall(r"cogs\/.*", stdout.decode())
                     if x.split(" | ")[0].endswith(".py")
-                    and len(re.findall(r"\/", x.split(" | ")[0])) == 1
+                       and len(re.findall(r"\/", x.split(" | ")[0])) == 1
                 ]
 
                 if not cogs_found:

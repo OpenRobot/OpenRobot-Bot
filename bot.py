@@ -43,6 +43,7 @@ from cogs.utils import (
     executor,
     Bot as BaseBot,
     ChristmasEvent,
+    Command,
 )
 
 description = """
@@ -228,7 +229,7 @@ async def on_message(message: discord.Message):
     await bot.process_commands(message)
 
 
-@bot.command(aliases=["latency"])
+@bot.command(aliases=["latency"], cls=Command, example='ping')
 async def ping(ctx: commands.Context):
     """
     Gets the latency of the bot, databases and more.
@@ -322,7 +323,7 @@ async def ping(ctx: commands.Context):
     )
 
 
-@bot.command("system", aliases=["sys"])
+@bot.command("system", aliases=["sys"], cls=Command, example='system')
 async def system(ctx: commands.Context):
     """
     Gets systen information e.g CPU, Memory, Disk, etc.
@@ -556,7 +557,7 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
         await ctx.send(embed=embed)
 
 
-@bot.command(aliases=["act"])
+@bot.command(aliases=["act"], cls=Command, example='activity My-VC-Channel Watch Together')
 async def activity(
     ctx: commands.Context,
     channel: discord.VoiceChannel = commands.Option(
@@ -656,7 +657,7 @@ async def activity_error(ctx: commands.Context, error: Exception):
         await ctx.send("Please provide a channel.")
 
 
-@bot.command()
+@bot.command(cls=Command, example='lyrics See You Again')
 async def lyrics(
     ctx: commands.Context,
     *,
@@ -906,7 +907,7 @@ async def lyrics(
             await ctx.send(embed=embed)
 
 
-@bot.command(aliases=["ss"])
+@bot.command(aliases=["ss"], cls=Command, example='screenshot https://google.com/')
 async def screenshot(
     ctx: commands.Context,
     url: str = commands.Option(description="The website URL to screenshot."),
@@ -1218,7 +1219,7 @@ async def spotify_logout(ctx: commands.Context):
     await ctx.send("Logged out successfully!")
 
 
-@bot.command(aliases=["sp"])
+@bot.command(aliases=["sp"], cls=Command, example='spotify @Member')
 async def spotify(
     ctx: commands.Context, member: typing.Optional[discord.Member] = None, *flags
 ):
@@ -1802,7 +1803,7 @@ async def spotify(
         await ctx.send(embed=embed, view=view)
 
 
-@bot.command(aliases=["docs"])
+@bot.command(aliases=["docs"], cls=Command, example='documentation')
 async def documentation(ctx: commands.Context):
     """
     Gives the OpenRobot documentation URL.
@@ -1818,7 +1819,7 @@ def codeblock(code: str, *, language=""):
 bot.codeblock = codeblock
 
 
-@bot.command(aliases=["src"])
+@bot.command(aliases=["src"], cls=Command, example='source spotify')
 async def source(
     ctx: commands.Context,
     *,
@@ -1998,10 +1999,11 @@ async def _confirm(ctx, channel=None, *args, **kwargs):
     return view.value
 
 
-@bot.command()
+@bot.command(cls=Command, example='invite')
 async def invite(
     ctx: commands.Context,
-    option: typing.Literal["Slash Commands", "Bot Invite"] = commands.Option(
+    *,
+    option: typing.Literal["Slash Commands", "Bot Invite"] = commands.Option("Bot Invite",
         description="Either Slash Commands or Message Commands (Normal)"
     ),
 ):

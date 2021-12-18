@@ -9,16 +9,20 @@ from cogs.utils import (
     ViewMenuPages,
     TextToSpeechDetailsPaginator,
     AudioConverter,
+    group,
+    command,
+    Command
 )
 
 
 class Speech(Cog, emoji="\U0001f399"):
-    @commands.group(
+    @group(
         name="text-to-speech",
         invoke_without_command=True,
         aliases=["speak", "tts", "text_to_speech", "texttospeech", "talk"],
         usage="<Language Code> <text> <flags>",
         slash_command=False,
+        example="text-to-speech Hello, world! --language-code en-US",
     )
     async def text_to_speech(self, ctx: commands.Context, *, flags: str):
         """
@@ -84,7 +88,7 @@ class Speech(Cog, emoji="\U0001f399"):
                     allowed_mentions=discord.AllowedMentions(users=False),
                 )
 
-    @text_to_speech.command(name="details", aliases=["info", "support"])
+    @text_to_speech.command(name="details", aliases=["info", "support"], cls=Command, example="text-to-speech details")
     async def text_to_speech_details(
         self, ctx: commands.Context, language_code: str = None
     ):
@@ -116,7 +120,7 @@ class Speech(Cog, emoji="\U0001f399"):
 
         await menu.start(ctx)
 
-    @commands.group(
+    @group(
         "speech-to-text",
         aliases=[
             "detect-text-from-speech",
@@ -130,6 +134,7 @@ class Speech(Cog, emoji="\U0001f399"):
         usage="<text> <flags>",
         invoke_without_command=True,
         slash_command=False,
+        example="speech-to-text <URL or Attachment> --language-code en-US",
     )
     async def speech_to_text(self, ctx, *, flags: str = None):
         """
@@ -217,7 +222,7 @@ class Speech(Cog, emoji="\U0001f399"):
 
             return await ctx.send(embed=embed)
 
-    @speech_to_text.command(name="details", aliases=["info", "support"])
+    @speech_to_text.command(name="details", aliases=["info", "support"], cls=Command, example="speech-to-text details")
     async def speech_to_text_details(self, ctx: commands.Context):
         """
         Shows the details of the available languages.

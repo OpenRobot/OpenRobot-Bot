@@ -84,6 +84,17 @@ class OpenRobotHelp(commands.HelpCommand):
 
         return await self.send(embed=embed)
 
+    def get_command_example(self, command):
+        def _get_original_example():
+            s = command.qualified_name
+
+            if usage := command.usage:
+                s += f' {usage}'
+
+            return s
+
+        return getattr(command, 'example', _get_original_example())
+
     async def get_command_help(self, command: commands.Command):
         ctx = self.ctx
 
@@ -114,6 +125,13 @@ class OpenRobotHelp(commands.HelpCommand):
                 inline=False,
             )
 
+        embed.add_field(
+            name="Example:",
+            value=f"```yml\n{self.get_command_example(command)}\n```",
+            inline=False,
+        )
+
+
         can_run = "<:no:597591030807920660>"
         # command.can_run to test if the cog is usable
         with contextlib.suppress(commands.CommandError):
@@ -122,12 +140,19 @@ class OpenRobotHelp(commands.HelpCommand):
 
         embed.add_field(name="Usable:", value=can_run, inline=False)
 
-        if command._buckets and (
+        if (bucket := command._buckets) and (
             cooldown := command._buckets._cooldown
         ):  # use of internals to get the cooldown of the command
             embed.add_field(
                 name="Cooldown",
-                value=f"{cooldown.rate} per {cooldown.per:.0f} seconds",
+                value=f"`{cooldown.rate}` command per `{cooldown.per:.0f} seconds` for each `{bucket.type.name.title()}`",
+                inline=False,
+            )
+
+        if max_concurrency := command._max_concurrency:
+            embed.add_field(
+                name="Concurrency",
+                value=f"`{max_concurrency.number}` commands at once per `{max_concurrency.per.name.title()}`",
                 inline=False,
             )
 

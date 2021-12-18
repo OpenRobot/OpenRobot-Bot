@@ -16,6 +16,10 @@ from cogs.utils import (
     MenuPages,
     IPBanListPaginator,
     checks,
+    group,
+    command,
+    Group,
+    Command,
 )
 from thefuzz import process
 
@@ -173,14 +177,14 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
                 "The API seems to be unavailable for some reason, and I may not run commands."
             )
 
-    @commands.group(invoke_without_command=True)
+    @group(invoke_without_command=True, example="api")
     async def api(self, ctx: commands.Context):
         """The base API Group Command."""
 
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
-    @api.command("status")
+    @api.command("status", cls=Command, example="api status")
     async def api_status(
         self,
         ctx: commands.Context  # ,
@@ -252,7 +256,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
             else:
                 break
 
-    @api.command("stats", aliases=["statistics"])
+    @api.command("stats", aliases=["statistics"], cls=Command, example="api stats")
     async def api_stats(self, ctx: commands.Context):
         class SelectOption(discord.SelectOption):
             def __init__(
@@ -605,7 +609,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
         msg = view.message = await ctx.send(embed=embed, view=view)
         return msg
 
-    @api.command("apply")
+    @api.command("apply", cls=Command, example="api apply")
     @checks.api.has_not_applied()
     async def api_apply(
         self,
@@ -672,7 +676,7 @@ __**Info:**__
             "Ok! Your application has been requested to the API Developers of OpenRobot."
         )
 
-    @api.command("approve", aliases=["accept"])
+    @api.command("approve", aliases=["accept"], cls=Command, example="api approve @user")
     @commands.is_owner()
     async def api_approve(
         self,
@@ -794,7 +798,7 @@ __**Info:**__
         else:
             await ctx.send(f"Token has been sent to {user}.")
 
-    @api.command("deny")
+    @api.command("deny", cls=Command, example="api deny @user")
     @commands.is_owner()
     async def api_deny(
         self,
@@ -865,6 +869,8 @@ __**Info:**__
     @api.command(
         "deauth",
         aliases=["de-auth", "de_auth", "deauthenticate", "deauthorize", "deauthorise"],
+        cls=Command,
+        example="api deauth @user",
     )
     @commands.is_owner()
     async def api_deauth(
@@ -911,6 +917,8 @@ __**Info:**__
     @api.command(
         "reauth",
         aliases=["re-auth", "re_auth", "authenticate", "authorize", "authorise"],
+        cls=Command,
+        example="api reauth @user",
     )
     @commands.is_owner()
     async def api_reauth(
@@ -964,6 +972,8 @@ __**Info:**__
             "regeneratetoken",
             "regenerate_token",
         ],
+        cls=Command,
+        example="api regenerate-token",
     )
     @checks.api.has_applied()
     async def api_regenerate_token(
@@ -1027,7 +1037,7 @@ __**Info:**__
             else:
                 break
 
-    @api.command("token")
+    @api.command("token", cls=Command, example="api token")
     @checks.api.has_applied()
     async def api_token(self, ctx: commands.Context):
         """
@@ -1056,7 +1066,7 @@ __**Info:**__
 
         return await ctx.send("Check your DM for your API token!")
 
-    @api.group("info", invoke_without_command=True)
+    @api.group("info", invoke_without_command=True, cls=Group, example="api info")
     @checks.api.has_applied()
     async def api_info(
         self,
@@ -1160,7 +1170,7 @@ __**Info:**__
             pages = MenuPages(source=APIInfoPaginator(x), delete_message_after=True)
             await pages.start(ctx)
 
-    @api_info.command("reset")
+    @api_info.command("reset", cls=Command, example="api info reset")
     @checks.api.has_applied()
     async def api_info_reset(
         self,
@@ -1224,7 +1234,7 @@ __**Info:**__
 
         return await ctx.send("Reseted.")
 
-    @api.group(name="ip", invoke_without_command=True)
+    @api.group(name="ip", invoke_without_command=True, cls=Group, example="api ip")
     @checks.api.has_applied()
     async def api_ip(self, ctx: commands.Context):
         """
@@ -1249,7 +1259,7 @@ __**Info:**__
 
         return ip not in ["127.0.0.1", "0.0.0.0"]
 
-    @api_ip.command("list", aliases=["show"])
+    @api_ip.command("list", aliases=["show"], cls=Command, example="api ip list")
     @checks.api.has_applied()
     async def api_ip_list(
         self,
@@ -1342,7 +1352,7 @@ __**Info:**__
         pages = MenuPages(source=IPBanListPaginator(ip_bans), delete_message_after=True)
         await pages.start(ctx)
 
-    @api_ip.command("ban", aliases=["reject"])
+    @api_ip.command("ban", aliases=["reject"], cls=Command, example="api ip ban Insert-IP Your-Reason")
     @checks.api.has_applied()
     async def api_ip_ban(
         self,
@@ -1415,7 +1425,7 @@ __**Info:**__
 
         await ctx.send(f"IP banned {ip}.")
 
-    @api_ip.command("unban", aliases=["accept", "un-ban", "un_ban"])
+    @api_ip.command("unban", aliases=["accept", "un-ban", "un_ban"], cls=Command, example="api ip unban Insert-IP")
     @checks.api.has_applied()
     async def api_ip_unban(
         self, ctx, *, ip: str = commands.Option(description="The IP Address to unban.")

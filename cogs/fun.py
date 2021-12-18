@@ -3,13 +3,13 @@ import asyncio
 import random
 from discord.ext import commands
 from discord.message import DeletedReferencedMessage
-from cogs.utils import Cog, games
+from cogs.utils import Cog, games, command
 
 
 class Fun(Cog, emoji=""):  # TODO: Put fun emoji
     bingo_instances: list[games.Bingo] = []
 
-    @commands.command("slide-puzzle", aliases=["slidepuzzle", "slide_puzzle"])
+    @command("slide-puzzle", aliases=["slidepuzzle", "slide_puzzle"], example="slide-puzzle")
     async def slide_puzzle(self, ctx: commands.Context, *, size: str = None):
         """
         Slide puzzle. You need to order the numbers to make it from the smallest to the greatest.
@@ -85,7 +85,10 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
                         return False
 
                 await interaction.response.send_message(
-                    f"Please send what numbers you want to switch. Send a message with the format `num1-num2` e.g `1-5`. To switch it with a empty number, use `none` e.g `1-none`\n\nNote that you only have {slide_puzzle.switch_attempts.left} tries left to switch, including this one.\nTo cancel, just type something random \U0001f642",
+                    f"Please send what numbers you want to switch. Send a message with the format `num1-num2` e.g "
+                    f"`1-5`. To switch it with a empty number, use `none` e.g `1-none`\n\nNote that you only have "
+                    f"{slide_puzzle.switch_attempts.left} tries left to switch, including this one.\nTo cancel, "
+                    f"just type something random \U0001f642",
                     ephemeral=True,
                 )
 
@@ -99,7 +102,7 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
 
                     return await interaction.followup.send(
                         "Took to long to respond where to switch.", ephemeral=True
-                    )  # btw proguy can u co-author me for the commit u will do whenever after this cuz i helped :> ok
+                    )
 
                 try:
                     num1 = (
@@ -262,7 +265,8 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
             async def interaction_check(self, interaction: discord.Interaction) -> bool:
                 if interaction.user != ctx.author:
                     await interaction.response.send_message(
-                        f"Only {ctx.author.mention} can play this Slide Puzzle. To play your own game of Slide Puzzle, invoke the `slide-puzzle` command.",
+                        f"Only {ctx.author.mention} can play this Slide Puzzle. To play your own game of Slide "
+                        f"Puzzle, invoke the `slide-puzzle` command.",
                         ephemeral=True,
                     )
                     return False
@@ -295,7 +299,8 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
 
         slide_puzzle.start()
 
-    # @commands.command('rock-paper-scissors', aliases=['rock-paper-scissor', 'rps', 'rock_paper_scissors', 'rock_paper_scissor'])
+    # @commands.command('rock-paper-scissors', aliases=['rock-paper-scissor', 'rps', 'rock_paper_scissors',
+    # 'rock_paper_scissor'])
     async def rock_paper_scissors(
         self, ctx: commands.Context, opponent: discord.Member
     ):
@@ -331,7 +336,7 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
                 for child in self.children:
                     child.disabled = True
 
-    @commands.command("hangman")
+    @command("hangman", example="hangman")
     @commands.max_concurrency(1, commands.BucketType.user)
     async def hangman_cmd(self, ctx: commands.Context):
         """
@@ -363,7 +368,9 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
                 discord.SelectOption(label='Drinks', emoji='🍹', description='Play Hangman with Drinks category.'),
                 discord.SelectOption(label='Colors', emoji='🔴', description='Play Hangman with Coffee category.'),
                 discord.SelectOption(label='Animals', emoji='🐶', description='Play Hangman with Animals category.'),
-                discord.SelectOption(label='Countries', emoji='\U0001f1fa\U0001f1f8', description='Play Hangman with Countries category.'),
+                discord.SelectOption(label='Countries', emoji='\U0001f1fa\U0001f1f8', description='Play Hangman with '
+                                                                                                  'Countries '
+                                                                                                  'category.'),
                 discord.SelectOption(label='Vehicles', emoji='🚗', description='Play Hangman with Vehicles category.'),
                 discord.SelectOption(label='Languages', description='Play Hangman with Languages category.'),
                 discord.SelectOption(label='Buildings', emoji='🏘️', description='Play Hangman with Buildings category.'),
@@ -467,7 +474,7 @@ Please reply to this message with a letter.
 
             return await ctx.send(f"OOF! You Lost! The word was `{hangman.word[0]}`.", delete_after=10)
 
-    @commands.command("bingo")
+    @command("bingo", example="bingo")
     @commands.max_concurrency(1, commands.BucketType.channel)
     async def bingo_cmd(self, ctx: commands.Context):
         """
