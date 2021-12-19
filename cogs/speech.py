@@ -11,7 +11,7 @@ from cogs.utils import (
     AudioConverter,
     group,
     command,
-    Command
+    Command,
 )
 
 
@@ -88,7 +88,12 @@ class Speech(Cog, emoji="\U0001f399"):
                     allowed_mentions=discord.AllowedMentions(users=False),
                 )
 
-    @text_to_speech.command(name="details", aliases=["info", "support"], cls=Command, example="text-to-speech details")
+    @text_to_speech.command(
+        name="details",
+        aliases=["info", "support"],
+        cls=Command,
+        example="text-to-speech details",
+    )
     async def text_to_speech_details(
         self, ctx: commands.Context, language_code: str = None
     ):
@@ -222,7 +227,12 @@ class Speech(Cog, emoji="\U0001f399"):
 
             return await ctx.send(embed=embed)
 
-    @speech_to_text.command(name="details", aliases=["info", "support"], cls=Command, example="speech-to-text details")
+    @speech_to_text.command(
+        name="details",
+        aliases=["info", "support"],
+        cls=Command,
+        example="speech-to-text details",
+    )
     async def speech_to_text_details(self, ctx: commands.Context):
         """
         Shows the details of the available languages.

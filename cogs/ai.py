@@ -678,7 +678,11 @@ AI: 5 times 6 is 30"""
 
         await task(ctx, code)
 
-    @command("nsfw-check", aliases=["nsfwcheck", "nsfw_check", "check"], example="nsfw-check My-Image-URL-Or-Attachment")
+    @command(
+        "nsfw-check",
+        aliases=["nsfwcheck", "nsfw_check", "check"],
+        example="nsfw-check My-Image-URL-Or-Attachment",
+    )
     async def nsfw_check(
         self,
         ctx: commands.Context,
@@ -1035,7 +1039,11 @@ AI: 5 times 6 is 30"""
                     "Something wen't wrong while aquiring the translation from our API."
                 )
 
-    @translate.command(aliases=["langs", "language", "lang"], cls=Command, example="translate languages")
+    @translate.command(
+        aliases=["langs", "language", "lang"],
+        cls=Command,
+        example="translate languages",
+    )
     async def languages(
         self,
         ctx: commands.Context,

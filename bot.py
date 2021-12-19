@@ -229,7 +229,7 @@ async def on_message(message: discord.Message):
     await bot.process_commands(message)
 
 
-@bot.command(aliases=["latency"], cls=Command, example='ping')
+@bot.command(aliases=["latency"], cls=Command, example="ping")
 async def ping(ctx: commands.Context):
     """
     Gets the latency of the bot, databases and more.
@@ -323,7 +323,7 @@ async def ping(ctx: commands.Context):
     )
 
 
-@bot.command("system", aliases=["sys"], cls=Command, example='system')
+@bot.command("system", aliases=["sys"], cls=Command, example="system")
 async def system(ctx: commands.Context):
     """
     Gets systen information e.g CPU, Memory, Disk, etc.
@@ -557,7 +557,9 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
         await ctx.send(embed=embed)
 
 
-@bot.command(aliases=["act"], cls=Command, example='activity My-VC-Channel Watch Together')
+@bot.command(
+    aliases=["act"], cls=Command, example="activity My-VC-Channel Watch Together"
+)
 async def activity(
     ctx: commands.Context,
     channel: discord.VoiceChannel = commands.Option(
@@ -657,7 +659,7 @@ async def activity_error(ctx: commands.Context, error: Exception):
         await ctx.send("Please provide a channel.")
 
 
-@bot.command(cls=Command, example='lyrics See You Again')
+@bot.command(cls=Command, example="lyrics See You Again")
 async def lyrics(
     ctx: commands.Context,
     *,
@@ -907,7 +909,7 @@ async def lyrics(
             await ctx.send(embed=embed)
 
 
-@bot.command(aliases=["ss"], cls=Command, example='screenshot https://google.com/')
+@bot.command(aliases=["ss"], cls=Command, example="screenshot https://google.com/")
 async def screenshot(
     ctx: commands.Context,
     url: str = commands.Option(description="The website URL to screenshot."),
@@ -1219,7 +1221,7 @@ async def spotify_logout(ctx: commands.Context):
     await ctx.send("Logged out successfully!")
 
 
-@bot.command(aliases=["sp"], cls=Command, example='spotify @Member')
+@bot.command(aliases=["sp"], cls=Command, example="spotify @Member")
 async def spotify(
     ctx: commands.Context, member: typing.Optional[discord.Member] = None, *flags
 ):
@@ -1321,17 +1323,21 @@ async def spotify(
                 await interaction.followup.send(embed=embed, ephemeral=True)
 
     def get_possible_members_in_same_session(member, spotify: discord.Spotify):
-        return [] # For now, just return a empty list. TODO: Work on this later
+        return []  # For now, just return a empty list. TODO: Work on this later
 
         l = []
 
         member_checked = []
 
         for mem in bot.get_all_members():
-            if mem.id == member.id or mem in member_checked: # idk it wont work, so yeah...
+            if (
+                mem.id == member.id or mem in member_checked
+            ):  # idk it wont work, so yeah...
                 continue
 
-            spot = discord.utils.find(lambda a: isinstance(a, discord.Spotify), mem.activities)
+            spot = discord.utils.find(
+                lambda a: isinstance(a, discord.Spotify), mem.activities
+            )
 
             if spot:
                 if spot._sync_id == spotify._sync_id:
@@ -1434,17 +1440,19 @@ async def spotify(
 
                     embed.set_image(url=url)
 
-                    embed.description = '\n'.join(embed.description.split('\n')[:-1])
+                    embed.description = "\n".join(embed.description.split("\n")[:-1])
 
-                    members_listening = get_possible_members_in_same_session(member, spotify)
+                    members_listening = get_possible_members_in_same_session(
+                        member, spotify
+                    )
 
-                    embed.description += '> \n> **Possible Members Listening:** '
+                    embed.description += "> \n> **Possible Members Listening:** "
 
                     if not members_listening:
-                        embed.description += 'None.'
+                        embed.description += "None."
                     else:
                         for member in members_listening:
-                            embed.description += f'\n> - {member.mention} - `{member}`'
+                            embed.description += f"\n> - {member.mention} - `{member}`"
 
                     # if is_new:
                     try:
@@ -1553,15 +1561,17 @@ async def spotify(
 > **Artists:** {artists}
                     """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-                    members_listening = get_possible_members_in_same_session(member, spotify)
+                    members_listening = get_possible_members_in_same_session(
+                        member, spotify
+                    )
 
-                    embed.description += '> \n> **Possible Members Listening:** '
+                    embed.description += "> \n> **Possible Members Listening:** "
 
                     if not members_listening:
-                        embed.description += 'None.'
+                        embed.description += "None."
                     else:
                         for member in members_listening:
-                            embed.description += f'\n> - {member.mention} - `{member}`'
+                            embed.description += f"\n> - {member.mention} - `{member}`"
 
                     embed.set_thumbnail(url=spotify.album_cover_url)
 
@@ -1676,15 +1686,17 @@ async def spotify(
 > **Artists:** {artists}
                 """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-                members_listening = get_possible_members_in_same_session(member, spotify)
+                members_listening = get_possible_members_in_same_session(
+                    member, spotify
+                )
 
-                embed.description += '> \n> **Possible Members Listening:** '
+                embed.description += "> \n> **Possible Members Listening:** "
 
                 if not members_listening:
-                    embed.description += 'None.'
+                    embed.description += "None."
                 else:
                     for member in members_listening:
-                        embed.description += f'\n> - {member.mention} - `{member}`'
+                        embed.description += f"\n> - {member.mention} - `{member}`"
 
                 embed.set_thumbnail(url=spotify.album_cover_url)
 
@@ -1787,13 +1799,13 @@ async def spotify(
 
         members_listening = get_possible_members_in_same_session(member, spotify)
 
-        embed.description += '> \n> **Possible Members Listening:** '
+        embed.description += "> \n> **Possible Members Listening:** "
 
         if not members_listening:
-            embed.description += 'None.'
+            embed.description += "None."
         else:
             for member in members_listening:
-                embed.description += f'\n> - {member.mention} - `{member}`'
+                embed.description += f"\n> - {member.mention} - `{member}`"
 
         embed.set_thumbnail(url=spotify.album_cover_url)
 
@@ -1803,7 +1815,7 @@ async def spotify(
         await ctx.send(embed=embed, view=view)
 
 
-@bot.command(aliases=["docs"], cls=Command, example='documentation')
+@bot.command(aliases=["docs"], cls=Command, example="documentation")
 async def documentation(ctx: commands.Context):
     """
     Gives the OpenRobot documentation URL.
@@ -1819,7 +1831,7 @@ def codeblock(code: str, *, language=""):
 bot.codeblock = codeblock
 
 
-@bot.command(aliases=["src"], cls=Command, example='source spotify')
+@bot.command(aliases=["src"], cls=Command, example="source spotify")
 async def source(
     ctx: commands.Context,
     *,
@@ -1999,12 +2011,12 @@ async def _confirm(ctx, channel=None, *args, **kwargs):
     return view.value
 
 
-@bot.command(cls=Command, example='invite')
+@bot.command(cls=Command, example="invite")
 async def invite(
     ctx: commands.Context,
     *,
-    option: typing.Literal["Slash Commands", "Bot Invite"] = commands.Option("Bot Invite",
-        description="Either Slash Commands or Message Commands (Normal)"
+    option: typing.Literal["Slash Commands", "Bot Invite"] = commands.Option(
+        "Bot Invite", description="Either Slash Commands or Message Commands (Normal)"
     ),
 ):
     if option == "Bot Invite":

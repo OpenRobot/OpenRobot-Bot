@@ -9,7 +9,9 @@ from cogs.utils import Cog, games, command
 class Fun(Cog, emoji=""):  # TODO: Put fun emoji
     bingo_instances: list[games.Bingo] = []
 
-    @command("slide-puzzle", aliases=["slidepuzzle", "slide_puzzle"], example="slide-puzzle")
+    @command(
+        "slide-puzzle", aliases=["slidepuzzle", "slide_puzzle"], example="slide-puzzle"
+    )
     async def slide_puzzle(self, ctx: commands.Context, *, size: str = None):
         """
         Slide puzzle. You need to order the numbers to make it from the smallest to the greatest.
@@ -353,7 +355,9 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
                 self.interaction = None
 
             async def interaction_check(self, interaction: discord.Interaction) -> bool:
-                if interaction.user != ctx.author and not ctx.bot.is_owner(interaction.user):
+                if interaction.user != ctx.author and not ctx.bot.is_owner(
+                    interaction.user
+                ):
                     await interaction.response.send_message(
                         f"Only {ctx.author.mention} can play this game. To play your own game of Hangman, invoke the `hangman` command.",
                         ephemeral=True,
@@ -362,32 +366,76 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
 
                 return True
 
-            @discord.ui.select(placeholder='Select a Category', options=[
-                discord.SelectOption(label='Fruits', emoji='🍎', description='Play Hangman with Fruits category.'),
-                discord.SelectOption(label='Food', emoji='🍝', description='Play Hangman with Food category.'),
-                discord.SelectOption(label='Drinks', emoji='🍹', description='Play Hangman with Drinks category.'),
-                discord.SelectOption(label='Colors', emoji='🔴', description='Play Hangman with Coffee category.'),
-                discord.SelectOption(label='Animals', emoji='🐶', description='Play Hangman with Animals category.'),
-                discord.SelectOption(label='Countries', emoji='\U0001f1fa\U0001f1f8', description='Play Hangman with '
-                                                                                                  'Countries '
-                                                                                                  'category.'),
-                discord.SelectOption(label='Vehicles', emoji='🚗', description='Play Hangman with Vehicles category.'),
-                discord.SelectOption(label='Languages', description='Play Hangman with Languages category.'),
-                discord.SelectOption(label='Buildings', emoji='🏘️', description='Play Hangman with Buildings category.'),
-                discord.SelectOption(label='Random', emoji='🎲', description='Randomly picks a category'),
-            ])
-            async def callback(self, select: discord.ui.Select, interaction: discord.Interaction):
+            @discord.ui.select(
+                placeholder="Select a Category",
+                options=[
+                    discord.SelectOption(
+                        label="Fruits",
+                        emoji="🍎",
+                        description="Play Hangman with Fruits category.",
+                    ),
+                    discord.SelectOption(
+                        label="Food",
+                        emoji="🍝",
+                        description="Play Hangman with Food category.",
+                    ),
+                    discord.SelectOption(
+                        label="Drinks",
+                        emoji="🍹",
+                        description="Play Hangman with Drinks category.",
+                    ),
+                    discord.SelectOption(
+                        label="Colors",
+                        emoji="🔴",
+                        description="Play Hangman with Coffee category.",
+                    ),
+                    discord.SelectOption(
+                        label="Animals",
+                        emoji="🐶",
+                        description="Play Hangman with Animals category.",
+                    ),
+                    discord.SelectOption(
+                        label="Countries",
+                        emoji="\U0001f1fa\U0001f1f8",
+                        description="Play Hangman with " "Countries " "category.",
+                    ),
+                    discord.SelectOption(
+                        label="Vehicles",
+                        emoji="🚗",
+                        description="Play Hangman with Vehicles category.",
+                    ),
+                    discord.SelectOption(
+                        label="Languages",
+                        description="Play Hangman with Languages category.",
+                    ),
+                    discord.SelectOption(
+                        label="Buildings",
+                        emoji="🏘️",
+                        description="Play Hangman with Buildings category.",
+                    ),
+                    discord.SelectOption(
+                        label="Random",
+                        emoji="🎲",
+                        description="Randomly picks a category",
+                    ),
+                ],
+            )
+            async def callback(
+                self, select: discord.ui.Select, interaction: discord.Interaction
+            ):
                 await interaction.response.defer()
 
                 self.interaction = interaction
 
-                self.category = select.values[0] if select.values[0] != 'Random' else None
+                self.category = (
+                    select.values[0] if select.values[0] != "Random" else None
+                )
 
                 self.stop()
 
         view = View()
 
-        msg = await ctx.send('Choose a category to play Hangman with.', view=view)
+        msg = await ctx.send("Choose a category to play Hangman with.", view=view)
 
         await view.wait()
 
@@ -397,13 +445,19 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
 
         category = hangman.word[1].lower().capitalize()
 
-        await view.interaction.followup.send(f'You are playing Hangman with the **{category}** category.', ephemeral=True)
+        await view.interaction.followup.send(
+            f"You are playing Hangman with the **{category}** category.", ephemeral=True
+        )
 
         stopped = False
 
         class StopButton(discord.ui.Button):
             def __init__(self):
-                super().__init__(style=discord.ButtonStyle.red, label="Stop", emoji='<:openrobot_stop_button:899878227969974322>')
+                super().__init__(
+                    style=discord.ButtonStyle.red,
+                    label="Stop",
+                    emoji="<:openrobot_stop_button:899878227969974322>",
+                )
 
             async def callback(self, interaction: discord.Interaction):
                 nonlocal stopped
@@ -434,7 +488,15 @@ Please reply to this message with a letter.
 
                 msg = await ctx.send(embed=embed, view=view)
 
-                m = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel and m.reference and m.reference.resolved == msg and len(m.content) == 1 and m.content.replace(' ', '').strip())
+                m = await self.bot.wait_for(
+                    "message",
+                    check=lambda m: m.author == ctx.author
+                    and m.channel == ctx.channel
+                    and m.reference
+                    and m.reference.resolved == msg
+                    and len(m.content) == 1
+                    and m.content.replace(" ", "").strip(),
+                )
 
                 correct = hangman.guess(m.content)
 
@@ -472,7 +534,9 @@ Please reply to this message with a letter.
             except:
                 pass
 
-            return await ctx.send(f"OOF! You Lost! The word was `{hangman.word[0]}`.", delete_after=10)
+            return await ctx.send(
+                f"OOF! You Lost! The word was `{hangman.word[0]}`.", delete_after=10
+            )
 
     @command("bingo", example="bingo")
     @commands.max_concurrency(1, commands.BucketType.channel)

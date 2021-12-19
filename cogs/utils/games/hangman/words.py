@@ -68,7 +68,7 @@ FOOD = [
     "vegetable",
 ]
 
-DRINKS = [ 
+DRINKS = [
     "beer",
     "cider",
     "coffee",
@@ -158,7 +158,7 @@ ANIMALS = [
     "goldfish",
     "hamster",
     "hippopotamus",
-    "horse",    
+    "horse",
     "kangaroo",
     "kitten",
     "lion",
@@ -379,7 +379,7 @@ COUNTRY_DICT = {
     "vietnam": "vn",
     "yemen": "ye",
     "zambia": "zm",
-    "zimbabwe": "zw"
+    "zimbabwe": "zw",
 }
 
 COUNTRIES = list(COUNTRY_DICT.keys())

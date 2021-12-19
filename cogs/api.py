@@ -676,7 +676,9 @@ __**Info:**__
             "Ok! Your application has been requested to the API Developers of OpenRobot."
         )
 
-    @api.command("approve", aliases=["accept"], cls=Command, example="api approve @user")
+    @api.command(
+        "approve", aliases=["accept"], cls=Command, example="api approve @user"
+    )
     @commands.is_owner()
     async def api_approve(
         self,
@@ -1352,14 +1354,19 @@ __**Info:**__
         pages = MenuPages(source=IPBanListPaginator(ip_bans), delete_message_after=True)
         await pages.start(ctx)
 
-    @api_ip.command("ban", aliases=["reject"], cls=Command, example="api ip ban Insert-IP Your-Reason")
+    @api_ip.command(
+        "ban",
+        aliases=["reject"],
+        cls=Command,
+        example="api ip ban Insert-IP Your-Reason",
+    )
     @checks.api.has_applied()
     async def api_ip_ban(
         self,
         ctx,
-        ip: str = commands.Option(description='The IP to ban.'),
+        ip: str = commands.Option(description="The IP to ban."),
         *,
-        reason: str = commands.Option(None, description='The reason for the ban.'),
+        reason: str = commands.Option(None, description="The reason for the ban."),
     ):
         """
         IP bans a IP from using your token. This can accept either IPv4 or IPv6.
@@ -1425,7 +1432,12 @@ __**Info:**__
 
         await ctx.send(f"IP banned {ip}.")
 
-    @api_ip.command("unban", aliases=["accept", "un-ban", "un_ban"], cls=Command, example="api ip unban Insert-IP")
+    @api_ip.command(
+        "unban",
+        aliases=["accept", "un-ban", "un_ban"],
+        cls=Command,
+        example="api ip unban Insert-IP",
+    )
     @checks.api.has_applied()
     async def api_ip_unban(
         self, ctx, *, ip: str = commands.Option(description="The IP Address to unban.")

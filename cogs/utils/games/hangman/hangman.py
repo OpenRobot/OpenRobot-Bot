@@ -5,6 +5,7 @@ from cogs.utils.games.hangman import words, error
 from .error import *
 from .words import *
 
+
 class Hangman:
     def __init__(self, ctx, category: str = None):
         self.ctx = ctx
@@ -13,19 +14,29 @@ class Hangman:
         self.word: tuple[str | None, str | None] = self.generate_word(category)
 
         self.guessed_words = []
-        self.word_guess = ''
+        self.word_guess = ""
 
         for letter in self.word[0]:
-            if letter == ' ':
-                self.word_guess += '  '
+            if letter == " ":
+                self.word_guess += "  "
             else:
-                self.word_guess += '_ '
+                self.word_guess += "_ "
 
         self.word_guess = self.word_guess.strip()
 
     def generate_word(self, category: str = None, *, set_as_word: bool = True):
         if category == None:
-            l = FRUITS + FOOD + DRINKS + COLORS + ANIMALS + COUNTRIES + VEHICLES + LANGUAGES + BUILDINGS
+            l = (
+                FRUITS
+                + FOOD
+                + DRINKS
+                + COLORS
+                + ANIMALS
+                + COUNTRIES
+                + VEHICLES
+                + LANGUAGES
+                + BUILDINGS
+            )
         else:
             try:
                 l = getattr(words, category.upper())
@@ -34,16 +45,27 @@ class Hangman:
 
         choice = random.choice(l)
 
-        category = category.upper() or 'FRUITS' if choice in FRUITS else \
-            'FOOD' if choice in FOOD else \
-                'DRINKS' if choice in DRINKS else \
-                    'COLORS' if choice in COLORS else \
-                        'ANIMALS' if choice in ANIMALS else \
-                            'COUNTRY' if choice in COUNTRIES else \
-                                'VEHICLES' if choice in VEHICLES else \
-                                    'LANGUAGES' if choice in LANGUAGES else \
-                                        'BUILDINGS' if choice in BUILDINGS else \
-                                            None
+        category = (
+            category.upper() or "FRUITS"
+            if choice in FRUITS
+            else "FOOD"
+            if choice in FOOD
+            else "DRINKS"
+            if choice in DRINKS
+            else "COLORS"
+            if choice in COLORS
+            else "ANIMALS"
+            if choice in ANIMALS
+            else "COUNTRY"
+            if choice in COUNTRIES
+            else "VEHICLES"
+            if choice in VEHICLES
+            else "LANGUAGES"
+            if choice in LANGUAGES
+            else "BUILDINGS"
+            if choice in BUILDINGS
+            else None
+        )
 
         if set_as_word:
             self.word = choice, category
@@ -52,10 +74,10 @@ class Hangman:
 
     def guess(self, letter: str):
         if len(letter) != 1:
-            raise InvalidLetter('You must guess a single letter.')
+            raise InvalidLetter("You must guess a single letter.")
 
-        if not letter.replace(' ', '').strip():
-            raise InvalidLetter('You cannot guess a space.')
+        if not letter.replace(" ", "").strip():
+            raise InvalidLetter("You cannot guess a space.")
 
         if letter in self.guessed_words:
             raise AlreadyGuessed(letter)
@@ -67,11 +89,15 @@ class Hangman:
             # Such as beer, has 2 e's.
             # .index wont cover this, so we neeed to make our own implementation using enumerate.
 
-            indexes = [index for index, value in enumerate(self.word[0]) if value == letter]
+            indexes = [
+                index for index, value in enumerate(self.word[0]) if value == letter
+            ]
 
             if indexes:
                 for index in indexes:
-                    self.word_guess = self.word_guess[:index] + letter + self.word_guess[index + 1:]
+                    self.word_guess = (
+                        self.word_guess[:index] + letter + self.word_guess[index + 1 :]
+                    )
 
                 return True
             else:
@@ -84,12 +110,12 @@ class Hangman:
     @property
     def win(self):
         return self.word_guess == self.word[0] and self.tries > 0
-    
+
     @property
     def lose(self):
         return self.tries <= 0
 
-    def draw(self): # thanks copilot
+    def draw(self):  # thanks copilot
         match self.tries:
             case 0:
                 return """
@@ -187,6 +213,3 @@ __|__"""
   |
   |   
 __|__"""
-
-
-    

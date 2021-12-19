@@ -58,10 +58,9 @@ class OpenRobotHelp(commands.HelpCommand):
         embed = self.generate_embed()
 
         # Do the help command
+        useable = 0
 
         for cog, commands in mapping.items():
-            useable = 0
-
             # Only display useable commands. If no commands are useable in that cog, we don't want to display it
             if filtered_commands := await self.filter_commands(commands):
                 amount_commands = len(filtered_commands)
@@ -89,11 +88,11 @@ class OpenRobotHelp(commands.HelpCommand):
             s = command.qualified_name
 
             if usage := command.usage:
-                s += f' {usage}'
+                s += f" {usage}"
 
             return s
 
-        return getattr(command, 'example', _get_original_example())
+        return getattr(command, "example", _get_original_example())
 
     async def get_command_help(self, command: commands.Command):
         ctx = self.ctx
@@ -127,32 +126,26 @@ class OpenRobotHelp(commands.HelpCommand):
 
         embed.add_field(
             name="Example:",
-            value=f"```yml\n{self.get_command_example(command)}\n```",
+            value=f"```yml\n{ctx.prefix}{self.get_command_example(command)}\n```",
             inline=False,
         )
-
-
-        can_run = "<:no:597591030807920660>"
-        # command.can_run to test if the cog is usable
-        with contextlib.suppress(commands.CommandError):
-            if await command.can_run(ctx):
-                can_run = "<:yes:597590985802907658>"
-
-        embed.add_field(name="Usable:", value=can_run, inline=False)
 
         if (bucket := command._buckets) and (
             cooldown := command._buckets._cooldown
         ):  # use of internals to get the cooldown of the command
             embed.add_field(
                 name="Cooldown",
-                value=f"`{cooldown.rate}` command per `{cooldown.per:.0f} seconds` for each `{bucket.type.name.title()}`",
+                value=f"`{cooldown.rate}` command per `{cooldown.per:.0f} seconds`"
+                f"for each `{bucket.type.name.title()}`",
                 inline=False,
             )
 
-        if max_concurrency := command._max_concurrency:
+        if (
+            max_concurrency := command._max_concurrency
+        ):  # use of internals to get the cooldown of the command
             embed.add_field(
                 name="Concurrency",
-                value=f"`{max_concurrency.number}` commands at once per `{max_concurrency.per.name.title()}`",
+                value=f"`{max_concurrency.number}` command(s) at once per `{max_concurrency.per.name.title()}`",
                 inline=False,
             )
 
@@ -166,9 +159,17 @@ class OpenRobotHelp(commands.HelpCommand):
             )
             embed.add_field(name="Subcommand(s):", value=value, inline=False)
 
+        can_run = "<:no:597591030807920660>"
+        # command.can_run to test if the cog is usable
+        with contextlib.suppress(commands.CommandError):
+            if await command.can_run(ctx):
+                can_run = "<:yes:597590985802907658>"
+
+        embed.add_field(name="Usable:", value=can_run, inline=False)
+
         return await self.send(embed=embed)
 
-    async def send_cog_help(self, cog: Cog):
+    async def send_cog_help(self, cog: Cog | None):  # None is for No Category help
         ctx = self.ctx
 
         if cog is None:
