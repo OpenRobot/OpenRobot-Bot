@@ -212,20 +212,13 @@ class ChristmasEvent:
     def color(self):
         return random.choice(self.colors)
 
-    @tasks.loop(seconds=3)
-    async def _color_task(self):
-        self.bot._color = self.color()
-
     async def _start_event(self):
         await self.bot.change_presence(activity=self.activity)
         await self.bot.user.edit(avatar=self.get_avatar())
         self.bot.banner = self.get_banner(christmas=True, url=True)
         self.bot.description = self.description
 
-        #self.bot._color = self.color this won't work for some reason, idk why. I'll fix it later.
-        # For now, lets make a task that updates the color every 3 seconds ig.
-
-        self._color_task.start()
+        self.bot._color = self.color
 
     async def _end_event(self):
         await self.bot.change_presence(activity=self._old_activity)
@@ -233,6 +226,4 @@ class ChristmasEvent:
         self.bot.banner = self.get_banner(christmas=False, url=True)
         self.bot.description = self._old_description
 
-        #self.bot._color = self._color
-        self._color_task.cancel()
-        self.bot.color = self._color or self.bot.__color
+        self.bot._color = self._color
