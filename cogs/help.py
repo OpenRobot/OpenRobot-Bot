@@ -123,6 +123,12 @@ class OpenRobotHelp(commands.HelpCommand):
                 value=getattr(cog, "full_name", cog.qualified_name),
                 inline=False,
             )
+        else:
+            embed.add_field(
+                name="Category:",
+                value=(self.no_category_emoji + ' ' if self.no_category_emoji else '') + self.no_category,
+                inline=False,
+            )
 
         embed.add_field(
             name="Example:",
