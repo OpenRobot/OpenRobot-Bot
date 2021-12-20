@@ -2085,6 +2085,7 @@ bot.exts = [
     "cogs.fun",
     "cogs.speech",
     "cogs.ai",
+    "cogs.repi"
 ]
 
 

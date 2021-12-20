@@ -50,3 +50,6 @@ class RePI(Cog):
                 return await ctx.send(f"IP unbanned `{ip}` successfully.")
             else:
                 return await ctx.send(f"Failed to unban IP `{ip}`.")
+
+def setup(bot):
+    bot.add_cog(RePI(bot))
