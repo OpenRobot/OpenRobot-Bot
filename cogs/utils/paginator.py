@@ -253,6 +253,12 @@ MenuPages = ViewMenuPages
 
 
 class CodeReviewPages(BaseViewMenuPages):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.thumbsup = False
+        self.thumbsdown = False
+
     @ui.button(emoji="\U0001f44d", style=discord.ButtonStyle.blurple, row=1)
     async def good_recommendation(self, button, interaction):
         bot = self.ctx.bot
@@ -269,14 +275,30 @@ class CodeReviewPages(BaseViewMenuPages):
 
         RecommendationId = entry["RecommendationId"]
 
-        codeguru.put_recommendation_feedback(
-            CodeReviewArn=CodeReviewArn,
-            RecommendationId=RecommendationId,
-            Reactions=["ThumbsUp"],
-        )
+        if self.thumbsup:
+            codeguru.put_recommendation_feedback(
+                CodeReviewArn=CodeReviewArn,
+                RecommendationId=RecommendationId,
+                Reactions=[],
+            )
 
-        button.disabled = True
-        self.bad_recommendation.disabled = False
+            button.style = discord.ButtonStyle.blurple
+
+            self.thumbsup = False
+        else:
+            codeguru.put_recommendation_feedback(
+                CodeReviewArn=CodeReviewArn,
+                RecommendationId=RecommendationId,
+                Reactions=["ThumbsUp"],
+            )
+
+            button.style = discord.ButtonStyle.green
+            self.bad_recommendation.style = discord.ButtonStyle.blurple
+
+            self.thumbsup = True
+
+        #button.disabled = True
+        #self.bad_recommendation.disabled = False
 
         await interaction.message.edit(view=self)
 
@@ -296,14 +318,30 @@ class CodeReviewPages(BaseViewMenuPages):
 
         RecommendationId = entry["RecommendationId"]
 
-        codeguru.put_recommendation_feedback(
-            CodeReviewArn=CodeReviewArn,
-            RecommendationId=RecommendationId,
-            Reactions=["ThumbsDown"],
-        )
+        if self.thumbsdown:
+            codeguru.put_recommendation_feedback(
+                CodeReviewArn=CodeReviewArn,
+                RecommendationId=RecommendationId,
+                Reactions=[],
+            )
 
-        button.disabled = True
-        self.good_recommendation.disabled = False
+            button.style = discord.ButtonStyle.blurple
+
+            self.thumbsdown = False
+        else:
+            codeguru.put_recommendation_feedback(
+                CodeReviewArn=CodeReviewArn,
+                RecommendationId=RecommendationId,
+                Reactions=["ThumbsDown"],
+            )
+
+            button.style = discord.ButtonStyle.red
+            self.good_recommendation.style = discord.ButtonStyle.blurple
+
+            self.thumbsdown = True
+
+        #button.disabled = True
+        #self.good_recommendation.disabled = False
 
         await interaction.message.edit(view=self)
 
