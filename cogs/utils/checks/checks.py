@@ -74,7 +74,9 @@ class repi:
                 if ctx.author.id != cls.OWNER_ID:
                     raise RePIIsNotOwner("You are not the owner of the RePI API.")
             else:
-                if ctx.author.id != cls.OWNER_ID and not ctx.bot.is_owner(ctx.author):
+                if ctx.author.id != cls.OWNER_ID and not await ctx.bot.is_owner(ctx.author):
                     raise RePIIsNotOwner("You are not the owner of the RePI API.")
 
             return True
+
+        return commands.check(predicate)
