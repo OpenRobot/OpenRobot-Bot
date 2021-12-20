@@ -5,7 +5,7 @@ from discord.ext import commands
 from cogs.utils.base import Bot
 
 class DatabasePing:
-    def __init__(self, ping):
+    def __init__(self, ping: "Ping"):
         self._ping = ping
 
     async def postgresql(
@@ -57,6 +57,78 @@ class DatabasePing:
             return None
 
 
+class APIPing:
+    def __init__(self, ping: "Ping"):
+        self._ping = ping
+
+    async def openrobot(self, format: str = "seconds") -> int | float:
+        # API ping test, fastest endpoint to test as it just returns a static JSON.
+        url = "https://api.openrobot.xyz/_internal/available"
+
+        start = time.perf_counter()
+        async with self._ping.bot.session.get(url) as resp:
+            end = time.perf_counter()
+
+            match format.lower():
+                case "ms" | "milliseconds" | "millisecond":
+                    return (end - start) * 1000
+                case _:
+                    return end - start
+
+    async def jeyy(self, format: str = "seconds") -> int | float:
+        # API ping test, fastest endpoint to test as it just returns a static JSON AFAIK.
+        url = "https://api.jeyy.xyz/isometric/codes"
+
+        start = time.perf_counter()
+        async with self._ping.bot.session.get(url) as resp:
+            end = time.perf_counter()
+
+            match format.lower():
+                case "ms" | "milliseconds" | "millisecond":
+                    return (end - start) * 1000
+                case _:
+                    return end - start
+
+    async def repi(self, format: str = "seconds") -> int | float:
+        # API ping test, fastest endpoint to test as it just returns a static HTML AFAIK.
+        url = "https://repi.openrobot.xyz/"
+
+        start = time.perf_counter()
+        async with self._ping.bot.session.get(url) as resp:
+            end = time.perf_counter()
+
+            match format.lower():
+                case "ms" | "milliseconds" | "millisecond":
+                    return (end - start) * 1000
+                case _:
+                    return end - start
+
+    async def dagpi(self, format: str = "seconds") -> int | float:
+        url = "https://dagpi.xyz/"
+
+        start = time.perf_counter()
+        async with self._ping.bot.session.get(url) as resp:
+            end = time.perf_counter()
+
+            match format.lower():
+                case "ms" | "milliseconds" | "millisecond":
+                    return (end - start) * 1000
+                case _:
+                    return end - start
+
+    async def waifu_im(self, format: str = "seconds") -> int | float:
+        url = "https://waifu.im"
+
+        start = time.perf_counter()
+        async with self._ping.bot.session.get(url) as resp:
+            end = time.perf_counter()
+
+            match format.lower():
+                case "ms" | "milliseconds" | "millisecond":
+                    return (end - start) * 1000
+                case _:
+                    return end - start
+
 class Ping:
     EMOJIS = {
         "postgresql": "<:postgresql:903286241066385458>",
@@ -65,6 +137,9 @@ class Ping:
         "discord": "<:BlueDiscord:842701102381269022>",
         "typing": "<a:typing:597589448607399949>",
         "openrobot-api": "<:OpenRobotLogo:901132699241168937>",
+        "jeyy-api": "<:jeyyapi:922499477376475216>",
+        "waifu-im": "<:waifuim:922500126969319476>",
+        "dagpi": "<:dagpi:922499421772599346>"
     }
 
     def __init__(self, bot: Bot):
@@ -77,6 +152,10 @@ class Ping:
     @property
     def db(self) -> DatabasePing:
         return self.database
+
+    @property
+    def api(self):
+        return APIPing(self)
 
     def bot_latency(self, format: str = "seconds") -> int | float:
         latency = self.bot.latency
@@ -112,17 +191,3 @@ class Ping:
                 return (end - start) * 1000
             case _:
                 return end - start
-
-    async def api(self, format: str = "seconds") -> int | float:
-        # API ping test, fastest endpoint to test as it just returns a static JSON.
-        url = "https://api.openrobot.xyz/_internal/available"
-
-        start = time.perf_counter()
-        async with self.bot.session.get(url) as resp:
-            end = time.perf_counter()
-
-            match format.lower():
-                case "ms" | "milliseconds" | "millisecond":
-                    return (end - start) * 1000
-                case _:
-                    return end - start
