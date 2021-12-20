@@ -254,8 +254,8 @@ async def ping(ctx: commands.Context):
 
     embed = (
         discord.Embed(color=bot.color, timestamp=ctx.message.created_at)
-        .set_author(name="Latency/Ping Info:", icon_url=ctx.author.avatar.url)
-        .set_footer(icon_url=ctx.author.avatar.url, text=f"Requested by: {ctx.author}")
+        .set_author(name="Latency/Ping Info:", icon_url=ctx.author.display_avatar.url)
+        .set_footer(icon_url=ctx.author.display_avatar.url, text=f"Requested by: {ctx.author}")
     )
 
     web_ping = await bot.ping.discord_web_ping() * 1000
@@ -1549,7 +1549,7 @@ async def spotify(
                         album = "`" + spotify.album + "`"
 
                     embed.set_author(
-                        name=f"{member}'s Spotify:", icon_url=member.avatar.url
+                        name=f"{member}'s Spotify:", icon_url=member.display_avatar.url
                     )
 
                     embed.description = f"""
@@ -1674,7 +1674,7 @@ async def spotify(
                     album = "`" + spotify.album + "`"
 
                 embed.set_author(
-                    name=f"{member}'s Spotify:", icon_url=member.avatar.url
+                    name=f"{member}'s Spotify:", icon_url=member.display_avatar.url
                 )
 
                 embed.description = f"""
@@ -1786,7 +1786,7 @@ async def spotify(
             artists = ", ".join([f"`{x}`" for x in spotify.artists])
             album = "`" + spotify.album + "`"
 
-        embed.set_author(name=f"{member}'s Spotify:", icon_url=member.avatar.url)
+        embed.set_author(name=f"{member}'s Spotify:", icon_url=member.display_avatar.url)
 
         embed.description = f"""
 > **{member}** is listening to [`{spotify.title}`]({spotify.track_url}) by {artists}

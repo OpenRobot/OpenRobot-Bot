@@ -158,12 +158,14 @@ class OpenRobotHelp(commands.HelpCommand):
         if isinstance(command, commands.Group):
             subcommands = command.commands
 
-            filtered_subcommands = await self.filter_commands(subcommands)
+            if subcommands:
+                filtered_subcommands = await self.filter_commands(subcommands)
 
-            value = "\n".join(
-                [f"`{subcommand}`" for subcommand in filtered_subcommands]
-            )
-            embed.add_field(name="Subcommand(s):", value=value, inline=False)
+                if filtered_subcommands:
+                    value = "\n".join(
+                        [f"`{subcommand}`" for subcommand in filtered_subcommands]
+                    )
+                    embed.add_field(name="Subcommand(s):", value=value, inline=False)
 
         can_run = "<:no:597591030807920660>"
         # command.can_run to test if the cog is usable

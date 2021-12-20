@@ -220,7 +220,7 @@ class Speech(Cog, emoji="\U0001f399"):
                 )
 
             embed = discord.Embed(title="Result:", color=self.bot.color).set_footer(
-                text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url
+                text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url
             )
 
             embed.description = stt.text

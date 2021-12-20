@@ -196,7 +196,7 @@ AI: 5 times 6 is 30"""
         embed = discord.Embed(color=self.bot.color)
 
         embed.set_author(
-            name=f"Study Notes for {topic.title()}:", icon_url=ctx.author.avatar.url
+            name=f"Study Notes for {topic.title()}:", icon_url=ctx.author.display_avatar.url
         )
 
         s = "1."
@@ -710,7 +710,7 @@ AI: 5 times 6 is 30"""
 
         url = (
             await ImageConverter(strip_remove=["--raw"]).convert(ctx, image)
-            or ctx.author.avatar.url
+            or ctx.author.display_avatar.url
         )
 
         check = await self.bot.api.nsfw_check(url)

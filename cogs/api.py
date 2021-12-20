@@ -333,7 +333,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
                 embed = (
                     discord.Embed(color=self.view.ctx.bot.color)
                     .set_author(
-                        name="General", icon_url=self.view.ctx.author.avatar.url
+                        name="General", icon_url=self.view.ctx.author.display_avatar.url
                     )
                     .set_footer(
                         text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.'
@@ -376,7 +376,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
                 embed = (
                     discord.Embed(color=self.view.ctx.bot.color)
                     .set_author(
-                        name=selection.label, icon_url=self.view.ctx.author.avatar.url
+                        name=selection.label, icon_url=self.view.ctx.author.display_avatar.url
                     )
                     .set_footer(
                         text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.'
@@ -654,7 +654,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
         embed = discord.Embed()
         embed.color = self.bot.color
-        embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
+        embed.set_author(name=ctx.author.name, icon_url=ctx.author.display_avatar.url)
         embed.set_footer(text=f"ID: {ctx.author.id}")
         embed.timestamp = discord.utils.utcnow()
         newline = "\n"
