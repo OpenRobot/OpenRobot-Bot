@@ -140,6 +140,11 @@ class ChristmasEvent:
             discord.Colour(0xD2D2D6),
             discord.Colour(0x7D7C84),
             discord.Colour(0x9D9EA5),
+
+            # Invisible embed colors (Dark mode):
+            discord.Colour(0x2F3136),  # Rounded corners
+            discord.Colour(0x36393E),  # Pointy/sharp corners
+
             # Built-in Colors:
             discord.Colour.yellow(),
             discord.Colour.gold(),
