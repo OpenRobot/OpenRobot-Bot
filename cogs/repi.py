@@ -26,7 +26,7 @@ class RePI(Cog):
     @repi.command(name="ban", cls=Command)
     async def ip_ban(self, ctx: Context, ip: str):
         """
-        IP bans a IP from accessing the API.
+        IP bans an IP from accessing the API.
         """
 
         async with self.bot.session.get('https://repi.openrobot.xyz/admin/ban',
@@ -40,7 +40,7 @@ class RePI(Cog):
     @repi.command(name="ban", cls=Command)
     async def ip_ban(self, ctx: Context, ip: str):
         """
-        IP unbans a IP from accessing the API.
+        IP unbans an IP from accessing the API.
         """
 
         async with self.bot.session.get('https://repi.openrobot.xyz/admin/ban',
