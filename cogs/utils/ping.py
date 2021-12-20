@@ -2,7 +2,7 @@ import time
 import asyncpg
 import aiohttp
 from discord.ext import commands
-
+from cogs.utils.base import Bot
 
 class DatabasePing:
     def __init__(self, ping):
@@ -27,10 +27,11 @@ class DatabasePing:
 
             result = time.perf_counter() - start
 
-            if format.lower() in ["ms", "milliseconds", "millisecond"]:
-                return result * 1000
-            else:
-                return result
+            match format.lower():
+                case "ms" | "milliseconds" | "millisecond":
+                    return result * 1000
+                case _:
+                    return result
         except:
             return None
 
@@ -47,10 +48,11 @@ class DatabasePing:
 
             result = time.perf_counter() - start
 
-            if format.lower() in ["ms", "milliseconds", "millisecond"]:
-                return result * 1000
-            else:
-                return result
+            match format.lower():
+                case "ms" | "milliseconds" | "millisecond":
+                    return result * 1000
+                case _:
+                    return result
         except:
             return None
 
@@ -65,7 +67,7 @@ class Ping:
         "openrobot-api": "<:OpenRobotLogo:901132699241168937>",
     }
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     @property
@@ -77,10 +79,13 @@ class Ping:
         return self.database
 
     def bot_latency(self, format: str = "seconds") -> int | float:
-        if format.lower() in ["ms", "milliseconds", "millisecond"]:
-            return self.bot.latency * 1000
-        else:
-            return self.bot.latency
+        latency = self.bot.latency
+
+        match format.lower():
+            case "ms" | "milliseconds" | "millisecond":
+                return latency * 1000
+            case _:
+                return latency
 
     async def discord_web_ping(self, format: str = "seconds") -> int | float:
         url = "https://discordapp.com/"
@@ -89,10 +94,11 @@ class Ping:
         async with self.bot.session.get(url) as resp:
             end = time.perf_counter()
 
-            if format.lower() in ["ms", "milliseconds", "millisecond"]:
-                return (end - start) * 1000
-            else:
-                return end - start
+            match format.lower():
+                case "ms" | "milliseconds" | "millisecond":
+                    return (end - start) * 1000
+                case _:
+                    return end - start
 
     async def typing_latency(self, format: str = "seconds") -> int | float:
         chan = self.bot.get_channel(903282453735678035)  # Typing Channel ping test
@@ -101,19 +107,22 @@ class Ping:
         await chan.trigger_typing()
         end = time.perf_counter()
 
-        if format.lower() in ["ms", "milliseconds", "millisecond"]:
-            return (end - start) * 1000
-        else:
-            return end - start
+        match format.lower():
+            case "ms" | "milliseconds" | "millisecond":
+                return (end - start) * 1000
+            case _:
+                return end - start
 
     async def api(self, format: str = "seconds") -> int | float:
-        url = "https://api.openrobot.xyz/_internal/available"  # API ping test, fastest endpoint to test as it just returns a static JSON.
+        # API ping test, fastest endpoint to test as it just returns a static JSON.
+        url = "https://api.openrobot.xyz/_internal/available"
 
         start = time.perf_counter()
         async with self.bot.session.get(url) as resp:
             end = time.perf_counter()
 
-            if format.lower() in ["ms", "milliseconds", "millisecond"]:
-                return (end - start) * 1000
-            else:
-                return end - start
+            match format.lower():
+                case "ms" | "milliseconds" | "millisecond":
+                    return (end - start) * 1000
+                case _:
+                    return end - start
