@@ -62,3 +62,19 @@ class api:
             return True
 
         return commands.check(predicate)
+
+
+class repi:
+    OWNER_ID = 746807014658801704
+
+    @classmethod
+    def is_admin(cls, *, exclude_owner=False):
+        async def predicate(ctx):
+            if exclude_owner:
+                if ctx.author.id != cls.OWNER_ID:
+                    raise RePIIsNotOwner("You are not the owner of the RePI API.")
+            else:
+                if ctx.author.id != cls.OWNER_ID and not ctx.bot.is_owner(ctx.author):
+                    raise RePIIsNotOwner("You are not the owner of the RePI API.")
+
+            return True
