@@ -2,7 +2,6 @@ import time
 import asyncpg
 import aiohttp
 from discord.ext import commands
-from cogs.utils.base import Bot
 
 class DatabasePing:
     def __init__(self, ping: "Ping"):
@@ -142,7 +141,7 @@ class Ping:
         "dagpi": "<:dagpi:922499421772599346>"
     }
 
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @property
