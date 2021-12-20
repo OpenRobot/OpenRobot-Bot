@@ -296,6 +296,7 @@ async def ping(ctx: commands.Context):
         embed.add_field(
             name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:',
             value=do_ping_string(round(psql_ping * 1000, 2)),
+            inline=False,
         )
 
     if bot.redis:
@@ -310,6 +311,7 @@ async def ping(ctx: commands.Context):
     embed.add_field(
         name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:',
         value=do_ping_string(round(await bot.ping.api.openrobot() * 1000, 2)),
+        inline=False,
     )
 
     embed.add_field(
