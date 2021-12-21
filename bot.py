@@ -1483,17 +1483,16 @@ async def spotify(
 
                     embed.description = "\n".join(embed.description.split("\n")[:-1])
 
-                    if ctx.beta:
-                        members_listening = get_possible_members_in_same_session(
-                            member, spotify
-                        )
-                        embed.description += "> \n> **Possible Members Listening:** "
+                    members_listening = get_possible_members_in_same_session(
+                        member, spotify
+                    )
+                    embed.description += "> \n> **Possible Members Listening:** "
 
-                        if not members_listening:
-                            embed.description += "None."
-                        else:
-                            for member in members_listening:
-                                embed.description += f"\n> - {member.mention} - `{member}`"
+                    if not members_listening:
+                        embed.description += "None."
+                    else:
+                        for member in members_listening:
+                            embed.description += f"\n> - {member.mention} - `{member}`"
 
                     # if is_new:
                     try:
@@ -1602,18 +1601,17 @@ async def spotify(
 > **Artists:** {artists}
                     """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-                    if ctx.beta:
-                        members_listening = get_possible_members_in_same_session(
-                            member, spotify
-                        )
+                    members_listening = get_possible_members_in_same_session(
+                        member, spotify
+                    )
 
-                        embed.description += "> \n> **Possible Members Listening:** "
+                    embed.description += "> \n> **Possible Members Listening:** "
 
-                        if not members_listening:
-                            embed.description += "None."
-                        else:
-                            for member in members_listening:
-                                embed.description += f"\n> - {member.mention} - `{member}`"
+                    if not members_listening:
+                        embed.description += "None."
+                    else:
+                        for member in members_listening:
+                            embed.description += f"\n> - {member.mention} - `{member}`"
 
                     embed.set_thumbnail(url=spotify.album_cover_url)
 
@@ -1728,18 +1726,17 @@ async def spotify(
 > **Artists:** {artists}
                 """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-                if ctx.beta:
-                    members_listening = get_possible_members_in_same_session(
-                        member, spotify
-                    )
+                members_listening = get_possible_members_in_same_session(
+                    member, spotify
+                )
 
-                    embed.description += "> \n> **Possible Members Listening:** "
+                embed.description += "> \n> **Possible Members Listening:** "
 
-                    if not members_listening:
-                        embed.description += "None."
-                    else:
-                        for member in members_listening:
-                            embed.description += f"\n> - {member.mention} - `{member}`"
+                if not members_listening:
+                    embed.description += "None."
+                else:
+                    for member in members_listening:
+                        embed.description += f"\n> - {member.mention} - `{member}`"
 
                 embed.set_thumbnail(url=spotify.album_cover_url)
 
@@ -1840,16 +1837,15 @@ async def spotify(
 > **Artists:** {artists}
         """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-        if ctx.beta:
-            members_listening = get_possible_members_in_same_session(member, spotify)
+        members_listening = get_possible_members_in_same_session(member, spotify)
 
-            embed.description += "> \n> **Possible Members Listening:** "
+        embed.description += "> \n> **Possible Members Listening:** "
 
-            if not members_listening:
-                embed.description += "None."
-            else:
-                for member in members_listening:
-                    embed.description += f"\n> - {member.mention} - `{member}`"
+        if not members_listening:
+            embed.description += "None."
+        else:
+            for member in members_listening:
+                embed.description += f"\n> - {member.mention} - `{member}`"
 
         embed.set_thumbnail(url=spotify.album_cover_url)
 
