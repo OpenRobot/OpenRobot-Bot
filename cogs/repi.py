@@ -25,6 +25,7 @@ class RePI(Cog):
             return await ctx.send_help(ctx.command)
 
     @repi_cmd.command(name="ban", cls=Command, example="repi ban Insert-IP-Here")
+    @repi.is_admin()
     async def ip_ban(self, ctx: Context, ip: str):
         """
         IP bans an IP from accessing the API.
@@ -39,6 +40,7 @@ class RePI(Cog):
                 return await ctx.send(f"Failed to ban IP `{ip}`.")
 
     @repi_cmd.command(name="unban", cls=Command, example="repi unban Insert-IP-Here")
+    @repi.is_admin()
     async def ip_unban(self, ctx: Context, ip: str):
         """
         IP unbans an IP from accessing the API.
