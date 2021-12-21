@@ -17,6 +17,7 @@ class Context(commands.Context):
         self.running = None
 
         self.debug = kwargs.get("debug", False)
+        self.beta = kwargs.get("beta", False)
 
     async def send(self, content: str = None, **kwargs):
         if not self.interaction:
