@@ -1376,15 +1376,16 @@ async def spotify(
             ):
                 continue
 
-            spot = discord.utils.find(
-                lambda a: a.type is discord.ActivityType.listening, mem.activities
-            )
+            try:
+                spot = discord.utils.find(
+                    lambda a: a.type is discord.ActivityType.listening, mem.activities
+                )
 
-            if spot:
-                if spot._sync_id == spotify._sync_id:
-                    l.append(mem)
-
-            member_checked.add(mem)
+                if spot:
+                    if spot._sync_id == spotify._sync_id:
+                        l.append(mem)
+            finally:
+                member_checked.add(mem)
 
         return l
 
