@@ -229,6 +229,12 @@ async def on_message(message: discord.Message):
     await bot.process_commands(message)
 
 
+@bot.event
+@override
+async def on_message_edit(before: discord.Message, after: discord.Message):
+    await bot.process_commands(after)
+
+
 @bot.command(aliases=["latency"], cls=Command, example="ping")
 async def ping(ctx: commands.Context):
     """
