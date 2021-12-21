@@ -25,6 +25,7 @@ class RePI(Cog):
             return await ctx.send_help(ctx.command)
 
     @repi_cmd.command(name="ban", cls=Command, example="repi ban Insert-IP-Here")
+    @repi.is_admin()
     async def ip_ban(self, ctx: Context, ip: str):
         """
         IP bans an IP from accessing the API.
@@ -39,12 +40,13 @@ class RePI(Cog):
                 return await ctx.send(f"Failed to ban IP `{ip}`.")
 
     @repi_cmd.command(name="unban", cls=Command, example="repi unban Insert-IP-Here")
+    @repi.is_admin()
     async def ip_unban(self, ctx: Context, ip: str):
         """
         IP unbans an IP from accessing the API.
         """
 
-        async with self.bot.session.get('https://repi.openrobot.xyz/admin/ban',
+        async with self.bot.session.get('https://repi.openrobot.xyz/admin/unban',
                                         params={'ip': ip, 'key': self.bot.config.REPI_CRIDENTIALS['key']},
                                         headers={'Authorization': self.bot.config.REPI_CRIDENTIALS['token']}) as resp:
             if resp.status == 200:
