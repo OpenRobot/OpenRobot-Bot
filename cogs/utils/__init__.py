@@ -17,6 +17,7 @@ from . import (
     checks,
     events,
     command,
+    prefixes,
 )
 
 # Base imports
@@ -37,3 +38,4 @@ from .driver import *
 from .executor import *
 from .events import *
 from .command import *
+from .prefixes import *

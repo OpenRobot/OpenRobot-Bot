@@ -45,6 +45,8 @@ from cogs.utils import (
     Bot as BaseBot,
     ChristmasEvent,
     Command,
+    ApplyPrefix,
+    case_insensitive_prefix,
 )
 
 description = """
@@ -192,9 +194,8 @@ class Bot(BaseBot):
 
         return await super().close()
 
-
 bot = Bot(
-    command_prefix=commands.when_mentioned_or(*config.PREFIXES),
+    command_prefix=ApplyPrefix(case_insensitive_prefix(config.PREFIXES)),
     help_command=commands.MinimalHelpCommand(
         no_category="Miscellaneous"
     ),  # For old help command purposes only. This is used whenever the help cog fails.
@@ -237,11 +238,12 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
 
 
 @bot.command(name="beta", cls=Command, example="beta spotify", hidden=True)
-async def execute_beta(ctx: commands.Context, command_name: str, *, command_args: str = None):
-    command_args = (f' {command_args}' if command_args else "") or ""
+async def execute_beta(ctx: commands.Context, *command):
+    if not command:
+        return await ctx.send("A command name is a required argument to provide!")
 
     msg = copy.copy(ctx.message)
-    msg.content = f"{ctx.prefix}{command_name} {command_args}"
+    msg.content = f"{ctx.prefix} " + " ".join(command)
 
     ctx = await bot.get_context(msg)
 
