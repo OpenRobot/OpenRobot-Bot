@@ -118,7 +118,7 @@ class Bot(BaseBot):
         return buffer
 
     async def publishCdn(
-        self, fp: BytesIO, filename: str = "uwu.png", from_aiohttp=True, file_type=None
+            self, fp: BytesIO, filename: str = "uwu.png", from_aiohttp=True, file_type=None
     ):
         fileType = file_type or f"{filename.split('.')[-1:]}"
 
@@ -144,7 +144,7 @@ class Bot(BaseBot):
 
     @executor()  # CDN may be blocking, so lets just use an executor just in case
     def publish_cdn(
-        self, fp: BytesIO | bytes, filename: str, *, raw: bool = False
+            self, fp: BytesIO | bytes, filename: str, *, raw: bool = False
     ) -> str | dict | typing.Any:
         hash = "".join(
             random.choices(
@@ -194,6 +194,7 @@ class Bot(BaseBot):
 
         return await super().close()
 
+
 bot = Bot(
     command_prefix=ApplyPrefix(case_insensitive_prefix(config.PREFIXES)),
     help_command=commands.MinimalHelpCommand(
@@ -234,6 +235,9 @@ async def on_message(message: discord.Message):
 @bot.event
 @override
 async def on_message_edit(before: discord.Message, after: discord.Message):
+    if after.content == before.content:
+        return  # Do not process commands if the msg content is the same, e.g. URL Embed, etc.
+
     await bot.process_commands(after)
 
 
@@ -277,8 +281,8 @@ async def ping(ctx: commands.Context):
 
     embed = (
         discord.Embed(color=bot.color, timestamp=ctx.message.created_at)
-        .set_author(name="Latency/Ping Info:", icon_url=ctx.author.display_avatar.url)
-        .set_footer(icon_url=ctx.author.display_avatar.url, text=f"Requested by: {ctx.author}")
+            .set_author(name="Latency/Ping Info:", icon_url=ctx.author.display_avatar.url)
+            .set_footer(icon_url=ctx.author.display_avatar.url, text=f"Requested by: {ctx.author}")
     )
 
     web_ping = await bot.ping.discord_web_ping() * 1000
@@ -546,8 +550,8 @@ Send: {disk_io_bytes_send}```
                 data2 = s.results.dict()
 
                 if (
-                    data["download"] < data2["download"]
-                    and data["upload"] < data2["upload"]
+                        data["download"] < data2["download"]
+                        and data["upload"] < data2["upload"]
                 ):
                     data = data2
             except Exception as e:
@@ -606,23 +610,23 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
     aliases=["act"], cls=Command, example="activity My-VC-Channel Watch Together"
 )
 async def activity(
-    ctx: commands.Context,
-    channel: discord.VoiceChannel = commands.Option(
-        description="The voice channel to start the activity. Defaults to the channel you are in."
-    ),
-    *,
-    activity: typing.Literal[
-        "Watch Together",
-        "Poker Night",
-        "Chess",
-        "Doodle Crew",
-        "Word Snacks",
-        "Letter Tile",
-        "Spellcast",
-        "Checkers",
-        "Fishington",
-        "Betrayal",
-    ] = commands.Option(None, description="The activity to start."),
+        ctx: commands.Context,
+        channel: discord.VoiceChannel = commands.Option(
+            description="The voice channel to start the activity. Defaults to the channel you are in."
+        ),
+        *,
+        activity: typing.Literal[
+            "Watch Together",
+            "Poker Night",
+            "Chess",
+            "Doodle Crew",
+            "Word Snacks",
+            "Letter Tile",
+            "Spellcast",
+            "Checkers",
+            "Fishington",
+            "Betrayal",
+        ] = commands.Option(None, description="The activity to start."),
 ):
     if channel.permissions_for(ctx.me).create_instant_invite is False:
         return await ctx.send(
@@ -661,7 +665,7 @@ async def activity(
 
             async def interaction_check(self, interaction: discord.Interaction) -> bool:
                 if interaction.user != ctx.author and not await bot.is_owner(
-                    ctx.author
+                        ctx.author
                 ):
                     await interaction.response.send_message(
                         "This is not your interaction!", ephemeral=True
@@ -706,9 +710,9 @@ async def activity_error(ctx: commands.Context, error: Exception):
 
 @bot.command(cls=Command, example="lyrics See You Again")
 async def lyrics(
-    ctx: commands.Context,
-    *,
-    query: str = commands.Option(description="The query to search for the lyrics."),
+        ctx: commands.Context,
+        *,
+        query: str = commands.Option(description="The query to search for the lyrics."),
 ):
     """
     Get lyrics on a specific song/query.
@@ -722,9 +726,9 @@ async def lyrics(
     query = re.sub("\n+", " ", query)
 
     if (
-        ("--raw" in query.split(" ") and "--from-spotify" in query.split(" "))
-        or ("--raw" in query.split(" ") and "--file" in query.split(" "))
-        or ("--file" in query.split(" ") and "--from-spotify" in query.split(" "))
+            ("--raw" in query.split(" ") and "--from-spotify" in query.split(" "))
+            or ("--raw" in query.split(" ") and "--file" in query.split(" "))
+            or ("--file" in query.split(" ") and "--from-spotify" in query.split(" "))
     ):
         return await ctx.send("Invalid flags.")
     if query == "--from-spotify":
@@ -739,8 +743,8 @@ async def lyrics(
         try:
             lyric = await api.lyrics(
                 q.replace("--raw", "")
-                .replace("--file", "")
-                .replace("--from-spotify", "")
+                    .replace("--file", "")
+                    .replace("--from-spotify", "")
             )
 
             if "--raw" in query.split(" "):
@@ -912,14 +916,14 @@ async def lyrics(
                     reaction, user = await bot.wait_for(
                         "reaction_add",
                         check=lambda r, u: str(r.emoji) == "\U000023f9"
-                        and r.message == msg
-                        and not u.bot,
+                                           and r.message == msg
+                                           and not u.bot,
                     )
 
                     if (
-                        not await bot.is_owner(user)
-                        and not user == ctx.author
-                        and not user.guild_permissions.manage_messages
+                            not await bot.is_owner(user)
+                            and not user == ctx.author
+                            and not user.guild_permissions.manage_messages
                     ):
                         continue
 
@@ -956,11 +960,11 @@ async def lyrics(
 
 @bot.command(aliases=["ss"], cls=Command, example="screenshot https://google.com/")
 async def screenshot(
-    ctx: commands.Context,
-    url: str = commands.Option(description="The website URL to screenshot."),
-    delay: int = commands.Option(
-        None, description="Waits for x seconds before taking the screenshot."
-    ),
+        ctx: commands.Context,
+        url: str = commands.Option(description="The website URL to screenshot."),
+        delay: int = commands.Option(
+            None, description="Waits for x seconds before taking the screenshot."
+        ),
 ):
     """
     Screenshots a URL.
@@ -972,8 +976,8 @@ async def screenshot(
         await ctx.message.add_reaction("<a:openrobot_searching_gif:899928367799885834>")
 
     if not re.match(
-        r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
-        url,
+            r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+            url,
     ):
         await ctx.message.remove_reaction(
             "<a:openrobot_searching_gif:899928367799885834>", bot.user
@@ -1022,7 +1026,7 @@ async def screenshot(
             style=discord.ButtonStyle.red,
         )
         async def delete(
-            self, button: discord.ui.Button, interaction: discord.Interaction
+                self, button: discord.ui.Button, interaction: discord.Interaction
         ):
             await interaction.message.delete()
             self.stop()
@@ -1046,9 +1050,9 @@ async def spotify(ctx: commands.Context):
 
 # @spotify.command('login')
 async def spotify_login(
-    ctx: commands.Context,
-    *,
-    flags: str = commands.Option(None, description="Flags: [--interactive]"),
+        ctx: commands.Context,
+        *,
+        flags: str = commands.Option(None, description="Flags: [--interactive]"),
 ):
     """
     Pair your spotify account to OpenRobot x Spotify.
@@ -1092,12 +1096,12 @@ Now, sign in to the correct spotify account and click the `Agree` button.
 
         async with async_timeout.timeout(timeout):
             while (
-                not getattr(
-                    await bot.spotify_redis.get(str(ctx.author.id)),
-                    "decode",
-                    lambda: None,
-                )()
-                == f"ON_STEP({step.upper()})"
+                    not getattr(
+                        await bot.spotify_redis.get(str(ctx.author.id)),
+                        "decode",
+                        lambda: None,
+                    )()
+                        == f"ON_STEP({step.upper()})"
             ):
                 pass
 
@@ -1155,8 +1159,8 @@ Now, sign in to the correct spotify account and click the `Agree` button.
             spotify = aiospotify.Client()
 
             async with bot.session.get(
-                "https://api.spotify.com/v1/me",
-                headers={"Authorization": f'Bearer {spotify_db_res["access_token"]}'},
+                    "https://api.spotify.com/v1/me",
+                    headers={"Authorization": f'Bearer {spotify_db_res["access_token"]}'},
             ) as resp:
                 js = await resp.json()
 
@@ -1202,8 +1206,8 @@ Now, sign in to the correct spotify account and click the `Agree` button.
                 break
 
         async with bot.session.get(
-            "https://api.spotify.com/v1/me",
-            headers={"Authorization": f'Bearer {spotify_db_res["access_token"]}'},
+                "https://api.spotify.com/v1/me",
+                headers={"Authorization": f'Bearer {spotify_db_res["access_token"]}'},
         ) as resp:
             js = await resp.json()
 
@@ -1268,7 +1272,7 @@ async def spotify_logout(ctx: commands.Context):
 
 @bot.command(aliases=["sp"], cls=Command, example="spotify @Member")
 async def spotify(
-    ctx: commands.Context, member: typing.Optional[discord.Member] = None, *flags
+        ctx: commands.Context, member: typing.Optional[discord.Member] = None, *flags
 ):
     """
     Shows a member's currently listening track in spotify. Defaults to yourself.
@@ -1374,7 +1378,7 @@ async def spotify(
 
         for mem in bot.get_all_members():
             if (
-                mem.id == member.id or mem in member_checked
+                    mem.id == member.id or mem in member_checked
             ):
                 continue
 
@@ -1419,10 +1423,10 @@ async def spotify(
                 emoji="<:openrobot_stop_button:899878227969974322>",
             )
             async def stop(
-                self, button: discord.ui.Button, interaction: discord.Interaction
+                    self, button: discord.ui.Button, interaction: discord.Interaction
             ):
                 if interaction.user != ctx.author and not await bot.is_owner(
-                    interaction.user
+                        interaction.user
                 ):
                     return await interaction.response.send_message(
                         f"This is not your interaction! This is {ctx.author}'s interaction!",
@@ -1470,7 +1474,7 @@ async def spotify(
                     }
 
                     async with bot.session.get(
-                        "https://api.jeyy.xyz/discord/spotify", params=params
+                            "https://api.jeyy.xyz/discord/spotify", params=params
                     ) as response:
                         buf = BytesIO(await response.read())
 
@@ -1525,7 +1529,7 @@ async def spotify(
                     }
 
                     async with bot.session.get(
-                        "https://api.jeyy.xyz/discord/spotify", params=params
+                            "https://api.jeyy.xyz/discord/spotify", params=params
                     ) as response:
                         buf = BytesIO(await response.read())
 
@@ -1545,12 +1549,12 @@ async def spotify(
                     if do_spotify_api:
                         try:
                             async with bot.session.post(
-                                "https://accounts.spotify.com/api/token",
-                                params={"grant_type": "client_credentials"},
-                                headers={
-                                    "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
-                                    "Content-Type": "application/x-www-form-urlencoded",
-                                },
+                                    "https://accounts.spotify.com/api/token",
+                                    params={"grant_type": "client_credentials"},
+                                    headers={
+                                        "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
+                                        "Content-Type": "application/x-www-form-urlencoded",
+                                    },
                             ) as resp:
                                 auth_js = await resp.json()
                         except Exception as e:
@@ -1562,13 +1566,13 @@ async def spotify(
                         else:
                             try:
                                 async with bot.session.get(
-                                    f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
-                                    params={
-                                        "market": "US",
-                                    },
-                                    headers={
-                                        "Authorization": f'Bearer {auth_js["access_token"]}'
-                                    },
+                                        f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
+                                        params={
+                                            "market": "US",
+                                        },
+                                        headers={
+                                            "Authorization": f'Bearer {auth_js["access_token"]}'
+                                        },
                                 ) as resp:
                                     js = await resp.json()
 
@@ -1650,7 +1654,7 @@ async def spotify(
                 }
 
                 async with bot.session.get(
-                    "https://api.jeyy.xyz/discord/spotify", params=params
+                        "https://api.jeyy.xyz/discord/spotify", params=params
                 ) as response:
                     buf = BytesIO(await response.read())
 
@@ -1670,12 +1674,12 @@ async def spotify(
                 if do_spotify_api:
                     try:
                         async with bot.session.post(
-                            "https://accounts.spotify.com/api/token",
-                            params={"grant_type": "client_credentials"},
-                            headers={
-                                "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
-                                "Content-Type": "application/x-www-form-urlencoded",
-                            },
+                                "https://accounts.spotify.com/api/token",
+                                params={"grant_type": "client_credentials"},
+                                headers={
+                                    "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
+                                    "Content-Type": "application/x-www-form-urlencoded",
+                                },
                         ) as resp:
                             auth_js = await resp.json()
                     except Exception as e:
@@ -1687,13 +1691,13 @@ async def spotify(
                     else:
                         try:
                             async with bot.session.get(
-                                f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
-                                params={
-                                    "market": "US",
-                                },
-                                headers={
-                                    "Authorization": f'Bearer {auth_js["access_token"]}'
-                                },
+                                    f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
+                                    params={
+                                        "market": "US",
+                                    },
+                                    headers={
+                                        "Authorization": f'Bearer {auth_js["access_token"]}'
+                                    },
                             ) as resp:
                                 js = await resp.json()
 
@@ -1765,7 +1769,7 @@ async def spotify(
         }
 
         async with bot.session.get(
-            "https://api.jeyy.xyz/discord/spotify", params=params
+                "https://api.jeyy.xyz/discord/spotify", params=params
         ) as response:
             buf = BytesIO(await response.read())
 
@@ -1785,12 +1789,12 @@ async def spotify(
         if do_spotify_api:
             try:
                 async with bot.session.post(
-                    "https://accounts.spotify.com/api/token",
-                    params={"grant_type": "client_credentials"},
-                    headers={
-                        "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
-                        "Content-Type": "application/x-www-form-urlencoded",
-                    },
+                        "https://accounts.spotify.com/api/token",
+                        params={"grant_type": "client_credentials"},
+                        headers={
+                            "Authorization": f'Basic {base64.urlsafe_b64encode(f"{bot.spotify._client_id}:{bot.spotify._client_secret}".encode()).decode()}',
+                            "Content-Type": "application/x-www-form-urlencoded",
+                        },
                 ) as resp:
                     auth_js = await resp.json()
             except Exception as e:
@@ -1802,11 +1806,11 @@ async def spotify(
             else:
                 try:
                     async with bot.session.get(
-                        f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
-                        params={
-                            "market": "US",
-                        },
-                        headers={"Authorization": f'Bearer {auth_js["access_token"]}'},
+                            f"https://api.spotify.com/v1/tracks/{urllib.parse.quote(spotify.track_id)}",
+                            params={
+                                "market": "US",
+                            },
+                            headers={"Authorization": f'Bearer {auth_js["access_token"]}'},
                     ) as resp:
                         js = await resp.json()
 
@@ -1875,11 +1879,11 @@ bot.codeblock = codeblock
 
 @bot.command(aliases=["src"], cls=Command, example="source spotify")
 async def source(
-    ctx: commands.Context,
-    *,
-    command: str = commands.Option(
-        None, description="The command name/cog/event to get the source code"
-    ),
+        ctx: commands.Context,
+        *,
+        command: str = commands.Option(
+            None, description="The command name/cog/event to get the source code"
+        ),
 ):
     """
     The source code of OpenRobot. You can get a code from a specific
@@ -1937,8 +1941,8 @@ async def source(
     else:  # Command processing
         if command == "help":
             if isinstance(
-                bot.help_command,
-                (commands.DefaultHelpCommand, commands.MinimalHelpCommand),
+                    bot.help_command,
+                    (commands.DefaultHelpCommand, commands.MinimalHelpCommand),
             ):
                 return await ctx.send(
                     "I cannot get the source code of the help command as of now. Sorry!"
@@ -2055,11 +2059,11 @@ async def _confirm(ctx, channel=None, *args, **kwargs):
 
 @bot.command(cls=Command, example="invite")
 async def invite(
-    ctx: commands.Context,
-    *,
-    option: typing.Literal["Slash Commands", "Bot Invite"] = commands.Option(
-        "Bot Invite", description="Either Slash Commands or Message Commands (Normal)"
-    ),
+        ctx: commands.Context,
+        *,
+        option: typing.Literal["Slash Commands", "Bot Invite"] = commands.Option(
+            "Bot Invite", description="Either Slash Commands or Message Commands (Normal)"
+        ),
 ):
     if option == "Bot Invite":
         url_with_slash = discord.utils.oauth_url(
@@ -2096,7 +2100,7 @@ async def invite(
 bot.confirm = _confirm
 
 bot.exts = [
-    #'jishaku',
+    # 'jishaku',
     "cogs.api",
     "cogs.error",
     "cogs.music",
