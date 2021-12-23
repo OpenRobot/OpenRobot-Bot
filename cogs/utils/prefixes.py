@@ -8,7 +8,7 @@ def case_insensitive_prefix(prefixes: list[str] = None, *, with_mention: bool = 
     def inner(bot: Bot, msg: discord.Message):
         nonlocal prefixes
 
-        _prefixes = prefixes.copy() if prefixes else None
+        _prefixes = list(prefixes) if prefixes else None
 
         if _prefixes is None:
             from config import PREFIXES
