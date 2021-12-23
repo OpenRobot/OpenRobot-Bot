@@ -36,7 +36,10 @@ class ApplyPrefix:
         list[typing.Union[typing.Callable, typing.Coroutine[typing.Any, typing.Any, typing.Any]]],
         typing.Union[typing.Callable, typing.Coroutine[typing.Any, typing.Any, typing.Any]]
     ]):
-        self.funcs = list(funcs)
+        if not isinstance(funcs, list):
+            self.funcs = [funcs]
+        else:
+            self.funcs = funcs
 
     async def __call__(self, bot: Bot, msg: discord.Message):
         l = []
