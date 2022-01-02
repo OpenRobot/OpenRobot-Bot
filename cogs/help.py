@@ -149,7 +149,7 @@ class OpenRobotHelp(commands.HelpCommand):
 
         if (
             max_concurrency := command._max_concurrency
-        ):  # use of internals to get the cooldown of the command
+        ):  # use of internals to get the max concurrency of the command
             embed.add_field(
                 name="Concurrency",
                 value=f"`{max_concurrency.number}` command(s) at once per `{max_concurrency.per.name.title()}`",
