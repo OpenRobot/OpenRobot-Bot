@@ -22,6 +22,7 @@ class OpenRobotHelp(commands.HelpCommand):
             "no_category_description", "No description provided."
         )
         self.no_category_emoji = self.options.get("no_category_emoji", "")
+        self.no_category_aliases = list(self.options.get("no_category_aliases", []))
 
     async def send(self, *args, **kwargs):
         return await self.get_destination().send(*args, **kwargs)
@@ -210,11 +211,18 @@ class OpenRobotHelp(commands.HelpCommand):
         else:
             embed.description = cog.description + "\n\n" if cog.description else ""
 
-        embed.description += (
-            f"Aliases: {', '.join([f'`{x}`' for x in cog.aliases])}"
-            if cog.aliases
-            else ""
-        )
+        if cog:
+            embed.description += (
+                f"Aliases: {', '.join([f'`{x}`' for x in cog.aliases])}"
+                if cog.aliases
+                else ""
+            )
+        else:
+            embed.description += (
+                f"Aliases: {', '.join([f'`{x}`' for x in self.no_category_aliases])}"
+                if self.no_category_aliases
+                else ""
+            )
 
         embed.description += ", ".join(
             [f"`{command.qualified_name}`" for command in filtered]
@@ -245,6 +253,8 @@ class OpenRobotHelp(commands.HelpCommand):
 
     async def command_callback(self, ctx, *, command=None):
         if command == self.no_category:
+            return await self.send_cog_help(None)
+        elif command in self.no_category_aliases:
             return await self.send_cog_help(None)
 
         for cog in ctx.bot.cogs.values():
