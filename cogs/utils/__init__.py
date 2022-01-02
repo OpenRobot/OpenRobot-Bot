@@ -18,6 +18,8 @@ from . import (
     events,
     command,
     prefixes,
+    timer,
+    shell,
 )
 
 # Base imports
@@ -39,3 +41,5 @@ from .executor import *
 from .events import *
 from .command import *
 from .prefixes import *
+from .timer import *
+from .shell import *
