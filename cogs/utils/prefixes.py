@@ -32,14 +32,8 @@ def case_insensitive_prefix(prefixes: list[str] = None, *, with_mention: bool = 
 
 
 class ApplyPrefix:
-    def __init__(self, funcs: typing.Union[
-        list[typing.Union[typing.Callable, typing.Coroutine[typing.Any, typing.Any, typing.Any]]],
-        typing.Union[typing.Callable, typing.Coroutine[typing.Any, typing.Any, typing.Any]]
-    ]):
-        if not isinstance(funcs, list):
-            self.funcs = [funcs]
-        else:
-            self.funcs = funcs
+    def __init__(self, *funcs: typing.Union[typing.Callable, typing.Coroutine]):
+        self.funcs = list(funcs)
 
     async def __call__(self, bot: Bot, msg: discord.Message):
         l = []
