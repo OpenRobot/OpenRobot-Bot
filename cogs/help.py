@@ -44,7 +44,7 @@ class OpenRobotHelp(commands.HelpCommand):
         embed.color = ctx.bot.color
         embed.timestamp = discord.utils.utcnow()
 
-        embed.set_author(name=f"{ctx.me.name} Help:", icon_url=ctx.author.avatar.url)
+        embed.set_author(name=f"{ctx.me.name} Help:", icon_url=ctx.author.display_avatar.url)
         embed.set_thumbnail(url=ctx.me.avatar.url)
 
         embed.set_footer(text=self.ending_note)
