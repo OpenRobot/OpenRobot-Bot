@@ -37,7 +37,7 @@ class ApplyPrefix:
         self.funcs = list(funcs)
 
     async def __call__(self, bot: Bot, msg: discord.Message):
-        l = self.prefixes or []
+        l = list(self.prefixes or [])
 
         for func in self.funcs:
             try:
