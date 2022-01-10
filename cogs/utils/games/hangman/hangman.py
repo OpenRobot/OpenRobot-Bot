@@ -111,7 +111,7 @@ class Hangman:
 
     @property
     def win(self):
-        return self.word_guess == self.word[0] and self.tries > 0
+        return ' '.join([x.replace(' ', '') for x in self.word_guess.split(' ')]) == self.word[0] and self.tries > 0
 
     @property
     def lose(self):
