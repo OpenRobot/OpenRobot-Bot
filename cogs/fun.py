@@ -387,7 +387,7 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
                     discord.SelectOption(
                         label="Colors",
                         emoji="🔴",
-                        description="Play Hangman with Coffee category.",
+                        description="Play Hangman with Colors category.",
                     ),
                     discord.SelectOption(
                         label="Animals",
@@ -469,7 +469,7 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
 
         msg = None
 
-        while (not hangman.lose and not hangman.win) or (not stopped):
+        while not hangman.lose or not hangman.win or not stopped:
             try:
                 embed = discord.Embed(color=self.bot.color)
 
