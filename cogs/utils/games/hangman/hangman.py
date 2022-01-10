@@ -96,11 +96,13 @@ class Hangman:
             if indexes:
                 for index in indexes:
                     self.word_guess = (
-                        self.word_guess[:index] + letter + self.word_guess[index + 1 :]
+                        self.word_guess[:index*2] + letter + self.word_guess[index*2 + 1 :] # *2 cause the word_guess involves spaces in each "_".
                     )
 
                 return True
             else:
+                self.tries -= 1
+
                 return False
         else:
             self.tries -= 1

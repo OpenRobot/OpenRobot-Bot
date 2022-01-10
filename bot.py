@@ -2126,6 +2126,7 @@ def start(**kwargs):
             bot.pool = None
             bot.redis = None
             bot.spotify_redis = None
+            bot.rethinkdb = None
         else:
             bot.pool = await asyncpg.create_pool(config.DATABASE)
             # bot.spotify_pool = await asyncpg.create_pool(config.SPOTIFY_DATABASE)
@@ -2136,6 +2137,11 @@ def start(**kwargs):
             # bot.tb_pool = await asyncpg.create_pool(config.TRACEBACK_DATABASE)
 
             # bot.cache = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=2)
+
+            try:
+                bot.rethinkdb.connect(**config.RETHINKDB_CRIDENTIALS).repl()
+            except:
+                pass
 
         if kwargs.get("cogs") is not None and "cogs" not in kwargs:
             l = list(

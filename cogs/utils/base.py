@@ -7,10 +7,13 @@ import aioredis
 import aiospotify
 import aiohttp
 import psutil
+
 from .ping import Ping
 from .error import Error
 from .driver import Driver
 from .context import Context
+from .rethinkdb import RethinkDB
+
 from discord.ext import commands
 from openrobot.api_wrapper import AsyncClient
 from openrobot import discord_activities as discord_activity
@@ -50,6 +53,7 @@ class Bot(commands.Bot):
         self.spotify_pool: asyncpg.Pool = None
         self.spotify_redis: aioredis.Redis = None
         self.tb_pool: asyncpg.Pool = None
+        self.rethinkdb: RethinkDB = RethinkDB()
 
     async def get_context(
         self, message: discord.Message, *, cls: Context = Context
