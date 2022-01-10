@@ -469,7 +469,7 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
 
         msg = None
 
-        while not hangman.lose or not hangman.win or not stopped:
+        while not hangman.lose and not hangman.win and not stopped:
             try:
                 embed = discord.Embed(color=self.bot.color)
 
