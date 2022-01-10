@@ -47,6 +47,7 @@ from cogs.utils import (
     Command,
     ApplyPrefix,
     case_insensitive_prefix,
+    no_prefix_for_owner,
 )
 
 description = """
@@ -196,7 +197,13 @@ class Bot(BaseBot):
 
 
 bot = Bot(
-    command_prefix=ApplyPrefix(case_insensitive_prefix(config.PREFIXES)),
+    command_prefix=ApplyPrefix(
+        config.PREFIXES, 
+
+        case_insensitive_prefix(),
+        commands.when_mentioned,
+        #no_prefix_for_owner(),
+    ),
     help_command=commands.MinimalHelpCommand(
         no_category="Miscellaneous"
     ),  # For old help command purposes only. This is used whenever the help cog fails.

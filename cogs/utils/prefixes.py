@@ -4,10 +4,8 @@ import discord
 from cogs.utils.base import Bot
 
 
-def case_insensitive_prefix(prefixes: list[str] = None, *, with_mention: bool = True):
-    def inner(bot: Bot, msg: discord.Message):
-        nonlocal prefixes
-
+def case_insensitive_prefix():
+    def inner(bot: Bot, msg: discord.Message, prefixes: list[str] = None):
         _prefixes = list(prefixes) if prefixes else None
 
         if _prefixes is None:
@@ -16,9 +14,6 @@ def case_insensitive_prefix(prefixes: list[str] = None, *, with_mention: bool = 
 
         _prefixes = list(_prefixes)  # may be a different datatype, so...
 
-        if with_mention:
-            _prefixes += [f"<@{bot.user.id}> ", f"<@!{bot.user.id}> "]
-
         regex = re.compile(r"^(" + r"|".join(map(re.escape, _prefixes)) + r")", flags=re.I)
 
         match = regex.match(msg.content)
@@ -26,26 +21,36 @@ def case_insensitive_prefix(prefixes: list[str] = None, *, with_mention: bool = 
         if match is not None:
             return match.group(1)
 
-        return _prefixes
+    return inner
+
+def no_prefix_for_owner():
+    async def inner(bot: Bot, msg: discord.Message):
+        if await bot.is_owner(msg.author):
+            return ""
 
     return inner
 
 
 class ApplyPrefix:
-    def __init__(self, *funcs: typing.Union[typing.Callable, typing.Coroutine]):
+    def __init__(self, prefixes: list[str] = None, *funcs: typing.Union[typing.Callable, typing.Coroutine]):
+        self.prefixes = prefixes
         self.funcs = list(funcs)
 
     async def __call__(self, bot: Bot, msg: discord.Message):
-        l = []
+        l = self.prefixes or []
 
         for func in self.funcs:
-            prefix = await discord.utils.maybe_coroutine(func, bot, msg)
+            try:
+                prefix = await discord.utils.maybe_coroutine(func, bot, msg, self.prefixes)
+            except:
+                prefix = await discord.utils.maybe_coroutine(func, bot, msg)
 
             if isinstance(prefix, str):
                 l.append(prefix)
             elif isinstance(prefix, list):
                 l += prefix
             else:
-                l += list(prefix)
+                if prefix:
+                    l += list(prefix)
 
         return l
