@@ -876,7 +876,7 @@ AI: 5 times 6 is 30"""
             await ctx.interaction.response.defer()
 
         try:
-            text_generator_result = await self.bot.api.text_generation(text, num_return=num_return)
+            text_generator_result = await self.bot.api.text_generation(text, num_return=num_return, max_length=4000 / num_return) # a issue with the api for now, requiring max_length as an int.
 
             while text_generator_result.result is None and text_generator_result.status in ['PENDING', 'STARTED']: 
                 await asyncio.sleep(2)
@@ -956,7 +956,7 @@ AI: 5 times 6 is 30"""
             await ctx.interaction.response.defer()
 
         try:
-            summarization_result = await self.bot.api.summarization(text)
+            summarization_result = await self.bot.api.summarization(text, max_length=4000)
 
             while summarization_result.result is None and summarization_result.status in ['PENDING', 'STARTED']: 
                 await asyncio.sleep(2)
