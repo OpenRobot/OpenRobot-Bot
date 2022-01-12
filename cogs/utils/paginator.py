@@ -460,7 +460,6 @@ __**{self.entries.index(page)+1})**__
  \u200b \u200b \u200b- **Endpoint/Path:** `{page['endpoint']}`
  \u200b \u200b \u200b- **Requested At:** {discord.utils.format_dt(datetime.datetime.fromtimestamp(page['timestamp'], datetime.timezone.utc))}
             """
-            c += 1
 
         embed.set_footer(text=f"Page {menu.current_page + 1}/{self.get_max_pages()}")
         embed.timestamp = menu.ctx.message.created_at
