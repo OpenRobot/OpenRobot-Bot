@@ -1285,7 +1285,7 @@ async def spotify(
     Shows a member's currently listening track in spotify. Defaults to yourself.
 
     Flags:
-    - `--sync`: Disables the Auto Spotify Sync feature (Automatically edits the message).
+    - `--sync`: Enables the Auto Spotify Sync feature (Automatically edits the message).
     """
 
     member = member or ctx.author

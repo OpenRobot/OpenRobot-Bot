@@ -453,11 +453,9 @@ class APIInfoPaginator(ListPageSource):
         embed.color = menu.ctx.bot.color
         embed.description = ""
 
-        c = 1
-
         for page in entries:
             embed.description += f"""
-__**{c})**__
+__**{self.entries.index(page)+1})**__
  \u200b \u200b \u200b- **IP:** `{page['ip']}`
  \u200b \u200b \u200b- **Endpoint/Path:** `{page['endpoint']}`
  \u200b \u200b \u200b- **Requested At:** {discord.utils.format_dt(datetime.datetime.fromtimestamp(page['timestamp'], datetime.timezone.utc))}
