@@ -863,7 +863,7 @@ AI: 5 times 6 is 30"""
         menu = MenuPages(CelebrityPaginator(l), delete_message_after=True)
         await menu.start(ctx)
 
-    @command(name='text_generator', aliases=['text-generation', 'text_generator', 'text_generation', 'textgenerator', 'textgeneration'], example="text-generator Hello,")
+    @command(name='text-generator', aliases=['text-generation', 'text_generator', 'text_generation', 'textgenerator', 'textgeneration'], example="text-generator Hello,")
     async def text_generator(self, ctx: commands.Context, num_return: typing.Optional[int] = 1, *, text: str = None):
         """
         Text Generator. Generates more text from the text provided.
