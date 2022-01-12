@@ -1,3 +1,4 @@
+import inspect
 import typing
 import discord
 import openai
@@ -861,6 +862,129 @@ AI: 5 times 6 is 30"""
 
         menu = MenuPages(CelebrityPaginator(l), delete_message_after=True)
         await menu.start(ctx)
+
+    @command(name='text_generator', aliases=['text-generation', 'text_generator', 'text_generation', 'textgenerator', 'textgeneration'], example="text-generator Hello,")
+    async def text_generator(self, ctx: commands.Context, num_return: typing.Optional[int] = 1, *, text: str = None):
+        """
+        Text Generator. Generates more text from the text provided.
+        """
+
+        if not text:
+            raise commands.MissingRequiredArgument(inspect.Parameter('text', inspect.Parameter.KEYWORD_ONLY))
+
+        if ctx.interaction is not None:
+            await ctx.interaction.response.defer()
+
+        try:
+            text_generator_result = await self.bot.api.text_generation(text, num_return=num_return)
+
+            while text_generator_result.result is None and text_generator_result.status in ['PENDING', 'STARTED']: 
+                await asyncio.sleep(2)
+                text_generator_result = await self.bot.api.text_generation_get(text_generator_result.task_id)
+
+            try:
+                if "--raw" in text.split(" "):
+                    s = StringIO()
+                    s.write(json.dumps(text_generator_result.raw, indent=4))
+                    s.seek(0)
+
+                    return await ctx.send(file=discord.File(s, "response.json"))
+            except Exception as e:
+                pass
+
+            if text_generator_result.status != 'COMPLETED' or text_generator_result.result is None:
+                return await ctx.send("Something went wrong. Please try again.")
+
+            embed = discord.Embed(color=self.bot.color)
+            embed.set_author(name="Text Generator Result:")
+            embed.description = '- ' + '\n- '.join(text_generator_result.result)
+
+            await ctx.send(embed=embed)
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
+            return await ctx.send("Something went wrong. Please try again.")
+
+    @command(example="sentiment Hello,")
+    async def sentiment(self, ctx: commands.Context, *, text: str):
+        """
+        Sentiment. Analyzes the sentiment of the text provided, either if it is Positive or Negative.
+        """
+
+        if ctx.interaction is not None:
+            await ctx.interaction.response.defer()
+
+        try:
+            sentiment_result = await self.bot.api.sentiment(text)
+
+            while sentiment_result.result is None and sentiment_result.status in ['PENDING', 'STARTED']: 
+                await asyncio.sleep(2)
+                sentiment_result = await self.bot.api.sentiment_get(sentiment_result.task_id)
+
+            try:
+                if "--raw" in text.split(" "):
+                    s = StringIO()
+                    s.write(json.dumps(sentiment_result.raw, indent=4))
+                    s.seek(0)
+
+                    return await ctx.send(file=discord.File(s, "response.json"))
+            except Exception as e:
+                pass
+
+            if sentiment_result.status != 'COMPLETED' or sentiment_result.result is None:
+                return await ctx.send("Something went wrong. Please try again.")
+
+            embed = discord.Embed(color=self.bot.color)
+            embed.set_author(name="Sentiment Result:")
+            embed.description = f'Text: {text}\n\nResult: `{sentiment_result.result[0].label}` - `Confidence: {sentiment_result.result[0].score}`'
+
+            await ctx.send(embed=embed)
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
+            return await ctx.send("Something went wrong. Please try again.")
+
+    @command(aliases=['summarize', 'summarise', 'summarisation'], example="summarization Hey, I love chatting with my friends. I love it. I love using Discord. Its my favorite chat app.")
+    async def summarization(self, ctx: commands.Context, *, text: str):
+        """
+        Summarization. Summarizes a text into a pretty short length. Including all the details and excluding most of the quite un-useful information.
+        """
+
+        if ctx.interaction is not None:
+            await ctx.interaction.response.defer()
+
+        try:
+            summarization_result = await self.bot.api.summarization(text)
+
+            while summarization_result.result is None and summarization_result.status in ['PENDING', 'STARTED']: 
+                await asyncio.sleep(2)
+                summarization_result = await self.bot.api.summarization_get(summarization_result.task_id)
+
+            try:
+                if "--raw" in text.split(" "):
+                    s = StringIO()
+                    s.write(json.dumps(summarization_result.raw, indent=4))
+                    s.seek(0)
+
+                    return await ctx.send(file=discord.File(s, "response.json"))
+            except Exception as e:
+                pass
+
+            if summarization_result.status != 'COMPLETED' or summarization_result.result is None:
+                return await ctx.send("Something went wrong. Please try again.")
+
+            embed = discord.Embed(color=self.bot.color)
+            embed.set_author(name="Summarization Result:")
+            embed.description = summarization_result.result
+
+            await ctx.send(embed=embed)
+        except Exception as e:
+            if ctx.debug:
+                raise e
+
+            return await ctx.send("Something went wrong. Please try again.")
 
     @command(example="ocr My-Image-URL-Or-Attachment")
     async def ocr(
