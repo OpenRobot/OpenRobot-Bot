@@ -123,7 +123,8 @@ class Error(Cog):
             embed.description = f"Missing required argument: `{error.param.name}`. Maybe take a look at the help command by doing `{ctx.prefix}help {ctx.command.qualified_name}`."
 
             embed.set_footer(
-                text=f"Command invoked by: {ctx.author}", icon_url=ctx.author.display_avatar.url
+                text=f"Command invoked by: {ctx.author}",
+                icon_url=ctx.author.display_avatar.url,
             )
 
             embed.description += f"\n\n**Errored At:** ```prolog\n{signature}```"

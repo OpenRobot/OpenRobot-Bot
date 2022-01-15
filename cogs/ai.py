@@ -198,7 +198,8 @@ AI: 5 times 6 is 30"""
         embed = discord.Embed(color=self.bot.color)
 
         embed.set_author(
-            name=f"Study Notes for {topic.title()}:", icon_url=ctx.author.display_avatar.url
+            name=f"Study Notes for {topic.title()}:",
+            icon_url=ctx.author.display_avatar.url,
         )
 
         s = "1."
@@ -864,24 +865,49 @@ AI: 5 times 6 is 30"""
         menu = MenuPages(CelebrityPaginator(l), delete_message_after=True)
         await menu.start(ctx)
 
-    @command(name='text-generator', aliases=['text-generation', 'text_generator', 'text_generation', 'textgenerator', 'textgeneration'], example="text-generator Hello,")
-    async def text_generator(self, ctx: commands.Context, num_return: typing.Optional[int] = 1, *, text: str = None):
+    @command(
+        name="text-generator",
+        aliases=[
+            "text-generation",
+            "text_generator",
+            "text_generation",
+            "textgenerator",
+            "textgeneration",
+        ],
+        example="text-generator Hello,",
+    )
+    async def text_generator(
+        self,
+        ctx: commands.Context,
+        num_return: typing.Optional[int] = 1,
+        *,
+        text: str = None,
+    ):
         """
         Text Generator. Generates more text from the text provided.
         """
 
         if not text:
-            raise commands.MissingRequiredArgument(inspect.Parameter('text', inspect.Parameter.KEYWORD_ONLY))
+            raise commands.MissingRequiredArgument(
+                inspect.Parameter("text", inspect.Parameter.KEYWORD_ONLY)
+            )
 
         if ctx.interaction is not None:
             await ctx.interaction.response.defer()
 
         try:
-            text_generator_result = await self.bot.api.text_generation(text, num_return=num_return, max_length=int(4000 / num_return)) # a issue with the api for now, requiring max_length as an int.
+            text_generator_result = await self.bot.api.text_generation(
+                text, num_return=num_return, max_length=int(4000 / num_return)
+            )  # a issue with the api for now, requiring max_length as an int.
 
-            while text_generator_result.result is None and text_generator_result.status in ['PENDING', 'STARTED']: 
+            while (
+                text_generator_result.result is None
+                and text_generator_result.status in ["PENDING", "STARTED"]
+            ):
                 await asyncio.sleep(2)
-                text_generator_result = await self.bot.api.text_generation_get(text_generator_result.task_id)
+                text_generator_result = await self.bot.api.text_generation_get(
+                    text_generator_result.task_id
+                )
 
             try:
                 if "--raw" in text.split(" "):
@@ -893,12 +919,15 @@ AI: 5 times 6 is 30"""
             except Exception as e:
                 pass
 
-            if text_generator_result.status != 'COMPLETED' or text_generator_result.result is None:
+            if (
+                text_generator_result.status != "COMPLETED"
+                or text_generator_result.result is None
+            ):
                 return await ctx.send("Something went wrong. Please try again.")
 
             embed = discord.Embed(color=self.bot.color)
             embed.set_author(name="Text Generator Result:")
-            embed.description = '- ' + '\n- '.join(text_generator_result.result)
+            embed.description = "- " + "\n- ".join(text_generator_result.result)
 
             await ctx.send(embed=embed)
         except Exception as e:
@@ -919,9 +948,14 @@ AI: 5 times 6 is 30"""
         try:
             sentiment_result = await self.bot.api.sentiment(text)
 
-            while sentiment_result.result is None and sentiment_result.status in ['PENDING', 'STARTED']: 
+            while sentiment_result.result is None and sentiment_result.status in [
+                "PENDING",
+                "STARTED",
+            ]:
                 await asyncio.sleep(2)
-                sentiment_result = await self.bot.api.sentiment_get(sentiment_result.task_id)
+                sentiment_result = await self.bot.api.sentiment_get(
+                    sentiment_result.task_id
+                )
 
             try:
                 if "--raw" in text.split(" "):
@@ -933,12 +967,15 @@ AI: 5 times 6 is 30"""
             except Exception as e:
                 pass
 
-            if sentiment_result.status != 'COMPLETED' or sentiment_result.result is None:
+            if (
+                sentiment_result.status != "COMPLETED"
+                or sentiment_result.result is None
+            ):
                 return await ctx.send("Something went wrong. Please try again.")
 
             embed = discord.Embed(color=self.bot.color)
             embed.set_author(name="Sentiment Result:")
-            embed.description = f'Text: {text}\n\nResult: `{sentiment_result.result[0].label}` - `Confidence: {sentiment_result.result[0].score}`'
+            embed.description = f"Text: {text}\n\nResult: `{sentiment_result.result[0].label}` - `Confidence: {sentiment_result.result[0].score}`"
 
             await ctx.send(embed=embed)
         except Exception as e:
@@ -947,7 +984,10 @@ AI: 5 times 6 is 30"""
 
             return await ctx.send("Something went wrong. Please try again.")
 
-    @command(aliases=['summarize', 'summarise', 'summarisation'], example="summarization Hey, I love chatting with my friends. I love it. I love using Discord. Its my favorite chat app.")
+    @command(
+        aliases=["summarize", "summarise", "summarisation"],
+        example="summarization Hey, I love chatting with my friends. I love it. I love using Discord. Its my favorite chat app.",
+    )
     async def summarization(self, ctx: commands.Context, *, text: str):
         """
         Summarization. Summarizes a text into a pretty short length. Including all the details and excluding most of the quite un-useful information.
@@ -957,11 +997,18 @@ AI: 5 times 6 is 30"""
             await ctx.interaction.response.defer()
 
         try:
-            summarization_result = await self.bot.api.summarization(text, max_length=4000)
+            summarization_result = await self.bot.api.summarization(
+                text, max_length=4000
+            )
 
-            while summarization_result.result is None and summarization_result.status in ['PENDING', 'STARTED']: 
+            while (
+                summarization_result.result is None
+                and summarization_result.status in ["PENDING", "STARTED"]
+            ):
                 await asyncio.sleep(2)
-                summarization_result = await self.bot.api.summarization_get(summarization_result.task_id)
+                summarization_result = await self.bot.api.summarization_get(
+                    summarization_result.task_id
+                )
 
             try:
                 if "--raw" in text.split(" "):
@@ -973,7 +1020,10 @@ AI: 5 times 6 is 30"""
             except Exception as e:
                 pass
 
-            if summarization_result.status != 'COMPLETED' or summarization_result.result is None:
+            if (
+                summarization_result.status != "COMPLETED"
+                or summarization_result.result is None
+            ):
                 return await ctx.send("Something went wrong. Please try again.")
 
             embed = discord.Embed(color=self.bot.color)
