@@ -154,7 +154,7 @@ class Bot(BaseBot):
         )
 
         file_type = filename.split(".")
-        file_type = file_type[len(file_type) - 1]
+        file_type = file_type[-1]
 
         with open(f"./cdn-images/{hash}.{file_type}", "wb") as f:
             f.write(getattr(fp, "getvalue", lambda: fp)())
