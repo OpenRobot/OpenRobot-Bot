@@ -21,7 +21,7 @@ class Context(commands.Context):
 
     async def send(self, content: str = None, **kwargs):
         if not self.interaction:
-            if not "mention_author" in kwargs:
+            if "mention_author" not in kwargs:
                 kwargs["mention_author"] = False
 
             kwargs["reference"] = self.message
