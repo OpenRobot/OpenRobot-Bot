@@ -100,7 +100,7 @@ class Error:
         s = "AND"
         c = 1
 
-        for key in kwargs.keys():
+        for key in kwargs:
             s += f"{key}=${c} AND "
             c += 1
 
