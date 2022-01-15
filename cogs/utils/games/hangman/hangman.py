@@ -25,7 +25,7 @@ class Hangman:
         self.word_guess = self.word_guess.strip()
 
     def generate_word(self, category: str = None, *, set_as_word: bool = True):
-        if category == None:
+        if category is None:
             l = (
                 FRUITS
                 + FOOD
