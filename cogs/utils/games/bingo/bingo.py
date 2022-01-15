@@ -24,7 +24,7 @@ class Bingo:
         self.generate_players()
 
     def _before_check(self):
-        if self.x % 2 == 0 or self.y % 2 == 0:
+        if 0 in (self.x % 2, self.y % 2):
             raise BingoError("x and y must be odd")
 
         if self.x <= 0 or self.y <= 0:
