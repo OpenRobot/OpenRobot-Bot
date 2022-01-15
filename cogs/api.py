@@ -1147,7 +1147,7 @@ __**Info:**__
                 else:
                     break
 
-            if not db or not len(json.loads(db["endpoints_accessed"])):
+            if not db or not json.loads(db["endpoints_accessed"]):
                 return await ctx.send(
                     "No results we're found or we do not have enough data to display results. You have not made any API requests using your token.\nNote that requests made before <t:1633777200:F> are not collected."
                 )
