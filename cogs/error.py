@@ -58,8 +58,9 @@ class Error(Cog):
         if self.bot.tb_pool:
             await self.bot.error.initiate()
 
+    @staticmethod
     async def generate_missing_required_argument(
-        self, ctx: commands.Context, error: commands.MissingRequiredArgument
+        ctx: commands.Context, error: commands.MissingRequiredArgument
     ):
         command = ctx.command
         param_name = error.param.name

@@ -77,7 +77,8 @@ class LineCount:
 class Bot(BaseBot):
     CDN_BUCKET = "cdn.openrobot.xyz"
 
-    def line_count(self, directory: str = "./") -> LineCount:
+    @staticmethod
+    def line_count(directory: str = "./") -> LineCount:
         p = pathlib.Path(directory)
         cm = cr = fn = cl = ls = fc = 0
         for f in p.rglob("*.py"):

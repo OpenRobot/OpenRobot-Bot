@@ -154,5 +154,6 @@ class Bingo:
 
         player.claim(number)
 
-    def get_cords(self, player: Player, number: int) -> tuple[int | None, int | None]:
+    @staticmethod
+    def get_cords(player: Player, number: int) -> tuple[int | None, int | None]:
         return player.get_number_coordinates(number)

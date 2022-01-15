@@ -119,7 +119,8 @@ class BaseViewMenuPages(ui.View, menus.MenuPages):
 
         await self.message.edit(view=self)
 
-    def try_int(self, string):
+    @staticmethod
+    def try_int(string):
         try:
             return int(string)
         except:

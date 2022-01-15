@@ -39,7 +39,8 @@ class Driver:
 
         return self.driver
 
-    def _get_proxy(self):
+    @staticmethod
+    def _get_proxy():
         url = r"https://api.getproxylist.com/proxy?minUptime=75&allowsHttps=1&allowsCookies=1&protocol[]=http&allowsCustomHeaders=1&allowsUserAgentHeader=1&/proxy?anonymity[]=high%20anonymity&anonymity[]=anonymous&allowsPost=1"
 
         r = requests.get(url)

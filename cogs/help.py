@@ -84,7 +84,8 @@ class OpenRobotHelp(commands.HelpCommand):
 
         return await self.send(embed=embed)
 
-    def get_command_example(self, command):
+    @staticmethod
+    def get_command_example(command):
         def _get_original_example():
             s = command.qualified_name
 

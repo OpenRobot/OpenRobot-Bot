@@ -210,7 +210,8 @@ $
 
 
 class TimeConverter(Converter[Time]):
-    async def convert(self, ctx: Context, argument: str) -> Time:
+    @staticmethod
+    async def convert(ctx: Context, argument: str) -> Time:
 
         if (match := COLON_FORMAT_REGEX.match(argument)) or (
             match := HUMAN_FORMAT_REGEX.match(argument)
