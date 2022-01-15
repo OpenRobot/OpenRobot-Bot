@@ -20,7 +20,6 @@ class RePI(Cog):
         """
         [RePI](https://repi.openrobot.xyz) API Management. Owner-Only commands.
         """
-
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
@@ -30,7 +29,6 @@ class RePI(Cog):
         """
         IP bans an IP from accessing the API.
         """
-
         async with self.bot.session.get('https://repi.openrobot.xyz/admin/ban',
                                         params={'ip': ip, 'key': self.bot.config.REPI_CRIDENTIALS['key']},
                                         headers={'Authorization': self.bot.config.REPI_CRIDENTIALS['token']}) as resp:
@@ -45,7 +43,6 @@ class RePI(Cog):
         """
         IP unbans an IP from accessing the API.
         """
-
         async with self.bot.session.get('https://repi.openrobot.xyz/admin/unban',
                                         params={'ip': ip, 'key': self.bot.config.REPI_CRIDENTIALS['key']},
                                         headers={'Authorization': self.bot.config.REPI_CRIDENTIALS['token']}) as resp:

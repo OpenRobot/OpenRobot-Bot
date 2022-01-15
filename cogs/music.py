@@ -196,7 +196,6 @@ class Music(Cog, emoji="🎵"):
         """
         Useful Music commands.
         """
-
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
@@ -213,7 +212,6 @@ class Music(Cog, emoji="🎵"):
         """
         Connects to a channel.
         """
-
         if ctx.voice_client and ctx.voice_client.is_connected():
             return await ctx.send(
                 embed=discord.Embed(
@@ -249,7 +247,6 @@ class Music(Cog, emoji="🎵"):
 
         You must be in the bot's voice channel to disconnect the bot.
         """
-
         if not ctx.voice_client:
             return await ctx.send(
                 embed=discord.Embed(
@@ -290,7 +287,6 @@ class Music(Cog, emoji="🎵"):
         - `--next`: Puts the track that is found at the start of the queue.
         - `--now`: Skips the current track and plays the track that is found.
         """
-
         if query is None and ctx.voice_client and ctx.voice_client.paused is True:
             return await self.resume(ctx)
         elif query is None:
@@ -474,7 +470,6 @@ class Music(Cog, emoji="🎵"):
         - --next: Puts the track that is found at the start of the queue.
         - --now: Skips the current track and plays the track that is found.
         """
-
         if query is None and ctx.voice_client and ctx.voice_client.paused is True:
             return await ctx.voice_client.set_pause(False)
         elif query is None:
@@ -546,7 +541,6 @@ class Music(Cog, emoji="🎵"):
         """
         Pauses the current track.
         """
-
         if not ctx.voice_client:
             return await ctx.send(
                 embed=discord.Embed(
@@ -581,7 +575,6 @@ class Music(Cog, emoji="🎵"):
         """
         Stops the current track.
         """
-
         if not ctx.voice_client:
             return await ctx.send(
                 embed=discord.Embed(
@@ -616,7 +609,6 @@ class Music(Cog, emoji="🎵"):
         """
         Resumes the current track.
         """
-
         if not ctx.voice_client:
             return await ctx.send(
                 embed=discord.Embed(
@@ -657,7 +649,6 @@ class Music(Cog, emoji="🎵"):
 
         This can be a number from 1 - 100.
         """
-
         if not ctx.voice_client:
             return await ctx.send(
                 embed=discord.Embed(
@@ -721,7 +712,6 @@ class Music(Cog, emoji="🎵"):
         - 20s
         - ...
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -808,7 +798,6 @@ class Music(Cog, emoji="🎵"):
         - 20s
         - ...
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -896,7 +885,6 @@ class Music(Cog, emoji="🎵"):
         - 20s
         - ...
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -954,7 +942,6 @@ class Music(Cog, emoji="🎵"):
         """
         Replays the current track.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1039,7 +1026,6 @@ class Music(Cog, emoji="🎵"):
 
         **amount**: The amount of tracks to skip, only works if you are the bot owner, guild owner, or have the manage guild, manage message, manage channels, kick members, or ban members permissions.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1144,7 +1130,6 @@ class Music(Cog, emoji="🎵"):
         """
         Shows info about the current track.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1159,7 +1144,6 @@ class Music(Cog, emoji="🎵"):
         """
         Saves the current track to your DM's.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1209,7 +1193,6 @@ class Music(Cog, emoji="🎵"):
         """
         Queue music commands.
         """
-
         if action == "Show":
             return await self.queue_show(ctx)
         elif action == "Detailed":
@@ -1222,7 +1205,6 @@ class Music(Cog, emoji="🎵"):
         """
         Displays tracks in the queue.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1248,7 +1230,6 @@ class Music(Cog, emoji="🎵"):
         """
         Displays detailed information about the tracks in the queue.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1295,7 +1276,6 @@ class Music(Cog, emoji="🎵"):
         """
         Displays tracks in the queue history.
         """
-
         if action == "Show":
             return await self.queue_history_show(ctx)
         elif action == "Detailed":
@@ -1308,7 +1288,6 @@ class Music(Cog, emoji="🎵"):
         """
         Displays tracks in the queue history.
         """
-
         if not ctx.voice_client:
             return await ctx.send(
                 embed=discord.Embed(
@@ -1337,7 +1316,6 @@ class Music(Cog, emoji="🎵"):
         """
         Displays detailed information about the tracks in the queue history.
         """
-
         if not ctx.voice_client:
             return await ctx.send(
                 embed=discord.Embed(
@@ -1380,7 +1358,6 @@ class Music(Cog, emoji="🎵"):
         """
         Clears the queue.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1415,7 +1392,6 @@ class Music(Cog, emoji="🎵"):
         """
         Shuffles the queue.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1450,7 +1426,6 @@ class Music(Cog, emoji="🎵"):
         """
         Reverses the queue.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1502,7 +1477,6 @@ class Music(Cog, emoji="🎵"):
         `l-sort author`
         `l-sort length True`
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1558,7 +1532,6 @@ class Music(Cog, emoji="🎵"):
 
         **entry**: The position of the track you want to remove.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1612,7 +1585,6 @@ class Music(Cog, emoji="🎵"):
         **entry_1**: The position of the track you want to move from.
         **entry_2**: The position of the track you want to move too.
         """
-
         if not ctx.voice_client or not ctx.voice_client.is_playing():
             return await ctx.send(
                 embed=discord.Embed(
@@ -1666,7 +1638,6 @@ class Music(Cog, emoji="🎵"):
         """
         Filter commands.
         """
-
         if filter == "8D":
             return await self._8D(ctx)
         elif filter == "Nightcore":
@@ -1679,7 +1650,6 @@ class Music(Cog, emoji="🎵"):
         """
         Sets an 8D audio filter on the player.
         """
-
         if not ctx.voice_client:
             return await ctx.send(
                 embed=discord.Embed(
@@ -1725,7 +1695,6 @@ class Music(Cog, emoji="🎵"):
         """
         Sets a nightcore audio filter on the player.
         """
-
         if not ctx.voice_client:
             return await ctx.send(
                 embed=discord.Embed(
@@ -1772,7 +1741,6 @@ class Music(Cog, emoji="🎵"):
         """
         Displays information about the bots connected nodes.
         """
-
         embeds = []
 
         for node in self.bot.slate.nodes.values():
@@ -1808,7 +1776,6 @@ class Music(Cog, emoji="🎵"):
         """
         Displays information about voice clients that the bot has.
         """
-
         entries = []
 
         for node in self.bot.slate.nodes.values():
@@ -1858,7 +1825,6 @@ class Music(Cog, emoji="🎵"):
         """
         Displays information about a specific voice client.
         """
-
         guild = server or ctx.guild
 
         if not (player := self.bot.slate.players.get(guild.id)):

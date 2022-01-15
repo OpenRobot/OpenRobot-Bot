@@ -268,7 +268,6 @@ async def ping(ctx: commands.Context):
     """
     Gets the latency of the bot, databases and more.
     """
-
     if ctx.interaction is not None:
         await ctx.interaction.response.defer()
 
@@ -386,7 +385,6 @@ async def system(ctx: commands.Context):
 
     Most of the code is inspired by [Ami#7836](https://discord.com/users/801742991185936384).
     """
-
     if ctx.interaction is not None:
         await ctx.interaction.response.defer()
 
@@ -729,7 +727,6 @@ async def lyrics(
     - `--file`: Sends/Exports the lyrics in a text file.
     - `--from-spotify`: Gets the lyrics from spotify. This gets the lyrics from your spotify activity and edits them automatically when a new song plays. If it does not sync, try pausing/playing, or do anything regarding to the playback of your Spotify song.
     """
-
     query = re.sub("\n+", " ", query)
 
     if (
@@ -976,7 +973,6 @@ async def screenshot(
     """
     Screenshots a URL.
     """
-
     if ctx.interaction is not None:
         await ctx.interaction.response.defer()
     else:
@@ -1050,7 +1046,6 @@ async def spotify(ctx: commands.Context):
     """
     OpenRobot Spotify (OpenRobot x Spotify)
     """
-
     if ctx.invoked_subcommand is None:
         return await ctx.send_help(ctx.command)
 
@@ -1067,7 +1062,6 @@ async def spotify_login(
     Flags:
     - `--interactive`: Interactively helps you step-by-step on how to pair your spotify account to OpenRobot Spotify.
     """
-
     flags = (flags or "").split(" ")
 
     if "--interactive" not in flags:
@@ -1287,7 +1281,6 @@ async def spotify(
     Flags:
     - `--sync`: Enables the Auto Spotify Sync feature (Automatically edits the message).
     """
-
     member = member or ctx.author
 
     flags = [x.lower() for x in flags]
@@ -1873,7 +1866,6 @@ async def documentation(ctx: commands.Context):
     """
     Gives the OpenRobot documentation URL.
     """
-
     return await ctx.send("<https://api.openrobot.xyz/api/docs>")
 
 
@@ -1902,7 +1894,6 @@ async def source(
     Flags:
     - `--code`: Sends the code instead of the GitHub URL.
     """
-
     if ctx.interaction is not None:
         await ctx.interaction.response.defer()
 

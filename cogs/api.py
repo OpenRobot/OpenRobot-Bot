@@ -182,7 +182,6 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
     @group(invoke_without_command=True, example="api")
     async def api(self, ctx: commands.Context):
         """The base API Group Command."""
-
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
@@ -197,7 +196,6 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
         """
         API status.
         """
-
         up_embed = discord.Embed(
             color=discord.Colour.green(),
             title="OpenRobot API Status:",
@@ -626,7 +624,6 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
         Note that you can only apply once, and you cannot edit it afterwards.
         """
-
         try:
             msg = await ctx.author.send(
                 "You have requested an API token to access OpenRobot API. You will get updates here in this DM! Be sure to keep your DMs Open and not to block me so I can send your API token! Note this can take from seconds to days to get your application accepted."
@@ -691,7 +688,6 @@ __**Info:**__
         """
         Approve/Accept a User request to access the API. Owner-Only command.
         """
-
         converter = LegacyFlagConverter(
             [
                 LegacyFlagItems("user", nargs="+"),
@@ -826,7 +822,6 @@ __**Info:**__
         """
         Denies a User request to access the API. Owner-Only command.
         """
-
         user = flags.user
         reason = flags.reason
 
@@ -899,7 +894,6 @@ __**Info:**__
         """
         Deauthenticate a user, making the token unuseable. Owner-Only command.
         """
-
         while True:
             try:
                 if not await self.bot.pool.fetchrow(
@@ -947,7 +941,6 @@ __**Info:**__
         """
         Reauthenticate a user. Owner-Only command.
         """
-
         while True:
             try:
                 if not await self.bot.pool.fetchrow(
@@ -1003,7 +996,6 @@ __**Info:**__
         Flags:
         - `--force`: Forces to regenerate your API token (Even though you have your DMs closed, it will still regenerate it, useful for quick regeneration).
         """
-
         converter = LegacyFlagConverter(
             [
                 LegacyFlagItems(
@@ -1058,7 +1050,6 @@ __**Info:**__
         """
         Sends your OpenRobot API token to your DM.
         """
-
         while True:
             try:
                 db = await self.bot.pool.fetchrow(
@@ -1100,7 +1091,6 @@ __**Info:**__
         - `--yes`: Assumes a automatic Yes option on the confirmation.
         - `--order`: Orders the list, from `Newest to Oldest` or `Oldest to Newest`.
         """
-
         if ctx.invoked_subcommand is None:
             converter = LegacyFlagConverter(
                 [
@@ -1199,7 +1189,6 @@ __**Info:**__
         Flags:
         - `--yes`: Assumes a automatic Yes option on the confirmation.
         """
-
         converter = LegacyFlagConverter(
             [LegacyFlagItems("--yes", "-y", action="store_true", default=False)]
         )
@@ -1257,7 +1246,6 @@ __**Info:**__
 
         You can ban IPs from using your API Token, or unban IPs, or look at the list of IP bans you banned.
         """
-
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
@@ -1293,7 +1281,6 @@ __**Info:**__
         - `--yes`: Assumes a automatic Yes option on the confirmation.
         - `--order`: Orders the list, from `Newest to Oldest` or `Oldest to Newest`.
         """
-
         converter = LegacyFlagConverter(
             [
                 LegacyFlagItems(
@@ -1388,7 +1375,6 @@ __**Info:**__
         - `--ip`: The IPv4 or IPv6 to ban.
         - `--reason`: The reason of the ban. Defaults to None.
         """
-
         if not self.is_valid_ip(ip):
             return await ctx.send(f"IP {ip} is invalid.")
 
@@ -1458,7 +1444,6 @@ __**Info:**__
         """
         IP unban a IP from using your token. This can accept either IPv4 or IPv6.
         """
-
         if not self.is_valid_ip(ip):
             return await ctx.send(f"IP {ip} is invalid.")
 

@@ -75,7 +75,6 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         This command on its own gives a status brief.
         All other functionality is within its subcommands.
         """
-
         summary = [
             f"OpenRobot-Jishaku `v{package_version('jishaku')}`, discord.py `v{package_version('discord.py')}`, "
             f"`Python {sys.version}` on `{sys.platform}`".replace("\n", ""),
@@ -193,7 +192,6 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
 
         Most of the code is inspired by [Ami#7836](https://discord.com/users/801742991185936384).
         """
-
         return await self.bot.get_command("system")(ctx)
 
     @Feature.Command(
@@ -235,7 +233,6 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         """
         Run a command timing execution and catching exceptions.
         """
-
         alt_ctx = await copy_context_with(ctx, content=ctx.prefix + command_string)
 
         alt_ctx.debug = (
@@ -268,7 +265,6 @@ class Jishaku(*STANDARD_FEATURES, *OPTIONAL_FEATURES):
         - `Reload pulled cogs (try to)`
         - `Do Nothing`
         """
-
         extra = f" {extra}" if extra else ""
 
         proc = await asyncio.create_subprocess_shell(

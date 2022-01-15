@@ -91,7 +91,6 @@ AI: 5 times 6 is 30"""
 
         You can say `stop`, `goodbye` or `end` to end the chat.
         """
-
         ai_text = self.get_ai_text()
 
         await ctx.send(
@@ -161,7 +160,6 @@ AI: 5 times 6 is 30"""
         - `Math Algebra`
         ...
         """
-
         ai_str = f"""What are some key points I should know when studying {topic.title()}?
 
 1."""
@@ -252,7 +250,6 @@ AI: 5 times 6 is 30"""
 
         Attachments are also supported.
         """
-
         async def task(
             ctx: commands.Context,
             code: Codeblock,
@@ -700,7 +697,6 @@ AI: 5 times 6 is 30"""
         Flags:
         - `--raw`: Returns the raw response sent by our (OpenRobot) API.
         """
-
         if image:
             if "--raw" in image.split(" "):
                 raw = True
@@ -784,7 +780,6 @@ AI: 5 times 6 is 30"""
         Flags:
         - `--raw`: Returns the raw response sent by our (OpenRobot) API.
         """
-
         url = await ImageConverter(strip_remove=["--raw"]).convert(ctx, image)
 
         if not url:
@@ -868,7 +863,6 @@ AI: 5 times 6 is 30"""
         """
         Text Generator. Generates more text from the text provided.
         """
-
         if not text:
             raise commands.MissingRequiredArgument(inspect.Parameter('text', inspect.Parameter.KEYWORD_ONLY))
 
@@ -911,7 +905,6 @@ AI: 5 times 6 is 30"""
         """
         Sentiment. Analyzes the sentiment of the text provided, either if it is Positive or Negative.
         """
-
         if ctx.interaction is not None:
             await ctx.interaction.response.defer()
 
@@ -951,7 +944,6 @@ AI: 5 times 6 is 30"""
         """
         Summarization. Summarizes a text into a pretty short length. Including all the details and excluding most of the quite un-useful information.
         """
-
         if ctx.interaction is not None:
             await ctx.interaction.response.defer()
 
@@ -1001,7 +993,6 @@ AI: 5 times 6 is 30"""
         Flags:
         - `--raw`: Returns the raw response sent by our (OpenRobot) API.
         """
-
         url = await ImageConverter(strip_remove=["--raw"]).convert(ctx, image)
 
         if not url:
@@ -1072,7 +1063,6 @@ AI: 5 times 6 is 30"""
         - `--from`: The original text language. This is optional and detects the language by default.
         - `--raw`: Returns the raw response sent by our (OpenRobot) API.
         """
-
         if ctx.invoked_subcommand is None:
             converter = LegacyFlagConverter(
                 [
@@ -1182,7 +1172,6 @@ AI: 5 times 6 is 30"""
         Flags:
         - `--raw`: Returns the raw response sent by our (OpenRobot) API.
         """
-
         try:
             js = await self.bot.api.translate.languages()
 

@@ -16,7 +16,6 @@ class Cog(commands.Cog):
 
         Subclasses must replace this if they want special unloading behaviour.
         """
-
         pass
 
     def _inject(self, bot):

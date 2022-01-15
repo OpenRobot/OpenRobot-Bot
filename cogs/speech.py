@@ -32,7 +32,6 @@ class Speech(Cog, emoji="\U0001f399"):
         - `--voice`: The voice ID. This can be found by invoking the `text-to-speech details` command.
         - `--language-code`: The language code. This can be found by invoking the `text-to-speech details` command.
         """
-
         if ctx.invoked_subcommand is None:
             converter = LegacyFlagConverter(
                 [
@@ -100,7 +99,6 @@ class Speech(Cog, emoji="\U0001f399"):
         """
         Shows the details of the available voices.
         """
-
         if language_code is None:
             languages = await self.bot.api._request(
                 "GET",
@@ -150,7 +148,6 @@ class Speech(Cog, emoji="\U0001f399"):
         Flags:
         - `--language-code`: Whether or not to return the raw response returned by the API.
         """
-
         if ctx.invoked_subcommand is None:
             source = await AudioConverter().convert(ctx, flags)
 
@@ -237,7 +234,6 @@ class Speech(Cog, emoji="\U0001f399"):
         """
         Shows the details of the available languages.
         """
-
         languages = await self.bot.api.speech.speech_to_text_support()
 
         embed = discord.Embed(

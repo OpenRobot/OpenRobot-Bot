@@ -18,7 +18,6 @@ class Fun(Cog, emoji=""):  # TODO: Put fun emoji
 
         Size can be from `2x2` to `5x4`.
         """
-
         size = size or "3x3"
 
         try:
@@ -546,7 +545,6 @@ Please reply to this message with a letter.
 
         Note that it is advised for you to know how to play bingo before playing using this command.
         """
-
         players = [ctx.author]
 
         base_content = f"""
