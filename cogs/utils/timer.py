@@ -35,7 +35,7 @@ class Timer:
         return self._end - self._start
 
 
-class AsyncTimer(Timer): # eh, why not lmao
+class AsyncTimer(Timer):  # eh, why not lmao
     def __aenter__(self):
         return self.__enter__()
 

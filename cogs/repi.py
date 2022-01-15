@@ -31,9 +31,11 @@ class RePI(Cog):
         IP bans an IP from accessing the API.
         """
 
-        async with self.bot.session.get('https://repi.openrobot.xyz/admin/ban',
-                                        params={'ip': ip, 'key': self.bot.config.REPI_CRIDENTIALS['key']},
-                                        headers={'Authorization': self.bot.config.REPI_CRIDENTIALS['token']}) as resp:
+        async with self.bot.session.get(
+            "https://repi.openrobot.xyz/admin/ban",
+            params={"ip": ip, "key": self.bot.config.REPI_CRIDENTIALS["key"]},
+            headers={"Authorization": self.bot.config.REPI_CRIDENTIALS["token"]},
+        ) as resp:
             if resp.status == 200:
                 return await ctx.send(f"IP banned `{ip}` successfully.")
             else:
@@ -46,9 +48,11 @@ class RePI(Cog):
         IP unbans an IP from accessing the API.
         """
 
-        async with self.bot.session.get('https://repi.openrobot.xyz/admin/unban',
-                                        params={'ip': ip, 'key': self.bot.config.REPI_CRIDENTIALS['key']},
-                                        headers={'Authorization': self.bot.config.REPI_CRIDENTIALS['token']}) as resp:
+        async with self.bot.session.get(
+            "https://repi.openrobot.xyz/admin/unban",
+            params={"ip": ip, "key": self.bot.config.REPI_CRIDENTIALS["key"]},
+            headers={"Authorization": self.bot.config.REPI_CRIDENTIALS["token"]},
+        ) as resp:
             if resp.status == 200:
                 return await ctx.send(f"IP unbanned `{ip}` successfully.")
             else:

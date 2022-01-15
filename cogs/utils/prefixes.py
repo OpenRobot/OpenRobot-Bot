@@ -10,11 +10,14 @@ def case_insensitive_prefix():
 
         if _prefixes is None:
             from config import PREFIXES
+
             _prefixes = PREFIXES
 
         _prefixes = list(_prefixes)  # may be a different datatype, so...
 
-        regex = re.compile(r"^(" + r"|".join(map(re.escape, _prefixes)) + r")", flags=re.I)
+        regex = re.compile(
+            r"^(" + r"|".join(map(re.escape, _prefixes)) + r")", flags=re.I
+        )
 
         match = regex.match(msg.content)
 
@@ -22,6 +25,7 @@ def case_insensitive_prefix():
             return match.group(1)
 
     return inner
+
 
 def no_prefix_for_owner():
     async def inner(bot: Bot, msg: discord.Message):
@@ -32,7 +36,11 @@ def no_prefix_for_owner():
 
 
 class ApplyPrefix:
-    def __init__(self, prefixes: list[str] = None, *funcs: typing.Union[typing.Callable, typing.Coroutine]):
+    def __init__(
+        self,
+        prefixes: list[str] = None,
+        *funcs: typing.Union[typing.Callable, typing.Coroutine]
+    ):
         self.prefixes = prefixes
         self.funcs = list(funcs)
 
@@ -41,7 +49,9 @@ class ApplyPrefix:
 
         for func in self.funcs:
             try:
-                prefix = await discord.utils.maybe_coroutine(func, bot, msg, self.prefixes)
+                prefix = await discord.utils.maybe_coroutine(
+                    func, bot, msg, self.prefixes
+                )
             except:
                 prefix = await discord.utils.maybe_coroutine(func, bot, msg)
 

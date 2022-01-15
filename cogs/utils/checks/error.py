@@ -12,5 +12,6 @@ class APIHasApplied(CheckFailure):
 class APIHasNotApplied(CheckFailure):
     """Raised when an a user has not apply for the API"""
 
+
 class RePIIsNotOwner(CheckFailure):
     """Raised when a user is not the owner of the RePI API"""

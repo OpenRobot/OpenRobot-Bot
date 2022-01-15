@@ -297,8 +297,8 @@ class CodeReviewPages(BaseViewMenuPages):
 
             self.thumbsup = True
 
-        #button.disabled = True
-        #self.bad_recommendation.disabled = False
+        # button.disabled = True
+        # self.bad_recommendation.disabled = False
 
         await interaction.message.edit(view=self)
 
@@ -340,8 +340,8 @@ class CodeReviewPages(BaseViewMenuPages):
 
             self.thumbsdown = True
 
-        #button.disabled = True
-        #self.good_recommendation.disabled = False
+        # button.disabled = True
+        # self.good_recommendation.disabled = False
 
         await interaction.message.edit(view=self)
 
