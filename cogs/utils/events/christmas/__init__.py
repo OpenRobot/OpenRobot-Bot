@@ -157,7 +157,8 @@ class ChristmasEvent:
             discord.Colour.red(),
         ]
 
-    def get_avatar(self, *, christmas=True, url=False) -> str | bytes:
+    @staticmethod
+    def get_avatar(*, christmas=True, url=False) -> str | bytes:
         if url:
             if christmas:
                 return "https://cdn.openrobot.xyz/Logos/Christmas.png"
@@ -171,7 +172,8 @@ class ChristmasEvent:
                 with open("./Logos/Logo.png", "rb") as f:
                     return f.read()
 
-    def get_banner(self, *, christmas=True, url=False) -> str | bytes:
+    @staticmethod
+    def get_banner(*, christmas=True, url=False) -> str | bytes:
         if url:
             if christmas:
                 return "https://cdn.openrobot.xyz/Logos/Christmas-Banner.png"

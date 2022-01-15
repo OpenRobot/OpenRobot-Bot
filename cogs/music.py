@@ -192,7 +192,8 @@ class Music(Cog, emoji="🎵"):
         await player.handle_track_error()
 
     # @commands.group('music')
-    async def __music(self, ctx: commands.Context):  # useless
+    @staticmethod
+    async def __music(ctx: commands.Context):  # useless
         """
         Useful Music commands.
         """

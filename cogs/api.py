@@ -167,7 +167,8 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
                                 else:
                                     break
 
-    def exception_catching_callback(self, task):
+    @staticmethod
+    def exception_catching_callback(task):
         if task.exception():
             task.print_stack()
 
@@ -1264,7 +1265,8 @@ __**Info:**__
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
-    def is_valid_ip(self, ip: str):
+    @staticmethod
+    def is_valid_ip(ip: str):
         # if not IPv4 and not IPv6
         if not re.match(
             r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
