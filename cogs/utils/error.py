@@ -7,8 +7,7 @@ class OpenRobotFormatter(prettify_exceptions.DefaultFormatter):
     def __init__(self, **kwargs):
         kwargs["theme"] = {
             "_ansi_enabled": True
-            if os.environ.get("OPENROBOT-FORMATTER_NO_COLOR", "True").lower()
-                != "true"
+            if os.environ.get("OPENROBOT-FORMATTER_NO_COLOR", "True").lower() != "true"
             or (not kwargs.pop("no_color", True))
             else False
         }
