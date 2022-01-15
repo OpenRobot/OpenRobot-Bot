@@ -2,11 +2,8 @@
 
 import datetime
 import inspect
-import io
-import aiohttp
 import discord
 import typing
-from discord import voice_client
 import humanize
 import slate
 import math

@@ -2,7 +2,6 @@ import discord
 import asyncio
 import random
 from discord.ext import commands
-from discord.message import DeletedReferencedMessage
 from cogs.utils import Cog, games, command
 
 

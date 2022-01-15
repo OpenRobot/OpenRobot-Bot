@@ -1,4 +1,3 @@
-import aiohttp
 import discord
 import io
 from discord.ext import commands
@@ -10,9 +9,7 @@ from cogs.utils import (
     TextToSpeechDetailsPaginator,
     AudioConverter,
     group,
-    command,
-    Command,
-)
+    Command)
 
 
 class Speech(Cog, emoji="\U0001f399"):

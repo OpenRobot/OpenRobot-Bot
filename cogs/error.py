@@ -9,7 +9,6 @@ import asyncio
 import copy
 from discord.ext import commands
 from cogs.utils import Cog
-from cogs.utils import OpenRobotFormatter
 import traceback_with_variables as custom_traceback
 
 

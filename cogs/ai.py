@@ -3,7 +3,6 @@ import typing
 import discord
 import openai
 import json
-import aiohttp
 import random
 import boto3
 import re
@@ -26,9 +25,7 @@ from cogs.utils import (
     CodeReviewPages,
     command,
     group,
-    Command,
-    Group,
-)
+    Command)
 from openrobot.api_wrapper import error
 
 openai.api_key = OPENAI_KEY

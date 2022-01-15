@@ -17,10 +17,8 @@ import psutil
 import shutil
 import asyncio
 import asyncpg
-import jishaku
 import aiohttp
 import inspect
-import mystbin
 import cpuinfo
 import pathlib
 import humanize
@@ -31,8 +29,6 @@ import textwrap
 import speedtest
 import aiospotify
 import async_timeout
-
-from threading import Thread
 from io import BytesIO, StringIO
 from humanize import naturalsize as get_size
 
@@ -46,9 +42,7 @@ from cogs.utils import (
     ChristmasEvent,
     Command,
     ApplyPrefix,
-    case_insensitive_prefix,
-    no_prefix_for_owner,
-)
+    case_insensitive_prefix)
 
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).

@@ -19,10 +19,8 @@ from cogs.utils import (
     IPBanListPaginator,
     checks,
     group,
-    command,
     Group,
-    Command,
-)
+    Command)
 from thefuzz import process
 
 
