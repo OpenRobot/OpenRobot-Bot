@@ -83,10 +83,10 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
             try:
                 async with aiohttp.ClientSession(
-                        timeout=aiohttp.ClientTimeout(total=5)
+                    timeout=aiohttp.ClientTimeout(total=5)
                 ) as sess:
                     async with sess.get(
-                            "https://api.openrobot.xyz/_internal/available"
+                        "https://api.openrobot.xyz/_internal/available"
                     ) as resp:
                         is_available = (await resp.json())["is_available"]
             except:
@@ -112,9 +112,9 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
                     if chan:
                         if (
-                                (data["last_updated_status"] is not None)
-                                and (data["last_updated_status"] != is_available)
-                                and (is_available is True)
+                            (data["last_updated_status"] is not None)
+                            and (data["last_updated_status"] != is_available)
+                            and (is_available is True)
                         ):
                             embed = up_embed.copy()
 
@@ -142,7 +142,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
                                 else:
                                     break
                         elif (data["last_updated_status"] != is_available) and (
-                                is_available is False
+                            is_available is False
                         ):
                             embed = down_embed.copy()
 
@@ -167,7 +167,8 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
                                 else:
                                     break
 
-    def exception_catching_callback(self, task):
+    @staticmethod
+    def exception_catching_callback(task):
         if task.exception():
             task.print_stack()
 
@@ -188,11 +189,11 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
     @api.command("status", cls=Command, example="api status")
     async def api_status(
-            self,
-            ctx: commands.Context  # ,
-            # channel: discord.TextChannel = commands.Option(
-            # None, description="Use that channel for OpenRobot API Status updates."
-            # ),
+        self,
+        ctx: commands.Context  # ,
+        # channel: discord.TextChannel = commands.Option(
+        # None, description="Use that channel for OpenRobot API Status updates."
+        # ),
     ):
         """
         API status.
@@ -212,10 +213,10 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
         try:
             async with aiohttp.ClientSession(
-                    timeout=aiohttp.ClientTimeout(total=5)
+                timeout=aiohttp.ClientTimeout(total=5)
             ) as sess:
                 async with sess.get(
-                        "https://api.openrobot.xyz/_internal/available"
+                    "https://api.openrobot.xyz/_internal/available"
                 ) as resp:
                     is_available = (await resp.json())["is_available"]
         except Exception as e:
@@ -262,13 +263,13 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
     async def api_stats(self, ctx: commands.Context):
         class SelectOption(discord.SelectOption):
             def __init__(
-                    self,
-                    *,
-                    name: str,
-                    endpoint: str,
-                    docs_url: str = None,
-                    emoji: discord.Emoji | discord.PartialEmoji | str | None = None,
-                    default: bool = False,
+                self,
+                *,
+                name: str,
+                endpoint: str,
+                docs_url: str = None,
+                emoji: discord.Emoji | discord.PartialEmoji | str | None = None,
+                default: bool = False,
             ) -> None:
                 if endpoint:
                     x = f" - {endpoint}"
@@ -334,10 +335,10 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
                 embed = (
                     discord.Embed(color=self.view.ctx.bot.color)
-                        .set_author(
+                    .set_author(
                         name="General", icon_url=self.view.ctx.author.display_avatar.url
                     )
-                        .set_footer(
+                    .set_footer(
                         text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.'
                     )
                 )
@@ -377,10 +378,11 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
                 embed = (
                     discord.Embed(color=self.view.ctx.bot.color)
-                        .set_author(
-                        name=selection.label, icon_url=self.view.ctx.author.display_avatar.url
+                    .set_author(
+                        name=selection.label,
+                        icon_url=self.view.ctx.author.display_avatar.url,
                     )
-                        .set_footer(
+                    .set_footer(
                         text=f'Use "{self.view.ctx.prefix}api info" to view detailed statistics and tracking on your API.'
                     )
                 )
@@ -457,13 +459,13 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
         class View(discord.ui.View):
             def __init__(
-                    self,
-                    ctx: commands.Context,
-                    data,
-                    lyrics_cached=[],
-                    *,
-                    timeout=90,
-                    message: discord.Message = None,
+                self,
+                ctx: commands.Context,
+                data,
+                lyrics_cached=[],
+                *,
+                timeout=90,
+                message: discord.Message = None,
             ):
                 super().__init__(timeout=timeout)
                 self.ctx = ctx
@@ -477,8 +479,8 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
             async def interaction_check(self, interaction):
                 """Only allow the author that invoke the command to be able to use the interaction"""
                 if not (
-                        interaction.user == self.ctx.author
-                        or await self.ctx.bot.is_owner(interaction.user)
+                    interaction.user == self.ctx.author
+                    or await self.ctx.bot.is_owner(interaction.user)
                 ):
                     await interaction.response.send_message(
                         f"This is not your interaction! Only {self.ctx.author.mention} can respond to this interaction!",
@@ -500,7 +502,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
                 emoji="<:update:898506874398339102>",
             )
             async def update(
-                    self, button: discord.ui.Button, interaction: discord.Interaction
+                self, button: discord.ui.Button, interaction: discord.Interaction
             ):
                 updated = False
 
@@ -570,7 +572,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
                 label="Stop", emoji="\U000023f9", style=discord.ButtonStyle.danger
             )
             async def stop_button(
-                    self, button: discord.ui.Button, interaction: discord.Interaction
+                self, button: discord.ui.Button, interaction: discord.Interaction
             ):
                 await interaction.message.delete()
                 self.stop()
@@ -614,12 +616,12 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
     @api.command("apply", cls=Command, example="api apply")
     @checks.api.has_not_applied()
     async def api_apply(
-            self,
-            ctx: commands.Context,
-            *,
-            reason: str = commands.Option(
-                description="Enter the reason why you want to apply for the API."
-            ),
+        self,
+        ctx: commands.Context,
+        *,
+        reason: str = commands.Option(
+            description="Enter the reason why you want to apply for the API."
+        ),
     ):
         """
         Applies yourself for the OpenRobot API.
@@ -683,10 +685,10 @@ __**Info:**__
     )
     @commands.is_owner()
     async def api_approve(
-            self,
-            ctx: commands.Context,
-            *,
-            arguments: str = commands.Option(description="Usage: [user] [--force]"),
+        self,
+        ctx: commands.Context,
+        *,
+        arguments: str = commands.Option(description="Usage: [user] [--force]"),
     ):
         """
         Approve/Accept a User request to access the API. Owner-Only command.
@@ -712,7 +714,9 @@ __**Info:**__
 
         tokens = []
 
-        username_base64 = base64.urlsafe_b64encode(str(user.id).encode("utf-8")).decode("utf-8")
+        username_base64 = base64.urlsafe_b64encode(str(user.id).encode("utf-8")).decode(
+            "utf-8"
+        )
         tokens.append(username_base64)
 
         secret = generate_token(random.randint(25, 50))
@@ -721,7 +725,7 @@ __**Info:**__
         secret = generate_token(random.randint(25, 50))
         tokens.append(secret)
 
-        token = '.'.join(tokens)
+        token = ".".join(tokens)
 
         if force:
             while True:
@@ -753,7 +757,7 @@ __**Info:**__
             while True:
                 try:
                     if not await self.bot.pool.fetchrow(
-                            "SELECT * FROM applied_tokens WHERE user_id = $1", user.id
+                        "SELECT * FROM applied_tokens WHERE user_id = $1", user.id
                     ):
                         return await ctx.send(f"{user} did not apply for the API.")
                 except asyncpg.exceptions._base.InterfaceError:
@@ -816,12 +820,12 @@ __**Info:**__
     @api.command("deny", cls=Command, example="api deny @user")
     @commands.is_owner()
     async def api_deny(
-            self,
-            ctx: commands.Context,
-            *,
-            flags: APIDenyFlag = commands.Option(
-                description="Usage: --user <@user> [--reason]"
-            ),
+        self,
+        ctx: commands.Context,
+        *,
+        flags: APIDenyFlag = commands.Option(
+            description="Usage: --user <@user> [--reason]"
+        ),
     ):
         """
         Denies a User request to access the API. Owner-Only command.
@@ -833,7 +837,7 @@ __**Info:**__
         while True:
             try:
                 if not await self.bot.pool.fetchrow(
-                        "SELECT * FROM applied_tokens WHERE user_id = $1", user.id
+                    "SELECT * FROM applied_tokens WHERE user_id = $1", user.id
                 ):
                     return await ctx.send(f"{user} did not apply for the API.")
             except asyncpg.exceptions._base.InterfaceError:
@@ -889,12 +893,12 @@ __**Info:**__
     )
     @commands.is_owner()
     async def api_deauth(
-            self,
-            ctx: commands.Context,
-            *,
-            user: discord.User = commands.Option(
-                description="The user you want to deauthorize."
-            ),
+        self,
+        ctx: commands.Context,
+        *,
+        user: discord.User = commands.Option(
+            description="The user you want to deauthorize."
+        ),
     ):
         """
         Deauthenticate a user, making the token unuseable. Owner-Only command.
@@ -903,7 +907,7 @@ __**Info:**__
         while True:
             try:
                 if not await self.bot.pool.fetchrow(
-                        "SELECT * FROM tokens WHERE user_id = $1", user.id
+                    "SELECT * FROM tokens WHERE user_id = $1", user.id
                 ):
                     return await ctx.send(f"{user} did not apply for the API.")
             except asyncpg.exceptions._base.InterfaceError:
@@ -937,12 +941,12 @@ __**Info:**__
     )
     @commands.is_owner()
     async def api_reauth(
-            self,
-            ctx: commands.Context,
-            *,
-            user: discord.User = commands.Option(
-                description="The user you want to reauthorize."
-            ),
+        self,
+        ctx: commands.Context,
+        *,
+        user: discord.User = commands.Option(
+            description="The user you want to reauthorize."
+        ),
     ):
         """
         Reauthenticate a user. Owner-Only command.
@@ -951,7 +955,7 @@ __**Info:**__
         while True:
             try:
                 if not await self.bot.pool.fetchrow(
-                        "SELECT * FROM tokens WHERE user_id = $1", user.id
+                    "SELECT * FROM tokens WHERE user_id = $1", user.id
                 ):
                     return await ctx.send(f"{user} did not apply for the API.")
             except asyncpg.exceptions._base.InterfaceError:
@@ -992,10 +996,10 @@ __**Info:**__
     )
     @checks.api.has_applied()
     async def api_regenerate_token(
-            self,
-            ctx: commands.Context,
-            *,
-            arguments: str = commands.Option(None, description="Flags: [--force]"),
+        self,
+        ctx: commands.Context,
+        *,
+        arguments: str = commands.Option(None, description="Flags: [--force]"),
     ):
         """
         Regenerates your OpenRobot API token.
@@ -1084,13 +1088,13 @@ __**Info:**__
     @api.group("info", invoke_without_command=True, cls=Group, example="api info")
     @checks.api.has_applied()
     async def api_info(
-            self,
-            ctx: commands.Context,
-            *,
-            arguments: str = commands.Option(
-                None,
-                description='Flags: [--ignore-guild-warning] [--yes] [--order "Newest to Oldest"/"Oldest to Newest"]',
-            ),
+        self,
+        ctx: commands.Context,
+        *,
+        arguments: str = commands.Option(
+            None,
+            description='Flags: [--ignore-guild-warning] [--yes] [--order "Newest to Oldest"/"Oldest to Newest"]',
+        ),
     ):
         """
         Gets info/logs on your token. Useful for tracking, etc.
@@ -1147,7 +1151,7 @@ __**Info:**__
                 else:
                     break
 
-            if not db or not len(json.loads(db["endpoints_accessed"])):
+            if not db or not json.loads(db["endpoints_accessed"]):
                 return await ctx.send(
                     "No results we're found or we do not have enough data to display results. You have not made any API requests using your token.\nNote that requests made before <t:1633777200:F> are not collected."
                 )
@@ -1188,10 +1192,10 @@ __**Info:**__
     @api_info.command("reset", cls=Command, example="api info reset")
     @checks.api.has_applied()
     async def api_info_reset(
-            self,
-            ctx: commands.Context,
-            *,
-            arguments: str = commands.Option(None, description="Flags: [--yes]"),
+        self,
+        ctx: commands.Context,
+        *,
+        arguments: str = commands.Option(None, description="Flags: [--yes]"),
     ):
         """
         Resets your OpenRobot API logs. Note that this action cannot be undone.
@@ -1261,11 +1265,12 @@ __**Info:**__
         if ctx.invoked_subcommand is None:
             return await ctx.send_help(ctx.command)
 
-    def is_valid_ip(self, ip: str):
+    @staticmethod
+    def is_valid_ip(ip: str):
         # if not IPv4 and not IPv6
         if not re.match(
-                r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-                ip,
+            r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ip,
         ) and not re.match(
             r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))",
             ip,
@@ -1277,13 +1282,13 @@ __**Info:**__
     @api_ip.command("list", aliases=["show"], cls=Command, example="api ip list")
     @checks.api.has_applied()
     async def api_ip_list(
-            self,
-            ctx,
-            *,
-            arguments: str = commands.Option(
-                None,
-                description='Flags: [--ignore-guild-warning] [--yes] [--order "Newest to Oldest"/"Oldest to Newest"]',
-            ),
+        self,
+        ctx,
+        *,
+        arguments: str = commands.Option(
+            None,
+            description='Flags: [--ignore-guild-warning] [--yes] [--order "Newest to Oldest"/"Oldest to Newest"]',
+        ),
     ):
         """
         Gets a list of the Ban IPs you banned.
@@ -1375,11 +1380,11 @@ __**Info:**__
     )
     @checks.api.has_applied()
     async def api_ip_ban(
-            self,
-            ctx,
-            ip: str = commands.Option(description="The IP to ban."),
-            *,
-            reason: str = commands.Option(None, description="The reason for the ban."),
+        self,
+        ctx,
+        ip: str = commands.Option(description="The IP to ban."),
+        *,
+        reason: str = commands.Option(None, description="The reason for the ban."),
     ):
         """
         IP bans a IP from using your token. This can accept either IPv4 or IPv6.
@@ -1453,7 +1458,7 @@ __**Info:**__
     )
     @checks.api.has_applied()
     async def api_ip_unban(
-            self, ctx, *, ip: str = commands.Option(description="The IP Address to unban.")
+        self, ctx, *, ip: str = commands.Option(description="The IP Address to unban.")
     ):
         """
         IP unban a IP from using your token. This can accept either IPv4 or IPv6.

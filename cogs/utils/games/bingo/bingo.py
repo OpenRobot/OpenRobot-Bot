@@ -24,7 +24,7 @@ class Bingo:
         self.generate_players()
 
     def _before_check(self):
-        if self.x % 2 == 0 or self.y % 2 == 0:
+        if 0 in (self.x % 2, self.y % 2):
             raise BingoError("x and y must be odd")
 
         if self.x <= 0 or self.y <= 0:
@@ -154,5 +154,6 @@ class Bingo:
 
         player.claim(number)
 
-    def get_cords(self, player: Player, number: int) -> tuple[int | None, int | None]:
+    @staticmethod
+    def get_cords(player: Player, number: int) -> tuple[int | None, int | None]:
         return player.get_number_coordinates(number)

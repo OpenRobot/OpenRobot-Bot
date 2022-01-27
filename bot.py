@@ -77,7 +77,8 @@ class LineCount:
 class Bot(BaseBot):
     CDN_BUCKET = "cdn.openrobot.xyz"
 
-    def line_count(self, directory: str = "./") -> LineCount:
+    @staticmethod
+    def line_count(directory: str = "./") -> LineCount:
         p = pathlib.Path(directory)
         cm = cr = fn = cl = ls = fc = 0
         for f in p.rglob("*.py"):
@@ -154,7 +155,7 @@ class Bot(BaseBot):
         )
 
         file_type = filename.split(".")
-        file_type = file_type[len(file_type) - 1]
+        file_type = file_type[-1]
 
         with open(f"./cdn-images/{hash}.{file_type}", "wb") as f:
             f.write(getattr(fp, "getvalue", lambda: fp)())

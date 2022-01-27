@@ -49,7 +49,8 @@ class AI(Cog, emoji="🤖"):
         self.codecommit = boto3.client("codecommit", **AWS_CRIDENTIALS)
         self.codeguru = boto3.client("codeguru-reviewer", **AWS_CRIDENTIALS)
 
-    def get_ai_text(self):
+    @staticmethod
+    def get_ai_text():
         ai_text = """The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, intelligent and very friendly.
 
 Human: Hello

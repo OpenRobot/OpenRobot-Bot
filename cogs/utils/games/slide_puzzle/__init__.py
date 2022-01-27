@@ -56,9 +56,9 @@ Switching Numbers:
                 return 0
             elif self.x == 5 or self.y == 4:
                 return 2
-            elif self.x == 4 or self.y == 4:
+            elif 4 in (self.x, self.y):
                 return 1
-            elif self.x == 3 or self.y == 3:
+            elif 3 in (self.x, self.y):
                 return 1
             else:
                 return 2
