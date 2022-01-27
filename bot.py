@@ -1499,7 +1499,7 @@ async def spotify(
                     members_listening = get_possible_members_in_same_session(
                         member, spotify
                     )
-                    embed.description += "> \n> **Possible Members Listening:** "
+                    embed.description += "\n> **Possible Members Listening:** "
 
                     if not members_listening:
                         embed.description += "None."

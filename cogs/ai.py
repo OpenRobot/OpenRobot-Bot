@@ -874,7 +874,7 @@ AI: 5 times 6 is 30"""
 
         if ctx.interaction is not None:
             await ctx.interaction.response.defer()
-
+        
         try:
             text_generator_result = await self.bot.api.text_generation(text, num_return=num_return, max_length=int(4000 / num_return)) # a issue with the api for now, requiring max_length as an int.
 
