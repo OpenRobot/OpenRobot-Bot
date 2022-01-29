@@ -380,7 +380,7 @@ async def ping(ctx: commands.Context):
     )
 
 
-@bot.command("system", aliases=["sys"], cls=Command, example="system")
+@bot.command("system", aliases=["sys", "info"], cls=Command, example="system")
 async def system(ctx: commands.Context):
     """
     Gets systen information e.g CPU, Memory, Disk, etc.
@@ -438,7 +438,14 @@ Processor: {processor}```
         cpufreq = psutil.cpu_freq()
         current_cpu_freq = f"{cpufreq.current:.2f}Mhz"
 
-        cpu_usage = f"{psutil.cpu_percent()}%"
+        cpu_usage = []
+
+        total_cpu_usage = psutil.cpu_percent()
+
+        for i, usage in enumerate(psutil.cpu_percent(percpu=True, interval=1)):
+            cpu_usage.append(f"Core {i}: {usage}%")
+
+        cpu_usage = '\n'.join(cpu_usage)
 
         embed.add_field(
             name="CPU:",
@@ -447,7 +454,10 @@ Name: {cpuinfo.get_cpu_info()['brand_raw']}
 Physical cores: {physical_cores}
 Total cores: {total_cores}
 Frequency: {current_cpu_freq}
-Usage: {cpu_usage}```
+Usage: {total_cpu_usage}%
+
+{cpu_usage}
+```
         """,
         )
 
