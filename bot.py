@@ -454,11 +454,18 @@ Name: {cpuinfo.get_cpu_info()['brand_raw']}
 Physical cores: {physical_cores}
 Total cores: {total_cores}
 Frequency: {current_cpu_freq}
-Usage: {total_cpu_usage}%
+```
+        """,
+        )
+
+        embed.add_field(
+            name="CPU Usage:",
+            value=f"""```yml
+Total CPU Usage: {total_cpu_usage}%
 
 {cpu_usage}
 ```
-        """,
+            """
         )
 
         await msg.edit(
