@@ -399,6 +399,8 @@ async def system(ctx: commands.Context):
             allowed_mentions=discord.AllowedMentions.none(),
         )
 
+        start = time.perf_counter()
+
         embed.description = f"""```yml
 Python Version: Python {platform.python_version()}
 Discord.py Version: {discord.__version__}
@@ -626,9 +628,11 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 
         embed.set_footer(text=f"PID: {os.getpid()}")
 
+        end = time.perf_counter()
+
         await msg.delete()
 
-        await ctx.send(embed=embed)
+        await ctx.send(content=f'Time took: {round(end-start, 1)}s', embed=embed)
 
 
 @bot.command(
