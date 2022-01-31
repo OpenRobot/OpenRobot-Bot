@@ -658,6 +658,11 @@ async def activity(
             "Ocho"
         ] = commands.Option(None, description="The activity to start."),
 ):
+    channel = channel or (ctx.author.voice.channel if ctx.author.voice else None)
+
+    if channel is None:
+        return await ctx.send("A channel is required to start the activity!")
+        
     if channel.permissions_for(ctx.me).create_instant_invite is False:
         return await ctx.send(
             f"I need the `Create Invite` permissions for {channel.mention} to start the activity!"
