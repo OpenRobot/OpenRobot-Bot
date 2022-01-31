@@ -641,20 +641,21 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 async def activity(
         ctx: commands.Context,
         channel: discord.VoiceChannel = commands.Option(
-            description="The voice channel to start the activity. Defaults to the channel you are in."
+            None, description="The voice channel to start the activity. Defaults to the channel you are in."
         ),
         *,
         activity: typing.Literal[
             "Watch Together",
             "Poker Night",
             "Chess",
-            "Doodle Crew",
+            "Sketch Heads",
             "Word Snacks",
-            "Letter Tile",
+            "Letter Leauge",
             "Spellcast",
             "Checkers",
             "Fishington",
             "Betrayal",
+            "Ocho"
         ] = commands.Option(None, description="The activity to start."),
 ):
     if channel.permissions_for(ctx.me).create_instant_invite is False:
