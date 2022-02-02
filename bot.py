@@ -640,7 +640,7 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 )
 async def activity(
         ctx: commands.Context,
-        channel: discord.VoiceChannel = commands.Option(
+        channel: typing.Optional[discord.VoiceChannel] = commands.Option(
             None, description="The voice channel to start the activity. Defaults to the channel you are in."
         ),
         *,
@@ -662,7 +662,7 @@ async def activity(
 
     if channel is None:
         return await ctx.send("A channel is required to start the activity!")
-        
+
     if channel.permissions_for(ctx.me).create_instant_invite is False:
         return await ctx.send(
             f"I need the `Create Invite` permissions for {channel.mention} to start the activity!"
