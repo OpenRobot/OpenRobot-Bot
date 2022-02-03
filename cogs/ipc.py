@@ -7,8 +7,9 @@ from discord.ext.ipc import server
 from discord.ext import commands, ipc
 from secrets import token_urlsafe as generate_token
 
+
 class IPCRoutes(Cog):
-    @server.route('api-get_token')
+    @server.route("api-get_token")
     async def api_get_token(self, data):
         userid = data.user_id
 
@@ -26,7 +27,7 @@ class IPCRoutes(Cog):
 
         return db["token"]
 
-    @server.route('api-apply_submit')
+    @server.route("api-apply_submit")
     async def api_apply_submit(self, data):
         userid = data.user_id
         reason = data.reason
@@ -82,6 +83,7 @@ Method: Requested from API Website.
                 break
 
         return token
+
 
 def setup(bot):
     bot.add_cog(IPCRoutes(bot))
