@@ -47,7 +47,7 @@ class Bot(commands.Bot):
 
         self.process = psutil.Process()
 
-        self.ipc = ipc.Server(self, secret_key=config.IPC_SECRET_KEY)
+        self.ipc = ipc.Server(self, secret_key=config.IPC_SECRET_KEY, port=8566)
 
         # Uptime and stuff:
         self.start_time = discord.utils.utcnow()
@@ -93,6 +93,18 @@ class Bot(commands.Bot):
                 'Command "{}" is not found'.format(ctx.invoked_with)
             )
             self.dispatch("command_error", ctx, exc)
+
+    async def on_ipc_ready(self):
+        """Called upon the IPC Server being ready"""
+        print("IPC is ready.")
+
+    async def on_ipc_error(self, endpoint, error):
+        """Called upon an error being raised within an IPC route"""
+        print(endpoint, "raised", error)
+
+    def run(self, *args, **kwargs):
+        self.ipc.start()
+        return super().run(*args, **kwargs)
 
     def _color(self):
         return self.__color
