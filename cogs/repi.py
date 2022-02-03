@@ -9,7 +9,7 @@ from cogs.utils import (
 )
 
 
-class RePI(Cog):
+class RePI(Cog, emoji="<:repi:938813831390584873>"):
     """
     [RePI](https://repi.openrobot.xyz) API Management. Owner-Only commands.
     """
