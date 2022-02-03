@@ -14,7 +14,7 @@ from .driver import Driver
 from .context import Context
 from .rethinkdb import RethinkDB
 
-from discord.ext import commands
+from discord.ext import commands, ipc
 from openrobot.api_wrapper import AsyncClient
 from openrobot import discord_activities as discord_activity
 
@@ -46,6 +46,8 @@ class Bot(commands.Bot):
         self.cdn = boto3.client("s3", **config.AWS_CRIDENTIALS)
 
         self.process = psutil.Process()
+
+        self.ipc = ipc.Server(self, secret_key=config.IPC_SECRET_KEY)
 
         # Databases
         self.pool: asyncpg.Pool = None

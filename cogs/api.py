@@ -666,7 +666,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 **Reason:** {discord.utils.escape_markdown(reason)}
 
 __**Info:**__
-- Username: {ctx.author.name}
+- Username: {ctx.author}
 - User ID: {ctx.author.id}
 
 {f'''- Guild ID: {ctx.guild.id}
