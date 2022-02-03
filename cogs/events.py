@@ -2,6 +2,7 @@ import discord
 from cogs.utils import Cog
 from discord.ext import commands
 
+
 class Events(Cog):
     @commands.Cog.listener()
     async def on_message(self, msg: discord.Message):
@@ -12,7 +13,9 @@ class Events(Cog):
         self.bot.edited_messages += 1
 
     @commands.Cog.listener()
-    async def on_raw_bulk_message_delete(self, payload: discord.RawBulkMessageDeleteEvent):
+    async def on_raw_bulk_message_delete(
+        self, payload: discord.RawBulkMessageDeleteEvent
+    ):
         self.bot.deleted_messages += len(payload.message_ids)
 
     @commands.Cog.listener()
@@ -22,6 +25,7 @@ class Events(Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx: commands.Context):
         self.bot.commands_invoked += 1
+
 
 def setup(bot):
     bot.add_cog(Events(bot))
