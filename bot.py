@@ -378,7 +378,7 @@ async def ping(ctx: commands.Context):
     )
 
     embed.add_field(
-        name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot REPI API Latency:',
+        name=f'{bot.ping.EMOJIS["repi"]} OpenRobot REPI API Latency:',
         value=do_ping_string(round(await bot.ping.api.repi() * 1000, 2)),
     )
 

@@ -138,7 +138,8 @@ class Ping:
         "openrobot-api": "<:OpenRobotLogo:901132699241168937>",
         "jeyy-api": "<:jeyyapi:922499477376475216>",
         "waifu-im": "<:waifuim:922500126969319476>",
-        "dagpi": "<:dagpi:922499421772599346>"
+        "dagpi": "<:dagpi:922499421772599346>",
+        "repi": "<:repi:938813831390584873>",
     }
 
     def __init__(self, bot: commands.Bot):
