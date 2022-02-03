@@ -16,6 +16,7 @@ import base64
 import psutil
 import shutil
 import asyncio
+import logging
 import asyncpg
 import jishaku
 import aiohttp
@@ -221,6 +222,13 @@ api = bot.api
 def override(func):  # Plainly just for `source` command.
     func.__is_overridden__ = True
     return func
+
+
+logger = logging.getLogger('discord')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 
 @bot.event
