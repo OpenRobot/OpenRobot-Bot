@@ -47,7 +47,7 @@ class Bot(commands.Bot):
 
         self.process = psutil.Process()
 
-        self.ipc = ipc.Server(self, secret_key=config.IPC_SECRET_KEY, port=8566, multicast_port=22000)
+        self.ipc = ipc.Server(self, secret_key=config.IPC_SECRET_KEY, port=8766, multicast_port=22000)
 
         # Uptime and stuff:
         self.start_time = discord.utils.utcnow()
