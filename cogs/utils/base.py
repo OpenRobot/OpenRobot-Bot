@@ -49,6 +49,13 @@ class Bot(commands.Bot):
 
         self.ipc = ipc.Server(self, secret_key=config.IPC_SECRET_KEY)
 
+        # Uptime and stuff:
+        self.start_time = discord.utils.utcnow()
+        self.sent_messages = 0
+        self.edited_messages = 0
+        self.deleted_messages = 0
+        self.commands_invoked = 0
+
         # Databases
         self.pool: asyncpg.Pool = None
         self.redis: aioredis.Redis = None

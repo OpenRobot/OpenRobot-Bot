@@ -380,6 +380,33 @@ async def ping(ctx: commands.Context):
     )
 
 
+@bot.command("uptime", aliases=["up"])
+async def uptime(ctx: commands.Context):
+    """
+    Gets the Uptime info of the bot.
+    """
+
+    if ctx.interaction is not None:
+        await ctx.interaction.response.defer()
+
+    embed = (
+        discord.Embed(color=bot.color, timestamp=ctx.message.created_at)
+            .set_author(name="Uptime Info:", icon_url=ctx.author.display_avatar.url)
+            .set_footer(icon_url=ctx.author.display_avatar.url, text=f"Requested by: {ctx.author}")
+    )
+
+    embed.description = f"""
+Launch/Start Time: {discord.utils.format_dt(bot.start_time, 'F')} | {discord.utils.format_dt(bot.start_time, 'R')}
+Messages sent since last restart: `{bot.sent_messages}`
+Messages edited since last restart: `{bot.edited_messages}`
+Messages deleted since last restart: `{bot.deleted_messages}`
+
+Commands invoked since last restart: `{bot.commands_invoked}`
+    """
+
+    await ctx.send(embed=embed)
+
+
 @bot.command("system", aliases=["sys", "info"], cls=Command, example="system")
 async def system(ctx: commands.Context):
     """
