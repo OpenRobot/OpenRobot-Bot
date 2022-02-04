@@ -41,20 +41,24 @@ class Tags:
         # Get the data
 
         for row in rows[3:]:
-            raw_data_columns = row[1].split('|')
-            data_columns = []
+            try:
+                raw_data_columns = row[1].split('|')
+                data_columns = []
 
-            # Strip all items in list
-            for raw_data_column in raw_data_columns:
-                if raw_data_column.strip():
-                    data_columns.append(raw_data_column.strip())
+                # Strip all items in list
+                for raw_data_column in raw_data_columns:
+                    if raw_data_column.strip():
+                        data_columns.append(raw_data_column.strip())
 
-            if len(columns) != len(data_columns):
-                raise ValueError(f"Columns and data columns do not match up.")
+                if len(columns) != len(data_columns):
+                    #raise ValueError(f"Columns and data columns do not match up.")
+                    continue
 
-            data.append({
-                columns[x]: data_columns[x] for x in range(len(columns))
-            })
+                data.append({
+                    columns[x]: data_columns[x] for x in range(len(columns))
+                })
+            except:
+                continue
 
         return cls(data)
 
