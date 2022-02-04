@@ -844,6 +844,8 @@ async def claimable_tags(ctx: commands.Context):
 
         await ctx.send(file=file)
     except Exception as e:
+        ctx.command.reset_cooldown(ctx)
+        
         if ctx.debug:
             raise e
 
