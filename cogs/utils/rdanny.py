@@ -55,10 +55,10 @@ class Tags:
                     continue
 
                 data.append({
-                    columns[x]: data_columns[x] for x in range(len(columns))
+                    (columns[x]: data_columns[x] for x in range(len(columns))) if len(columns) < len(data_columns) else (columns[x]: data_columns[x] for x in range(len(data_columns)))
                 })
-            except:
-                continue
+            except Exception as e:
+                raise e
 
         return cls(data)
 
