@@ -19,3 +19,4 @@ selenium
 boto3
 black
 rethinkdb
+tabulate

@@ -29,6 +29,7 @@ import platform
 import aioredis
 import datetime
 import textwrap
+import tabulate
 import speedtest
 import aiospotify
 import async_timeout
@@ -49,6 +50,8 @@ from cogs.utils import (
     ApplyPrefix,
     case_insensitive_prefix,
     no_prefix_for_owner,
+    checks,
+    rdanny,
 )
 
 description = """
@@ -777,6 +780,74 @@ async def activity_error(ctx: commands.Context, error: Exception):
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Please provide a channel.")
 
+
+@bot.command(cls=Command, name='claimable-tags', aliases=['claimabletags', 'claimable_tags'])
+@checks.rdanny_in_guild()
+@commands.max_concurrency(1, commands.BucketType.guild)
+@commands.cooldown(1, 60, commands.BucketType.guild)
+async def claimable_tags(ctx: commands.Context):
+    """
+    Searches for claimable text in R. Danny for your server.
+
+    This may not work as expected yet. It's a work in progress.
+    """
+    
+    await ctx.send("Please invoke the `tag all --text` command from R.Danny for him to send the file.")
+
+    try:
+        cmd_invoke = await bot.wait_for('message', check=lambda m: m.content.strip().replace(' ', '').endswith('tagall--text') and m.author.id == ctx.author.id, timeout=60)
+    except asyncio.TimeoutError:
+        return await ctx.send("I did not see a response from you. Please try again later.")
+
+    try:
+        m = await bot.wait_for('message', check=lambda m: m.attachments and m.author.id == 80528701850124288, timeout=60)
+    except asyncio.TimeoutError:
+        return await ctx.send("I did not see a response from R.Danny. Please try again later.")
+
+    if not m.attachments[0].content_type.startswith('text/plain'):
+        return await ctx.send('Error: File sent is not a text file. Please try again later.')
+
+    contents = await m.attachments[0].read()
+
+    contents = contents.decode('utf-8')
+
+    process = await ctx.message.reply(f'<a:openrobot_searching_gif:899928367799885834> Processing... This might take a while.', allowed_mentions=discord.AllowedMentions.none())
+
+    try:
+        tags = rdanny.Tags.parse(contents)
+
+        claimable_tags: set[rdanny.TagItem] = set() # typehints are for linters cause seems like they dont recognize them.
+
+        for tag in tags:
+            # Having tons of tags and using fetch_user will just
+            # Make the bot API banned and making it to be an
+            # API abuse. Because of this, I'll just be using
+            # .get_member and .members to check.
+
+            if ctx.guild.get_member(tag.user_id) and tag.user_id in [x.id for x in ctx.guild.members]:
+                claimable_tags.add(tag)
+
+        if not claimable_tags:
+            return await ctx.send('No tags were found that are claimable.')
+
+        headers = ['ID', 'Name', 'Owner ID', 'Uses', 'Is Alias']
+        table = [[tag.id, tag.name, tag.user_id, tag.uses, tag.is_alias] for tag in claimable_tags]
+
+        generated_table = tabulate.tabulate(table, headers, tablefmt='fancy_grid')
+
+        file = discord.File(StringIO(generated_table), filename='claimable_tags.txt')
+
+        try:
+            await process.delete()
+        except:
+            pass
+
+        await ctx.send(file=file)
+    except Exception as e:
+        if ctx.debug:
+            raise e
+
+        return await ctx.send('Something wen\'t wrong. Please try again later.')
 
 @bot.command(cls=Command, example="lyrics See You Again")
 async def lyrics(

@@ -20,6 +20,7 @@ from . import (
     prefixes,
     timer,
     shell,
+    rdanny
 )
 
 # Base imports
@@ -43,3 +44,4 @@ from .command import *
 from .prefixes import *
 from .timer import *
 from .shell import *
+from .rdanny import *

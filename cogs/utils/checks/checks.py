@@ -80,3 +80,13 @@ class repi:
             return True
 
         return commands.check(predicate)
+
+
+def rdanny_in_guild():
+    def predicate(ctx):
+        if ctx.guild.get_member(80528701850124288) or 80528701850124288 in [x.id for x in ctx.guild.members]:
+            return True
+        else:
+            raise RDannyNotInGuild("RDanny is not in this guild.")
+
+    return commands.check(predicate)

@@ -14,3 +14,6 @@ class APIHasNotApplied(CheckFailure):
 
 class RePIIsNotOwner(CheckFailure):
     """Raised when a user is not the owner of the RePI API"""
+
+class RDannyNotInGuild(CheckFailure):
+    """Raised when R.Danny is not in the Server/Guild"""
