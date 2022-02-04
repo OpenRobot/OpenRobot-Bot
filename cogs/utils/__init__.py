@@ -20,7 +20,7 @@ from . import (
     prefixes,
     timer,
     shell,
-    rdanny
+    rdanny,
 )
 
 # Base imports

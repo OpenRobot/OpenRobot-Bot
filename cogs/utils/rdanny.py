@@ -1,5 +1,6 @@
 import typing
 
+
 class TagItem:
     def __init__(self, data):
         # Just for the purpose of linters:
@@ -13,13 +14,14 @@ class TagItem:
         for key, value in data.items():
             setattr(self, key, value)
 
+
 class Tags:
     def __init__(self, data: list[dict[str, typing.Any]]):
         self.data = data
 
     @classmethod
     def parse(cls, string: str):
-        raw_rows = string.split('\n')
+        raw_rows = string.split("\n")
         rows = []
 
         # Strip all items in list
@@ -28,7 +30,7 @@ class Tags:
                 rows.append(raw_row.strip())
 
         # Get the column names:
-        raw_columns = raw_rows[1].split('|')
+        raw_columns = raw_rows[1].split("|")
         columns = []
 
         # Strip all items in list
@@ -41,7 +43,7 @@ class Tags:
         # Get the data
 
         for row in rows[3:]:
-            raw_data_columns = row[1].split('|')
+            raw_data_columns = row[1].split("|")
             data_columns = []
 
             # Strip all items in list
@@ -52,9 +54,7 @@ class Tags:
             if len(columns) != len(data_columns):
                 raise ValueError(f"Columns and data columns do not match up.")
 
-            data.append({
-                columns[x]: data_columns[x] for x in range(len(columns))
-            })
+            data.append({columns[x]: data_columns[x] for x in range(len(columns))})
 
         return cls(data)
 
@@ -76,4 +76,8 @@ class Tags:
         return None
 
     def get_all(self, **kwargs) -> list[TagItem]:
-        return [TagItem(row) for row in self.data if all(row[key] == value for key, value in kwargs.items())]
+        return [
+            TagItem(row)
+            for row in self.data
+            if all(row[key] == value for key, value in kwargs.items())
+        ]

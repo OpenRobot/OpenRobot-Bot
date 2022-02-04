@@ -74,7 +74,9 @@ class repi:
                 if ctx.author.id != cls.OWNER_ID:
                     raise RePIIsNotOwner("You are not the owner of the RePI API.")
             else:
-                if ctx.author.id != cls.OWNER_ID and not await ctx.bot.is_owner(ctx.author):
+                if ctx.author.id != cls.OWNER_ID and not await ctx.bot.is_owner(
+                    ctx.author
+                ):
                     raise RePIIsNotOwner("You are not the owner of the RePI API.")
 
             return True
@@ -84,7 +86,9 @@ class repi:
 
 def rdanny_in_guild():
     def predicate(ctx):
-        if ctx.guild.get_member(80528701850124288) or 80528701850124288 in [x.id for x in ctx.guild.members]:
+        if ctx.guild.get_member(80528701850124288) or 80528701850124288 in [
+            x.id for x in ctx.guild.members
+        ]:
             return True
         else:
             raise RDannyNotInGuild("RDanny is not in this guild.")
