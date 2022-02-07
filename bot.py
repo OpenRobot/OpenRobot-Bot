@@ -824,7 +824,7 @@ async def claimable_tags(ctx: commands.Context):
             # API abuse. Because of this, I'll just be using
             # .get_member and .members to check.
 
-            if ctx.guild.get_member(tag.user_id) and tag.user_id in [x.id for x in ctx.guild.members]:
+            if ctx.guild.get_member(tag.owner_id) and tag.owner_id in [x.id for x in ctx.guild.members]:
                 claimable_tags.add(tag)
 
         if not claimable_tags:
