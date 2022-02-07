@@ -1,8 +1,9 @@
+import re
 import typing
 
 class TagItem:
     def __init__(self, data):
-        # Just for the purpose of linters:
+        # Just for the purpose of linters and AttributeErrors:
         self.id = None
         self.name = None
         self.owner_id = None
@@ -54,9 +55,14 @@ class Tags:
                     #raise ValueError(f"Columns and data columns do not match up.")
                     continue
 
-                data.append({
-                    (columns[x]: data_columns[x] for x in range(len(columns))) if len(columns) < len(data_columns) else (columns[x]: data_columns[x] for x in range(len(data_columns)))
-                })
+                if len(columns) < len(data_columns):
+                    data.append({
+                        (columns[i]): data_columns[i] for i in range(len(columns))
+                    })
+                else:
+                    data.append({
+                        (columns[i]): data_columns[i] for i in range(len(data_columns))
+                    })
             except Exception as e:
                 raise e
 
