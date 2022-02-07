@@ -1,6 +1,7 @@
 import re
 import typing
 
+
 class TagItem:
     def __init__(self, data):
         # Just for the purpose of linters and AttributeErrors:
@@ -14,13 +15,14 @@ class TagItem:
         for key, value in data.items():
             setattr(self, key, value)
 
+
 class Tags:
     def __init__(self, data: list[dict[str, typing.Any]]):
         self.data = data
 
     @classmethod
     def parse(cls, string: str):
-        raw_rows = string.split('\n')
+        raw_rows = string.split("\n")
         rows = []
 
         # Strip all items in list
@@ -29,7 +31,7 @@ class Tags:
                 rows.append(raw_row.strip())
 
         # Get the column names:
-        raw_columns = raw_rows[1].split('|')
+        raw_columns = raw_rows[1].split("|")
         columns = []
 
         # Strip all items in list
@@ -43,7 +45,7 @@ class Tags:
 
         for row in rows[3:]:
             try:
-                raw_data_columns = row[1].split('|')
+                raw_data_columns = row[1].split("|")
                 data_columns = []
 
                 # Strip all items in list
@@ -52,17 +54,20 @@ class Tags:
                         data_columns.append(raw_data_column.strip())
 
                 if len(columns) != len(data_columns):
-                    #raise ValueError(f"Columns and data columns do not match up.")
+                    # raise ValueError(f"Columns and data columns do not match up.")
                     continue
 
                 if len(columns) < len(data_columns):
-                    data.append({
-                        (columns[i]): data_columns[i] for i in range(len(columns))
-                    })
+                    data.append(
+                        {(columns[i]): data_columns[i] for i in range(len(columns))}
+                    )
                 else:
-                    data.append({
-                        (columns[i]): data_columns[i] for i in range(len(data_columns))
-                    })
+                    data.append(
+                        {
+                            (columns[i]): data_columns[i]
+                            for i in range(len(data_columns))
+                        }
+                    )
             except Exception as e:
                 raise e
 
@@ -86,4 +91,8 @@ class Tags:
         return None
 
     def get_all(self, **kwargs) -> list[TagItem]:
-        return [TagItem(row) for row in self.data if all(row[key] == value for key, value in kwargs.items())]
+        return [
+            TagItem(row)
+            for row in self.data
+            if all(row[key] == value for key, value in kwargs.items())
+        ]
