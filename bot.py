@@ -209,6 +209,7 @@ bot = Bot(
         commands.when_mentioned,
         #no_prefix_for_owner(),
     ),
+    owner_ids=config.OWNER_IDS,
     help_command=commands.MinimalHelpCommand(
         no_category="Miscellaneous"
     ),  # For old help command purposes only. This is used whenever the help cog fails.
