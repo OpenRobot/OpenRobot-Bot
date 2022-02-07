@@ -44,7 +44,7 @@ class Tags:
         for row in rows[3:-1]:
             print(row)
             try:
-                raw_data_columns = row[1].split('|')
+                raw_data_columns = row.split('|')
                 data_columns = []
 
                 # Strip all items in list
@@ -56,7 +56,7 @@ class Tags:
                     #raise ValueError(f"Columns and data columns do not match up.")
                     continue
 
-                if len(columns) < len(data_columns):
+                if len(columns) <= len(data_columns):
                     data.append({
                         (columns[i]): data_columns[i] for i in range(len(columns))
                     })
