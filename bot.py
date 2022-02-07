@@ -817,7 +817,7 @@ async def claimable_tags(ctx: commands.Context):
         tags = rdanny.Tags.parse(contents)
 
         if ctx.debug:
-            await ctx.send(discord.File(json.dumps(tags, indent=4), filename='tags.json'))
+            await ctx.send(discord.File(json.dumps(tags.data, indent=4), filename='tags.json'))
 
         claimable_tags: set[rdanny.TagItem] = set() # typehints are for linters cause seems like they dont recognize them.
 
