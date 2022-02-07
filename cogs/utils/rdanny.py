@@ -41,7 +41,8 @@ class Tags:
 
         # Get the data
 
-        for row in rows[3:]:
+        for row in rows[3:-1]:
+            print(row)
             try:
                 raw_data_columns = row[1].split('|')
                 data_columns = []
