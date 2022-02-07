@@ -816,6 +816,9 @@ async def claimable_tags(ctx: commands.Context):
     try:
         tags = rdanny.Tags.parse(contents)
 
+        if ctx.debug:
+            await ctx.send(discord.File(json.dumps(tags, indent=4), filename='tags.json'))
+
         claimable_tags: set[rdanny.TagItem] = set() # typehints are for linters cause seems like they dont recognize them.
 
         for tag in tags:
@@ -824,7 +827,7 @@ async def claimable_tags(ctx: commands.Context):
             # API abuse. Because of this, I'll just be using
             # .get_member and .members to check.
 
-            if ctx.guild.get_member(tag.owner_id) and tag.owner_id in [x.id for x in ctx.guild.members]:
+            if not ctx.guild.get_member(tag.owner_id) or tag.owner_id not in [x.id for x in ctx.guild.members]:
                 claimable_tags.add(tag)
 
         if not claimable_tags:
