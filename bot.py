@@ -193,7 +193,7 @@ class Bot(BaseBot):
             else:
                 return f"https://{self.ICDN_URL}/{js['file_id']}"
 
-    async def publish_cdn(self, *args, imoog: bool = False, try_both=True, **kwargs):
+    async def publish_cdn(self, *args, imoog: bool = False, try_both=False, **kwargs):
         if try_both:
             if imoog:
                 try:
@@ -207,9 +207,9 @@ class Bot(BaseBot):
                     return await self.publish_icdn(*args, **kwargs)
 
         if imoog:
-            return self.publish_icdn(*args, **kwargs)
+            return await self.publish_icdn(*args, **kwargs)
         else:
-            return self.publish_s3_cdn(*args, **kwargs)
+            return await self.publish_s3_cdn(*args, **kwargs)
 
     async def close(self):
         if self.redis:
