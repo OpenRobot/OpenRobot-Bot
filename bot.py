@@ -80,6 +80,7 @@ class LineCount:
 
 class Bot(BaseBot):
     CDN_BUCKET = "cdn.openrobot.xyz"
+    ICDN_URL = "icdn.openrobot.xyz"
 
     @staticmethod
     def line_count(directory: str = "./") -> LineCount:
@@ -149,7 +150,7 @@ class Bot(BaseBot):
                 fp.close = original
 
     @executor()  # CDN may be blocking, so lets just use an executor just in case
-    def publish_cdn(
+    def publish_s3_cdn(
             self, fp: BytesIO | bytes, filename: str, *, raw: bool = False
     ) -> str | dict | typing.Any:
         hash = "".join(
@@ -177,6 +178,26 @@ class Bot(BaseBot):
             return "https://" + self.CDN_BUCKET + "/" + filename
         else:
             return response
+
+    async def publish_icdn(
+            self, fp: BytesIO | bytes, content_type: str = None, *, raw: bool = False
+    ) -> str | dict | typing.Any:
+        data = aiohttp.FormData()
+        data.add_field("file", BytesIO(fp), content_type=content_type)
+
+        async with self.session.post(f"https://{self.ICDN_URL}/upload", headers={'Authorization': config.ICDN_TOKEN}, data=data) as resp:
+            js = await resp.json()
+
+            if raw:
+                return js
+            else:
+                return f"https://{self.ICDN_URL}/{js['file_id']}"
+
+    def publish_cdn(self, *args, imoog: bool = False, **kwargs):
+        if imoog:
+            return self.publish_icdn(*args, **kwargs)
+        else:
+            return self.publish_s3_cdn(*args, **kwargs)
 
     async def close(self):
         if self.redis:
