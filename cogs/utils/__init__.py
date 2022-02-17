@@ -6,7 +6,7 @@ from . import (
     paginator,
     converters,
     context,
-    player,
+    #player,
     checks,
     enums,
     games,
@@ -30,7 +30,7 @@ from .views import *
 from .paginator import *
 from .converters import *
 from .context import *
-from .player import *
+#from .player import *
 from .checks import *
 from .enums import *
 from .games import *
