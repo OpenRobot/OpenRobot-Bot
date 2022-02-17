@@ -2285,7 +2285,7 @@ bot.exts = [
     # 'jishaku',
     "cogs.api",
     "cogs.error",
-    "cogs.music",
+    #"cogs.music",
     "cogs.help",
     "cogs.jsk",
     "cogs.fun",
