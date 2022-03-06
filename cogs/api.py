@@ -620,7 +620,7 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
         ctx: commands.Context,
         *,
         reason: str = commands.Option(
-            description="Enter the reason why you want to apply for the API."
+            None, description="Enter the reason why you want to apply for the API."
         ),
     ):
         """
@@ -628,6 +628,9 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
 
         Note that you can only apply once, and you cannot edit it afterwards.
         """
+
+        return await ctx.send("This command is deprecated and gone. Please apply from our website instead, "
+                              "at <https://api.openrobot.xyz/apply>.")
 
         try:
             msg = await ctx.author.send(

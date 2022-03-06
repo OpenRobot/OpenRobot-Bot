@@ -31,6 +31,18 @@ class IPCRoutes(Cog):
         userid = data.user_id
         reason = data.reason
 
+        while True:
+            try:
+                db = await self.bot.pool.fetchrow(
+                    "SELECT * FROM tokens WHERE user_id = $1", userid
+                )
+                if db:
+                    return db["token"]
+            except asyncpg.exceptions._base.InterfaceError:
+                pass
+            else:
+                break
+
         user = self.bot.get_user(userid) or await self.bot.fetch_user(userid)
         chan = self.bot.get_channel(857048848900030484)
 
@@ -53,20 +65,22 @@ Method: Requested from API Website.
         await chan.send(embed=embed)
 
         # Token Generator:
-        tokens = []
+        # tokens = []
+        #
+        # username_base64 = base64.urlsafe_b64encode(str(user.id).encode("utf-8")).decode(
+        #     "utf-8"
+        # )
+        # tokens.append(username_base64)
+        #
+        # secret = generate_token(random.randint(25, 50))
+        # tokens.append(secret)
+        #
+        # secret = generate_token(random.randint(25, 50))
+        # tokens.append(secret)
+        #
+        # token = ".".join(tokens)
 
-        username_base64 = base64.urlsafe_b64encode(str(user.id).encode("utf-8")).decode(
-            "utf-8"
-        )
-        tokens.append(username_base64)
-
-        secret = generate_token(random.randint(25, 50))
-        tokens.append(secret)
-
-        secret = generate_token(random.randint(25, 50))
-        tokens.append(secret)
-
-        token = ".".join(tokens)
+        token = generate_token(random.randint(35, 75))
 
         # Add token to db
         while True:
@@ -82,6 +96,24 @@ Method: Requested from API Website.
                 break
 
         return token
+
+    @server.route('api-regenerate_token')
+    async def api_regenerate_token(self, data):
+        userid = data.user_id
+
+        while True:
+            try:
+                db = await self.bot.pool.fetchrow(
+                    "SELECT * FROM tokens WHERE user_id = $1", userid
+                )
+                if not db:
+                    return None
+            except asyncpg.exceptions._base.InterfaceError:
+                pass
+            else:
+                break
+
+        return db["token"]
 
 def setup(bot):
     bot.add_cog(IPCRoutes(bot))
