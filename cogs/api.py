@@ -629,8 +629,10 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
         Note that you can only apply once, and you cannot edit it afterwards.
         """
 
-        return await ctx.send("This command is deprecated and gone. Please apply from our website instead, "
-                              "at <https://api.openrobot.xyz/apply>.")
+        return await ctx.send(
+            "This command is deprecated and gone. Please apply from our website instead, "
+            "at <https://api.openrobot.xyz/apply>."
+        )
 
         try:
             msg = await ctx.author.send(
