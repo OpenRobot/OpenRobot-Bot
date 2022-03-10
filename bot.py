@@ -1204,7 +1204,7 @@ async def screenshot(
     class View(discord.ui.View):
         @discord.ui.button(
             label="Delete",
-            emoji="<:trash:911955690644447273>",
+            emoji="<:trash2:951506491901345812>",
             style=discord.ButtonStyle.red,
         )
         async def delete(
