@@ -34,7 +34,7 @@ class Driver:
         chrome_options.add_argument("--no-sandbox")
 
         self.driver = webdriver.Chrome(
-            "/usr/lib/chromium-browser/chromedriver", options=chrome_options
+            "/home/ubuntu/chromedriver", options=chrome_options
         )
 
         return self.driver
