@@ -4,7 +4,9 @@ from selenium.webdriver.chrome.options import Options
 
 
 class Driver:
-    def __init__(self, *, ad_block: bool = False, use_proxy: bool = False, proxy: str = None):
+    def __init__(
+        self, *, ad_block: bool = False, use_proxy: bool = False, proxy: str = None
+    ):
         self.ad_block = ad_block
         self.use_proxy = use_proxy
         self.proxy = proxy
