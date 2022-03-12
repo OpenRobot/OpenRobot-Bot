@@ -1142,7 +1142,7 @@ async def lyrics(
 async def screenshot(
         ctx: commands.Context,
         url: str = commands.Option(description="The website URL to screenshot."),
-        delay: int = commands.Option(
+        delay: typing.Optional[int] = commands.Option(
             None, description="Waits for x seconds before taking the screenshot."
         ),
         *,
