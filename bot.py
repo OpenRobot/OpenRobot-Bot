@@ -108,12 +108,12 @@ class Bot(BaseBot):
         )
 
     @executor()
-    def screenshot(self, url: str, *, delay: int = None, proxy: bool = False):
+    def screenshot(self, url: str, *, delay: int = None, ad_block: bool = False, use_proxy: bool = False):
         if delay is not None:
             if delay <= 0:
                 delay = None
 
-        with self.driver(use_proxy=proxy or False) as driver:
+        with self.driver(ad_block=ad_block or False, use_proxy=use_proxy or False) as driver:
             driver.get(url)
             driver.set_window_size(1920, 1080)
 
@@ -1145,17 +1145,30 @@ async def screenshot(
         delay: int = commands.Option(
             None, description="Waits for x seconds before taking the screenshot."
         ),
+        *,
+        flags: str = commands.Option(
+            None, description="Flags to pass to the screenshot utility."
+        )
 ):
     """
     Screenshots a URL.
+
+    Flags:
+    `--proxy`: Uses a proxy to connect to the website.
+    `--ad-block`: Activates ad-block.
     """
+
+    flags = (flags or "").split(" ")
+
+    use_proxy = "--proxy" in flags
+    ad_block = "--ad-block" in flags
 
     if ctx.interaction is not None:
         await ctx.interaction.response.defer()
     else:
         await ctx.message.add_reaction("<a:openrobot_searching_gif:899928367799885834>")
         
-    url = url.strip('<>')
+    url = url.strip('<>') # Strips < and > from the URL e.g <https://google.com> to https://google.com.
 
     if not re.match(
             r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
@@ -1168,7 +1181,7 @@ async def screenshot(
         return await ctx.send("URL must be HTTP/HTTPS.")
 
     try:
-        buffer: BytesIO = await bot.screenshot(url, delay=delay)
+        buffer: BytesIO = await bot.screenshot(url, delay=delay, use_proxy=use_proxy, ad_block=ad_block)
     except Exception as e:
         if ctx.debug:
             raise e
@@ -1179,19 +1192,24 @@ async def screenshot(
         file=discord.File(fp=BytesIO(buffer.getvalue()), filename="screenshot.png")
     )
 
-    await ctx.message.remove_reaction(
-        "<a:openrobot_searching_gif:899928367799885834>", bot.user
-    )
-
     if not ctx.channel.is_nsfw():
         check = await bot.api.nsfw_check(render_msg.attachments[0].url)
 
         is_unsafe = check.score > 50 or bool(check.labels)
 
         if is_unsafe:
-            return await ctx.send(
-                "This website seems to be NSFW/Innapropriate. I am sorry, but I may not be able to send the screenshot result in this channel."
+            await ctx.message.remove_reaction(
+                "<a:openrobot_searching_gif:899928367799885834>", bot.user
             )
+
+            return await ctx.send(
+                "This website seems to be NSFW/Innapropriate. I am sorry, but I may not be able to send the "
+                "screenshot result in this channel. "
+            )
+
+    await ctx.message.remove_reaction(
+        "<a:openrobot_searching_gif:899928367799885834>", bot.user
+    )
 
     embed = discord.Embed(color=bot.color)
 
@@ -1212,6 +1230,15 @@ async def screenshot(
         ):
             await interaction.message.delete()
             self.stop()
+
+        async def interaction_check(self, interaction: discord.Interaction) -> bool:
+            has_perms = interaction.user == ctx.author or interaction.user.guild_permissions.manage_messages if \
+                interaction.guild else False
+
+            if not has_perms:
+                await interaction.response.send_message('This is not your interaction!', ephemeral=True)
+
+            return has_perms
 
     return await ctx.send(
         embed=embed,

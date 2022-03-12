@@ -1,3 +1,8 @@
+.DS_Store
+
+# Proxy on screenshot command
+cogs/utils/driver/proxy.py
+
 install-requires.sh
 
 # PyCharm stuff

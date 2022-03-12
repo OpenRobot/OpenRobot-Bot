@@ -1,12 +1,13 @@
-import requests
+from .proxy import get_proxy
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 
 class Driver:
-    def __init__(self, *, use_proxy: bool = False, proxy: str = None):
-        self.proxy: bool = proxy
+    def __init__(self, *, ad_block: bool = False, use_proxy: bool = False, proxy: str = None):
+        self.ad_block = ad_block
         self.use_proxy = use_proxy
+        self.proxy = proxy
 
         self.driver = None
 
@@ -15,23 +16,24 @@ class Driver:
             self.driver.close()
 
     def __enter__(self):
-        if self.use_proxy:
+        if self.use_proxy or self.proxy:
             if not self.proxy:
-                proxy = self._get_proxy()
-                addr = proxy["ip"] + ":" + str(proxy["port"])
+                addr = self.get_proxy()
             else:
                 addr = self.proxy
         else:
-            proxy = None
-            addr = None
+            proxy, addr = None, None
 
         chrome_options = Options()
 
         if addr:
-            chrome_options.add_argument("--proxy-server=%s" % addr)
+            chrome_options.add_argument(f"--proxy-server={addr}")
 
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
+
+        if self.ad_block:
+            chrome_options.add_extension("/home/ubuntu/adblock_ext.crx")
 
         self.driver = webdriver.Chrome(
             "/home/ubuntu/chromedriver", options=chrome_options
@@ -40,9 +42,10 @@ class Driver:
         return self.driver
 
     @staticmethod
-    def _get_proxy():
-        url = r"https://api.getproxylist.com/proxy?minUptime=75&allowsHttps=1&allowsCookies=1&protocol[]=http&allowsCustomHeaders=1&allowsUserAgentHeader=1&/proxy?anonymity[]=high%20anonymity&anonymity[]=anonymous&allowsPost=1"
+    def get_proxy():
+        proxy = get_proxy()
 
-        r = requests.get(url)
+        if not proxy:
+            return None
 
-        return r.json()
+        return proxy["host"] + ":" + str(proxy["port"])
