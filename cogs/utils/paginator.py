@@ -257,8 +257,7 @@ class CodeReviewPages(BaseViewMenuPages):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.thumbsup = False
-        self.thumbsdown = False
+        self.page_data = {x: {'good': False, 'bad': False} for x in range(self._source.get_max_pages())}
 
     @ui.button(emoji="\U0001f44d", style=discord.ButtonStyle.blurple, row=1)
     async def good_recommendation(self, button, interaction):
@@ -276,7 +275,7 @@ class CodeReviewPages(BaseViewMenuPages):
 
         RecommendationId = entry["RecommendationId"]
 
-        if self.thumbsup:
+        if self.page_data[self.current_page]['good']:
             codeguru.put_recommendation_feedback(
                 CodeReviewArn=CodeReviewArn,
                 RecommendationId=RecommendationId,
@@ -285,7 +284,7 @@ class CodeReviewPages(BaseViewMenuPages):
 
             button.style = discord.ButtonStyle.blurple
 
-            self.thumbsup = False
+            self.page_data[self.current_page]['good'] = False
         else:
             codeguru.put_recommendation_feedback(
                 CodeReviewArn=CodeReviewArn,
@@ -296,7 +295,7 @@ class CodeReviewPages(BaseViewMenuPages):
             button.style = discord.ButtonStyle.green
             self.bad_recommendation.style = discord.ButtonStyle.blurple
 
-            self.thumbsup = True
+            self.page_data[self.current_page]['good'] = True
 
         #button.disabled = True
         #self.bad_recommendation.disabled = False
@@ -319,7 +318,7 @@ class CodeReviewPages(BaseViewMenuPages):
 
         RecommendationId = entry["RecommendationId"]
 
-        if self.thumbsdown:
+        if self.page_data[self.current_page]['bad']:
             codeguru.put_recommendation_feedback(
                 CodeReviewArn=CodeReviewArn,
                 RecommendationId=RecommendationId,
@@ -328,7 +327,7 @@ class CodeReviewPages(BaseViewMenuPages):
 
             button.style = discord.ButtonStyle.blurple
 
-            self.thumbsdown = False
+            self.page_data[self.current_page]['bad'] = False
         else:
             codeguru.put_recommendation_feedback(
                 CodeReviewArn=CodeReviewArn,
@@ -339,12 +338,23 @@ class CodeReviewPages(BaseViewMenuPages):
             button.style = discord.ButtonStyle.red
             self.good_recommendation.style = discord.ButtonStyle.blurple
 
-            self.thumbsdown = True
+            self.page_data[self.current_page]['bad'] = True
 
         #button.disabled = True
         #self.good_recommendation.disabled = False
 
         await interaction.message.edit(view=self)
+
+    def update_feedback(self, page):
+        if self.page_data[page]['good']:
+            self.good_recommendation.style = discord.ButtonStyle.green
+        else:
+            self.good_recommendation.style = discord.ButtonStyle.blurple
+
+        if self.page_data[page]['bad']:
+            self.bad_recommendation.style = discord.ButtonStyle.red
+        else:
+            self.bad_recommendation.style = discord.ButtonStyle.blurple
 
     @ui.button(
         emoji="<:openrobot_rewind_button:899931475720413187>",
@@ -352,6 +362,7 @@ class CodeReviewPages(BaseViewMenuPages):
         row=2,
     )
     async def first_page(self, button, interaction):
+        self.update_feedback(0)
         await self.show_page(0)
         await self.update_buttons()
 
@@ -362,6 +373,7 @@ class CodeReviewPages(BaseViewMenuPages):
         row=2,
     )
     async def before_page(self, button, interaction):
+        self.update_feedback(self.current_page - 1)
         await self.show_checked_page(self.current_page - 1)
         await self.update_buttons()
 
@@ -385,10 +397,11 @@ class CodeReviewPages(BaseViewMenuPages):
         except asyncio.TimeoutError:
             await m.delete()
             return await self.ctx.send("Took to long...", delete_after=10)
-        else:
-            page_num = int(msg.content) - 1
 
-            await self.show_checked_page(page_num)
+        page_num = int(msg.content) - 1
+
+        self.update_feedback(page_num)
+        await self.show_checked_page(page_num)
 
         try:
             await m.delete()
@@ -409,6 +422,7 @@ class CodeReviewPages(BaseViewMenuPages):
         row=2,
     )
     async def next_page(self, button, interaction):
+        self.update_feedback(self.current_page + 1)
         await self.show_checked_page(self.current_page + 1)
         await self.update_buttons()
 
@@ -418,6 +432,7 @@ class CodeReviewPages(BaseViewMenuPages):
         row=2,
     )
     async def last_page(self, button, interaction):
+        self.update_feedback(self._source.get_max_pages() - 1)
         await self.show_page(self._source.get_max_pages() - 1)
         await self.update_buttons()
 

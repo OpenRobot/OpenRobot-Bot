@@ -57,12 +57,20 @@ class DatabasePing:
 
 
 class APIPing:
+    URLS = {
+        "openrobot": "https://api.openrobot.xyz/_internal/available",
+        "jeyy": "https://api.jeyy.xyz/general/ping",
+        "repi": "https://repi.openrobot.xyz/",
+        "dagpi": "https://dagpi.xyz/",
+        "waifu-im": "https://waifu.im/"
+    }
+
     def __init__(self, ping: "Ping"):
         self._ping = ping
 
     async def openrobot(self, format: str = "seconds") -> int | float:
         # API ping test, fastest endpoint to test as it just returns a static JSON.
-        url = "https://api.openrobot.xyz/_internal/available"
+        url = self.URLS['openrobot']
 
         start = time.perf_counter()
         async with self._ping.bot.session.get(url) as resp:
@@ -76,7 +84,7 @@ class APIPing:
 
     async def jeyy(self, format: str = "seconds") -> int | float:
         # API ping test, fastest endpoint to test as it just returns a static JSON AFAIK.
-        url = "https://api.jeyy.xyz/isometric/codes"
+        url = self.URLS['jeyy']
 
         start = time.perf_counter()
         async with self._ping.bot.session.get(url) as resp:
@@ -90,7 +98,7 @@ class APIPing:
 
     async def repi(self, format: str = "seconds") -> int | float:
         # API ping test, fastest endpoint to test as it just returns a static HTML AFAIK.
-        url = "https://repi.openrobot.xyz/"
+        url = self.URLS['repi']
 
         start = time.perf_counter()
         async with self._ping.bot.session.get(url) as resp:
@@ -103,7 +111,7 @@ class APIPing:
                     return end - start
 
     async def dagpi(self, format: str = "seconds") -> int | float:
-        url = "https://dagpi.xyz/"
+        url = self.URLS['dagpi']
 
         start = time.perf_counter()
         async with self._ping.bot.session.get(url) as resp:
@@ -116,7 +124,7 @@ class APIPing:
                     return end - start
 
     async def waifu_im(self, format: str = "seconds") -> int | float:
-        url = "https://waifu.im"
+        url = self.URLS['waifu-im']
 
         start = time.perf_counter()
         async with self._ping.bot.session.get(url) as resp:
@@ -142,12 +150,18 @@ class Ping:
         "repi": "<:repi:938813831390584873>",
     }
 
+    URLS = {
+        "discord": "https://discordapp.com/",
+    }
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self._database_ping = DatabasePing(self)
+        self._api_ping = APIPing(self)
 
     @property
     def database(self) -> DatabasePing:
-        return DatabasePing(self)
+        return self._database_ping
 
     @property
     def db(self) -> DatabasePing:
@@ -155,7 +169,7 @@ class Ping:
 
     @property
     def api(self):
-        return APIPing(self)
+        return self._api_ping
 
     def bot_latency(self, format: str = "seconds") -> int | float:
         latency = self.bot.latency
@@ -167,7 +181,7 @@ class Ping:
                 return latency
 
     async def discord_web_ping(self, format: str = "seconds") -> int | float:
-        url = "https://discordapp.com/"
+        url = self.URLS['discord']
 
         start = time.perf_counter()
         async with self.bot.session.get(url) as resp:

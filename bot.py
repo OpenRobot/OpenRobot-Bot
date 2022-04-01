@@ -396,7 +396,7 @@ async def ping(ctx: commands.Context):
     embed.add_field(
         name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:',
         value=do_ping_string(round(await bot.ping.api.openrobot() * 1000, 2)),
-        inline=False,
+        #inline=False,
     )
 
     embed.add_field(
@@ -404,15 +404,15 @@ async def ping(ctx: commands.Context):
         value=do_ping_string(round(await bot.ping.api.jeyy() * 1000, 2)),
     )
 
-    embed.add_field(
-        name=f'{bot.ping.EMOJIS["dagpi"]} Dagpi API Latency:',
-        value=do_ping_string(round(await bot.ping.api.dagpi() * 1000, 2)),
-    )
+    # embed.add_field(
+    #     name=f'{bot.ping.EMOJIS["dagpi"]} Dagpi API Latency:',
+    #     value=do_ping_string(round(await bot.ping.api.dagpi() * 1000, 2)),
+    # )
 
-    embed.add_field(
-        name=f'{bot.ping.EMOJIS["waifu-im"]} Waifu.im API Latency:',
-        value=do_ping_string(round(await bot.ping.api.waifu_im() * 1000, 2)),
-    )
+    # embed.add_field(
+    #     name=f'{bot.ping.EMOJIS["waifu-im"]} Waifu.im API Latency:',
+    #     value=do_ping_string(round(await bot.ping.api.waifu_im() * 1000, 2)),
+    # )
 
     embed.add_field(
         name=f'{bot.ping.EMOJIS["repi"]} OpenRobot REPI API Latency:',
@@ -1183,6 +1183,10 @@ async def screenshot(
     try:
         buffer: BytesIO = await bot.screenshot(url, delay=delay, use_proxy=use_proxy, ad_block=ad_block)
     except Exception as e:
+        await ctx.message.remove_reaction(
+            "<a:openrobot_searching_gif:899928367799885834>", bot.user
+        )
+
         if ctx.debug:
             raise e
 
