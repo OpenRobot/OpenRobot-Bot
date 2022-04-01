@@ -257,7 +257,10 @@ class CodeReviewPages(BaseViewMenuPages):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.page_data = {x: {'good': False, 'bad': False} for x in range(self._source.get_max_pages())}
+        self.page_data = {
+            x: {"good": False, "bad": False}
+            for x in range(self._source.get_max_pages())
+        }
 
     @ui.button(emoji="\U0001f44d", style=discord.ButtonStyle.blurple, row=1)
     async def good_recommendation(self, button, interaction):
@@ -275,7 +278,7 @@ class CodeReviewPages(BaseViewMenuPages):
 
         RecommendationId = entry["RecommendationId"]
 
-        if self.page_data[self.current_page]['good']:
+        if self.page_data[self.current_page]["good"]:
             codeguru.put_recommendation_feedback(
                 CodeReviewArn=CodeReviewArn,
                 RecommendationId=RecommendationId,
@@ -284,7 +287,7 @@ class CodeReviewPages(BaseViewMenuPages):
 
             button.style = discord.ButtonStyle.blurple
 
-            self.page_data[self.current_page]['good'] = False
+            self.page_data[self.current_page]["good"] = False
         else:
             codeguru.put_recommendation_feedback(
                 CodeReviewArn=CodeReviewArn,
@@ -295,10 +298,10 @@ class CodeReviewPages(BaseViewMenuPages):
             button.style = discord.ButtonStyle.green
             self.bad_recommendation.style = discord.ButtonStyle.blurple
 
-            self.page_data[self.current_page]['good'] = True
+            self.page_data[self.current_page]["good"] = True
 
-        #button.disabled = True
-        #self.bad_recommendation.disabled = False
+        # button.disabled = True
+        # self.bad_recommendation.disabled = False
 
         await interaction.message.edit(view=self)
 
@@ -318,7 +321,7 @@ class CodeReviewPages(BaseViewMenuPages):
 
         RecommendationId = entry["RecommendationId"]
 
-        if self.page_data[self.current_page]['bad']:
+        if self.page_data[self.current_page]["bad"]:
             codeguru.put_recommendation_feedback(
                 CodeReviewArn=CodeReviewArn,
                 RecommendationId=RecommendationId,
@@ -327,7 +330,7 @@ class CodeReviewPages(BaseViewMenuPages):
 
             button.style = discord.ButtonStyle.blurple
 
-            self.page_data[self.current_page]['bad'] = False
+            self.page_data[self.current_page]["bad"] = False
         else:
             codeguru.put_recommendation_feedback(
                 CodeReviewArn=CodeReviewArn,
@@ -338,20 +341,20 @@ class CodeReviewPages(BaseViewMenuPages):
             button.style = discord.ButtonStyle.red
             self.good_recommendation.style = discord.ButtonStyle.blurple
 
-            self.page_data[self.current_page]['bad'] = True
+            self.page_data[self.current_page]["bad"] = True
 
-        #button.disabled = True
-        #self.good_recommendation.disabled = False
+        # button.disabled = True
+        # self.good_recommendation.disabled = False
 
         await interaction.message.edit(view=self)
 
     def update_feedback(self, page):
-        if self.page_data[page]['good']:
+        if self.page_data[page]["good"]:
             self.good_recommendation.style = discord.ButtonStyle.green
         else:
             self.good_recommendation.style = discord.ButtonStyle.blurple
 
-        if self.page_data[page]['bad']:
+        if self.page_data[page]["bad"]:
             self.bad_recommendation.style = discord.ButtonStyle.red
         else:
             self.bad_recommendation.style = discord.ButtonStyle.blurple
