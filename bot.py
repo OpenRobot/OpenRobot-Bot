@@ -499,14 +499,18 @@ Members: {len(list(bot.get_all_members()))}```
         machine = uname.machine
         processor = uname.processor
 
+        boot_time = datetime.datetime.fromtimestamp(psutil.boot_time(), datetime.timezone.utc)
+
         embed.add_field(
             name="System:",
-            value=f"""```yml
+            value=f"""**Boot Time:** {discord.utils.format_dt(boot_time, 'F')} | {discord.utils.format_dt(boot_time, 'R')}
+```yml
 OS: {system_name}
 Name: {node_name}
 Machine: {machine}
 Processor: {processor}```
         """,
+            inline=False,
         )
 
         await msg.edit(
@@ -547,7 +551,27 @@ Total CPU Usage: {total_cpu_usage}%
 
 {cpu_usage}
 ```
-            """
+            """,
+        )
+
+        await msg.edit(
+            content="Retrieving Code Information...",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
+
+        line_count = bot.line_count()
+
+        embed.add_field(
+            name="Code Stats:",
+            value=f"""```yml
+Files: {line_count.files}
+Lines: {line_count.lines}
+Classes: {line_count.classes}
+Functions: {line_count.functions}
+Coroutines: {line_count.coroutines}
+Comments: {line_count.comments}```
+        """,
+            inline=False,
         )
 
         await msg.edit(
@@ -570,25 +594,6 @@ Available: {available_mem}
 Free: {free_mem}
 Used: {used_mem}
 Percentage: {mem_perc}```
-        """,
-        )
-
-        await msg.edit(
-            content="Retrieving Code Information...",
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
-
-        line_count = bot.line_count()
-
-        embed.add_field(
-            name="Code Stats:",
-            value=f"""```yml
-Files: {line_count.files}
-Lines: {line_count.lines}
-Classes: {line_count.classes}
-Functions: {line_count.functions}
-Coroutines: {line_count.coroutines}
-Comments: {line_count.comments}```
         """,
         )
 
@@ -625,6 +630,23 @@ Send: {disk_io_bytes_send}```
         await msg.edit(
             content="Retrieving Network/Speedtest Information...",
             allowed_mentions=discord.AllowedMentions.none(),
+        )
+
+        net_io = psutil.net_io_counters()
+        net_io_bytes_sent = f"{get_size(net_io.bytes_sent)}"
+        net_io_bytes_recv = f"{get_size(net_io.bytes_recv)}"
+        packets_sent = f"{net_io.packets_sent:,}"
+        packets_recv = f"{net_io.packets_recv:,}"
+
+        embed.add_field(
+            name="Network:",
+            value=f"""```yml
+Bytes Sent: {net_io_bytes_sent}
+Bytes Received: {net_io_bytes_recv}
+Packets Sent: {packets_sent}
+Packets Received: {packets_recv}```
+        """,
+            inline=False,
         )
 
         proc = await asyncio.create_subprocess_shell(
