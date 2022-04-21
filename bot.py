@@ -440,13 +440,16 @@ async def uptime(ctx: commands.Context):
             .set_footer(icon_url=ctx.author.display_avatar.url, text=f"Requested by: {ctx.author}")
     )
 
-    embed.description = f"""
-Launch/Start Time: {discord.utils.format_dt(bot.start_time, 'F')} | {discord.utils.format_dt(bot.start_time, 'R')}
-Messages sent since last restart: `{bot.sent_messages}`
-Messages edited since last restart: `{bot.edited_messages}`
-Messages deleted since last restart: `{bot.deleted_messages}`
+    time_elapsed = datetime.datetime.utcnow() - bot.start_time
 
-Commands invoked since last restart: `{bot.commands_invoked}`
+    embed.description = f"""
+**Uptime:** `{humanize.naturaldelta(time_elapsed)}`
+**Launch/Start Time:** {discord.utils.format_dt(bot.start_time, 'F')} | {discord.utils.format_dt(bot.start_time, 'R')}
+**Messages sent since last restart:** `{bot.sent_messages}`
+**Messages edited since last restart:** `{bot.edited_messages}`
+**Messages deleted since last restart:** `{bot.deleted_messages}`
+
+**Commands invoked since last restart:** `{bot.commands_invoked}`
     """
 
     await ctx.send(embed=embed)
@@ -455,9 +458,7 @@ Commands invoked since last restart: `{bot.commands_invoked}`
 @bot.command("system", aliases=["sys", "info"], cls=Command, example="system")
 async def system(ctx: commands.Context):
     """
-    Gets systen information e.g CPU, Memory, Disk, etc.
-
-    Most of the code is inspired by [Ami#7836](https://discord.com/users/801742991185936384).
+    Gets system information e.g CPU, Memory, Disk, etc.
     """
 
     if ctx.interaction is not None:
@@ -707,9 +708,9 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
         await ctx.send(content=f'Time took: {round(end-start, 1)}s', embed=embed)
 
 
-@bot.command(
-    aliases=["act"], cls=Command, example="activity My-VC-Channel Watch Together"
-)
+# @bot.command(
+#     aliases=["act"], cls=Command, example="activity My-VC-Channel Watch Together"
+# )
 async def activity(
         ctx: commands.Context,
         channel: typing.Optional[discord.VoiceChannel] = commands.Option(
@@ -853,7 +854,8 @@ async def claimable_tags(ctx: commands.Context):
         if ctx.debug:
             await ctx.send(discord.File(json.dumps(tags.data, indent=4), filename='tags.json'))
 
-        claimable_tags: set[rdanny.TagItem] = set() # typehints are for linters cause seems like they dont recognize them.
+        claimable_tags: set[rdanny.TagItem] = set() # typehints are for linters cause seems like they dont recognize
+        # them.
 
         for tag in tags:
             # Having tons of tags and using fetch_user will just
