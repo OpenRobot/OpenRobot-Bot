@@ -503,7 +503,7 @@ Members: {len(list(bot.get_all_members()))}```
 
         embed.add_field(
             name="System:",
-            value=f"""**Boot Time:** {discord.utils.format_dt(boot_time, 'F')} | {discord.utils.format_dt(boot_time, 'R')}
+            value=f"""Boot Time: {discord.utils.format_dt(boot_time, 'F')} | {discord.utils.format_dt(boot_time, 'R')}
 ```yml
 OS: {system_name}
 Name: {node_name}
@@ -628,7 +628,7 @@ Send: {disk_io_bytes_send}```
         )
 
         await msg.edit(
-            content="Retrieving Network/Speedtest Information...",
+            content="Retrieving Network and Speedtest Information...",
             allowed_mentions=discord.AllowedMentions.none(),
         )
 
