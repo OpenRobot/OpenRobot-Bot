@@ -371,6 +371,7 @@ async def ping(ctx: commands.Context):
     else:
         postgresql_spotify_ping = None
 
+    psql_ping = None
     if postgresql_ping is not None or postgresql_ping is not None:
         if postgresql_ping is not None and postgresql_spotify_ping is not None:
             psql_ping = list(sorted([postgresql_ping, postgresql_spotify_ping]))[0]
@@ -392,6 +393,12 @@ async def ping(ctx: commands.Context):
                 name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:',
                 value=do_ping_string(round(redis_ping * 1000, 2)),
             )
+
+    if redis_ping and psql_ping:
+        embed.add_field(
+            name=f'Average Database Latency:',
+            value=do_ping_string(round((redis_ping + psql_ping) / 2, 2)),
+        )
 
     embed.add_field(
         name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:',
