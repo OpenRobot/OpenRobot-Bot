@@ -1,4 +1,4 @@
-# Module imports
+    # Module imports
 from . import (
     cog,
     flg,
@@ -20,7 +20,8 @@ from . import (
     prefixes,
     timer,
     shell,
-    rdanny
+    rdanny,
+    humanize,
 )
 
 # Base imports
@@ -45,3 +46,4 @@ from .prefixes import *
 from .timer import *
 from .shell import *
 from .rdanny import *
+from .humanize import *

@@ -1,8 +1,3 @@
-import discord
-from discord.ext import commands
-
-import config
-
 import re
 import os
 import json
@@ -13,32 +8,38 @@ import typing
 import random
 import string
 import base64
-import psutil
 import shutil
 import asyncio
 import logging
+import inspect
+import pathlib
+import platform
+import datetime
+import textwrap
+
+from io import BytesIO, StringIO
+
+
+import psutil
+import discord
 import asyncpg
 import jishaku
 import aiohttp
-import inspect
 import mystbin
 import cpuinfo
-import pathlib
 import humanize
-import platform
 import aioredis
-import datetime
-import textwrap
 import tabulate
 import speedtest
 import aiospotify
 import async_timeout
 
-from threading import Thread
-from io import BytesIO, StringIO
+from discord.ext import commands
 from humanize import naturalsize as get_size
-
 from openrobot import discord_activities as discord_activity
+
+
+import config
 
 from cogs.utils import (
     MenuPages,
@@ -52,6 +53,7 @@ from cogs.utils import (
     no_prefix_for_owner,
     checks,
     rdanny,
+    naturalnumber,
 )
 
 description = """
@@ -635,8 +637,8 @@ Send: {disk_io_bytes_send}```
         net_io = psutil.net_io_counters()
         net_io_bytes_sent = f"{get_size(net_io.bytes_sent)}"
         net_io_bytes_recv = f"{get_size(net_io.bytes_recv)}"
-        packets_sent = f"{net_io.packets_sent:,}"
-        packets_recv = f"{net_io.packets_recv:,}"
+        packets_sent = f"{naturalnumber(net_io.packets_sent, significant_digits=3)} ({net_io.packets_sent:,})"
+        packets_recv = f"{naturalnumber(net_io.packets_recv, significant_digits=3)} ({net_io.packets_recv:,})"
 
         embed.add_field(
             name="Network:",
