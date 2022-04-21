@@ -20,9 +20,6 @@ def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=3) 
         1e12: "t",
     }
 
-    if start_digit < 3:
-        raise ValueError("start_digit must be >= 2")
-
     if value < 100:
         return str(value)
 
@@ -31,7 +28,7 @@ def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=3) 
 
     for i, (num, l) in enumerate(letter_items):
         try:
-            if start_digit <= value < letter_items[i + 1][0]:
+            if num <= value < letter_items[i + 1][0]:
                 letter = l
                 digit = num
                 break
