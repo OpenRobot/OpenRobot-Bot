@@ -45,7 +45,9 @@ def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=3) 
 
     new_left_over = int(str(left_over)[:significant_digits])
 
+    return f"{new_left_over} {type(new_left_over)}"
+
     if new_left_over == 0 or not new_left_over:
         return f"{new_value}{letter}"
-    else:
-        return f"{new_value}.{new_left_over}{letter}"
+
+    return f"{new_value}.{new_left_over}{letter}"
