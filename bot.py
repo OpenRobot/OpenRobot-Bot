@@ -837,7 +837,7 @@ async def activity(
     )
 
 
-@activity.error
+#@activity.error
 async def activity_error(ctx: commands.Context, error: Exception):
     if isinstance(error, commands.BadLiteralArgument):
         await ctx.send("Invalid activity.")
