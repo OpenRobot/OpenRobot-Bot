@@ -40,8 +40,8 @@ def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=3) 
     if caps:
         letter = letter.upper()
 
-    left_over = value % digit # e.g 1574 --> 574
-    new_value = value // digit # e.g 2759 --> 2
+    left_over = int(value % digit) # e.g 1574 --> 574
+    new_value = int(value // digit) # e.g 2759 --> 2
 
     new_left_over = int(str(left_over)[:significant_digits])
 
