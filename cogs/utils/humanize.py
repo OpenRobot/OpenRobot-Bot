@@ -1,44 +1,54 @@
 from math import floor, log10
 
 
-def naturalnumber(value, significant_digits=2, strip_trailing_zeros=True) -> str:
+def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=3) -> str:
     """
-    Adaption of humanize_numbers_fp that will try to print a given number of significant digits, but sometimes more or
-    less for easier reading.
+    Makes a number to a human-readable strig.
 
     Examples:
-    humanize_number(6666666, 2) = 6.7M
-    humanize_number(6000000, 2) = 6M
-    humanize_number(6000000, 2, strip_trailing_zeros=False) = 6.0M
-    humanize_number(.666666, 2) = 0.67
-    humanize_number(.0006666, 2) = 670µ
+    naturalnumber(1000) -> "1k"
+    naturalnumber(100000) -> "100k"
+    naturalnumber(1000000) -> "1m"
+    naturalnumber(1000000000) -> "1b"
+    naturalnumber(1000000000, caps=True) -> "1B"
     """
-    powers = [10 ** x for x in (12, 9, 6, 3, 0, -3, -6, -9)]
-    human_powers = ['T', 'B', 'M', 'K', '', 'm', 'µ', 'n']
-    is_negative = False
-    suffix = ''
 
-    if not isinstance(value, float):
-        value = float(value)
-    if value < 0:
-        is_negative = True
-        value = abs(value)
-    if value == 0:
-        decimal_places = max(0, significant_digits - 1)
-    elif .001 <= value < 1:  # don't humanize these, because 3.0m can be interpreted as 3 million
-        decimal_places = max(0, significant_digits - int(floor(log10(value))) - 1)
+    letters = {
+        1e3: "k",
+        1e6: "m",
+        1e9: "b",
+        1e12: "t",
+    }
+
+    if start_digit < 3:
+        raise ValueError("start_digit must be >= 2")
+
+    if value < 100:
+        return str(value)
+
+    # Get the letter for the value
+    letter_items = list(letters.items())
+
+    for i, (num, l) in enumerate(letter_items):
+        try:
+            if start_digit <= value < letter_items[i + 1][0]:
+                letter = l
+                digit = num
+                break
+        except IndexError:
+            letter = l
+            digit = num
+            break
+
+    if caps:
+        letter = letter.upper()
+
+    left_over = value % digit # e.g 1574 --> 574
+    new_value = value // digit # e.g 2759 --> 2
+
+    new_left_over = int(str(left_over)[:significant_digits])
+
+    if new_left_over == 0 or not new_left_over:
+        return f"{new_value}{letter}"
     else:
-        p = next((x for x in powers if value >= x), 10 ** -9)
-        i = powers.index(p)
-        value = value / p
-        before = int(log10(value)) + 1
-        decimal_places = max(0, significant_digits - before)
-        suffix = human_powers[i]
-
-    return_value = ("%." + str(decimal_places) + "f") % value
-    if is_negative:
-        return_value = "-" + return_value
-    if strip_trailing_zeros and '.' in return_value:
-        return_value = return_value.rstrip('0').rstrip('.')
-
-    return return_value + suffix
+        return f"{new_value}.{new_left_over}{letter}"
