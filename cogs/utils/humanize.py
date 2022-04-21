@@ -1,7 +1,7 @@
 from math import floor, log10
 
 
-def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=3) -> str:
+def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=1) -> str:
     """
     Makes a number to a human-readable strig.
 

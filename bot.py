@@ -637,8 +637,8 @@ Send: {disk_io_bytes_send}```
         net_io = psutil.net_io_counters()
         net_io_bytes_sent = f"{get_size(net_io.bytes_sent)}"
         net_io_bytes_recv = f"{get_size(net_io.bytes_recv)}"
-        packets_sent = f"{naturalnumber(net_io.packets_sent, significant_digits=3)} ({net_io.packets_sent:,})"
-        packets_recv = f"{naturalnumber(net_io.packets_recv, significant_digits=3)} ({net_io.packets_recv:,})"
+        packets_sent = f"{naturalnumber(net_io.packets_sent)} ({net_io.packets_sent:,})"
+        packets_recv = f"{naturalnumber(net_io.packets_recv)} ({net_io.packets_recv:,})"
 
         embed.add_field(
             name="Network:",
