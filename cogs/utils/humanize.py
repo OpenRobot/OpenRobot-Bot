@@ -1,9 +1,9 @@
 from math import floor, log10
 
 
-def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=1) -> str:
+def naturalnumber(value: int | float, *, caps: bool = True, digits=1) -> str:
     """
-    Makes a number to a human-readable strig.
+    Makes a number to a human-readable string.
 
     Examples:
     naturalnumber(1000) -> "1k"
@@ -11,6 +11,7 @@ def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=1) 
     naturalnumber(1000000) -> "1m"
     naturalnumber(1000000000) -> "1b"
     naturalnumber(1000000000, caps=True) -> "1B"
+    naturalnumber(1374000000, digits=2) -> "1.37b"
     """
 
     letters = {
@@ -18,6 +19,7 @@ def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=1) 
         1e6: "m",
         1e9: "b",
         1e12: "t",
+        
     }
 
     if value < 100:
@@ -40,10 +42,10 @@ def naturalnumber(value: int | float, *, caps: bool=True, significant_digits=1) 
     if caps:
         letter = letter.upper()
 
-    left_over = int(value % digit) # e.g 1574 --> 574
-    new_value = int(value // digit) # e.g 2759 --> 2
+    left_over = int(value % digit)  # e.g 1574 --> 574
+    new_value = int(value // digit)  # e.g 2759 --> 2
 
-    new_left_over = int(str(left_over)[:significant_digits])
+    new_left_over = int(str(left_over)[:digits])
 
     if new_left_over == 0 or not new_left_over:
         return f"{new_value}{letter}"

@@ -18,7 +18,7 @@ import datetime
 import textwrap
 
 from io import BytesIO, StringIO
-
+from collections import namedtuple
 
 import psutil
 import discord
@@ -37,7 +37,6 @@ import async_timeout
 from discord.ext import commands
 from humanize import naturalsize as get_size
 from openrobot import discord_activities as discord_activity
-
 
 import config
 
@@ -63,21 +62,8 @@ GitHub: <https://github.com/OpenRobot>
 Website: <https://openrobot.xyz/>
 """
 
-
-class LineCount:
-    def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-    def __repr__(self):
-        s = "<LineCount: "
-
-        for k, v in self.__dict__.items():
-            s += f"{k}={v} "
-
-        s = s[:-1] + ">"
-
-        return s
+LineCount = namedtuple("LineCount", ["files", "lines", "classes", "functions", "coroutines", "comments"],
+                       defaults=(0,) * 6)
 
 
 class Bot(BaseBot):
@@ -187,7 +173,8 @@ class Bot(BaseBot):
         data = aiohttp.FormData()
         data.add_field("file", BytesIO(fp), content_type=content_type)
 
-        async with self.session.post(f"https://{self.ICDN_URL}/upload", headers={'Authorization': config.ICDN_TOKEN}, data=data) as resp:
+        async with self.session.post(f"https://{self.ICDN_URL}/upload", headers={'Authorization': config.ICDN_TOKEN},
+                                     data=data) as resp:
             js = await resp.json()
 
             if raw:
@@ -238,11 +225,11 @@ class Bot(BaseBot):
 
 bot = Bot(
     command_prefix=ApplyPrefix(
-        config.PREFIXES, 
+        config.PREFIXES,
 
         case_insensitive_prefix(),
         commands.when_mentioned,
-        #no_prefix_for_owner(),
+        # no_prefix_for_owner(),
     ),
     owner_ids=config.OWNER_IDS,
     help_command=commands.MinimalHelpCommand(
@@ -405,7 +392,7 @@ async def ping(ctx: commands.Context):
     embed.add_field(
         name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:',
         value=do_ping_string(round(await bot.ping.api.openrobot() * 1000, 2)),
-        #inline=False,
+        # inline=False,
     )
 
     embed.add_field(
@@ -736,7 +723,7 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 
         await msg.delete()
 
-        await ctx.send(content=f'Time took: {round(end-start, 1)}s', embed=embed)
+        await ctx.send(content=f'Time took: {round(end - start, 1)}s', embed=embed)
 
 
 # @bot.command(
@@ -839,7 +826,7 @@ async def activity(
     )
 
 
-#@activity.error
+# @activity.error
 async def activity_error(ctx: commands.Context, error: Exception):
     if isinstance(error, commands.BadLiteralArgument):
         await ctx.send("Invalid activity.")
@@ -857,16 +844,18 @@ async def claimable_tags(ctx: commands.Context):
 
     This may not work as expected yet. It's a work in progress.
     """
-    
+
     await ctx.send("Please invoke the `tag all --text` command from R.Danny for him to send the file.")
 
     try:
-        cmd_invoke = await bot.wait_for('message', check=lambda m: m.content.strip().replace(' ', '').endswith('tagall--text') and m.author.id == ctx.author.id, timeout=60)
+        cmd_invoke = await bot.wait_for('message', check=lambda m: m.content.strip().replace(' ', '').endswith(
+            'tagall--text') and m.author.id == ctx.author.id, timeout=60)
     except asyncio.TimeoutError:
         return await ctx.send("I did not see a response from you. Please try again later.")
 
     try:
-        m = await bot.wait_for('message', check=lambda m: m.attachments and m.author.id == 80528701850124288, timeout=60)
+        m = await bot.wait_for('message', check=lambda m: m.attachments and m.author.id == 80528701850124288,
+                               timeout=60)
     except asyncio.TimeoutError:
         return await ctx.send("I did not see a response from R.Danny. Please try again later.")
 
@@ -877,7 +866,9 @@ async def claimable_tags(ctx: commands.Context):
 
     contents = contents.decode('utf-8')
 
-    process = await ctx.message.reply(f'<a:openrobot_searching_gif:899928367799885834> Processing... This might take a while.', allowed_mentions=discord.AllowedMentions.none())
+    process = await ctx.message.reply(
+        f'<a:openrobot_searching_gif:899928367799885834> Processing... This might take a while.',
+        allowed_mentions=discord.AllowedMentions.none())
 
     try:
         tags = rdanny.Tags.parse(contents)
@@ -885,7 +876,7 @@ async def claimable_tags(ctx: commands.Context):
         if ctx.debug:
             await ctx.send(discord.File(json.dumps(tags.data, indent=4), filename='tags.json'))
 
-        claimable_tags: set[rdanny.TagItem] = set() # typehints are for linters cause seems like they dont recognize
+        claimable_tags: set[rdanny.TagItem] = set()  # typehints are for linters cause seems like they dont recognize
         # them.
 
         for tag in tags:
@@ -915,11 +906,12 @@ async def claimable_tags(ctx: commands.Context):
         await ctx.send(file=file)
     except Exception as e:
         ctx.command.reset_cooldown(ctx)
-        
+
         if ctx.debug:
             raise e
 
         return await ctx.send('Something wen\'t wrong. Please try again later.')
+
 
 @bot.command(cls=Command, example="lyrics See You Again")
 async def lyrics(
@@ -1200,8 +1192,8 @@ async def screenshot(
         await ctx.interaction.response.defer()
     else:
         await ctx.message.add_reaction("<a:openrobot_searching_gif:899928367799885834>")
-        
-    url = url.strip('<>') # Strips < and > from the URL e.g <https://google.com> to https://google.com.
+
+    url = url.strip('<>')  # Strips < and > from the URL e.g <https://google.com> to https://google.com.
 
     if not re.match(
             r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
@@ -2349,7 +2341,7 @@ bot.exts = [
     # 'jishaku',
     "cogs.api",
     "cogs.error",
-    #"cogs.music",
+    # "cogs.music",
     "cogs.help",
     "cogs.jsk",
     "cogs.fun",
