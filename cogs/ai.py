@@ -28,18 +28,13 @@ from cogs.utils import (
     group,
     Command,
     Group,
+    GIST_REGEX,
+    GITHUB_REGEX,
+    HASTEBIN_REGEX,
 )
 from openrobot.api_wrapper import error
 
 openai.api_key = OPENAI_KEY
-
-# Regex:
-GIST_REGEX = re.compile(
-    r"https?:\/\/gist\.github\.com\/(?P<author>.+)\/(?P<gist_id>[a-zA-Z0-9]+)(#file-(?P<file_name>.+))?"
-)
-GITHUB_REGEX = re.compile(
-    r"https?:\/\/github\.com\/(?P<author>[a-zA-Z0-9\d](?:[a-zA-Z0-9\d]|-(?=[a-zA-Z0-9\d])){0,38})\/(?P<repo>[A-Za-z0-9_.-]+)"
-)
 
 
 class AI(Cog, emoji="🤖"):
@@ -250,6 +245,7 @@ AI: 5 times 6 is 30"""
         - [GitHub Gist](https://gist.github.com/)
         - [GitHub Repository](https://github.com/) (Public Repositories)
         - [Mystbin](https://mystb.in/)
+        - [Hastebin](https://www.toptal.com/developers/hastebin/)
 
         Attachments are also supported.
         """
@@ -614,6 +610,10 @@ AI: 5 times 6 is 30"""
                 await task(ctx, None, repo_name=name, repo_code=d)
 
                 return
+            elif regex_result := HASTEBIN_REGEX.match(code):
+                key = regex_result.group('key')
+                async with self.bot.session.get(f'https://www.toptal.com/developers/hastebin/raw/{key}') as resp:
+                    code = await resp.text()
             else:
                 try:
                     mystbin = await self.bot.mystbin.get(code)
@@ -675,7 +675,9 @@ AI: 5 times 6 is 30"""
             return await ctx.send("Could not recognize the `code` argument.")
 
         await ctx.send(
-            "Code review has started. I will try to DM you with the code review results. If I cannot DM you, I will post the results in this channel replying to your message.\nCode reviews can take up from seconds to minutes depending on how large the code is."
+            "Code review has started. I will try to DM you with the code review results. If I cannot DM you, "
+            "I will post the results in this channel replying to your message.\nCode reviews can take up from seconds "
+            "to minutes depending on how large the code is. "
         )
 
         await task(ctx, code)

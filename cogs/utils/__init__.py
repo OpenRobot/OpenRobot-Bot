@@ -22,6 +22,7 @@ from . import (
     shell,
     rdanny,
     humanize,
+    regex,
 )
 
 # Base imports
@@ -47,3 +48,4 @@ from .timer import *
 from .shell import *
 from .rdanny import *
 from .humanize import *
+from .regex import *
