@@ -163,7 +163,7 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
         print(a, b)
 
         bar = Image.new('RGBA', (end_pos, 20), fcolor)
-        img.paste(bar, (a, 280, b, 300), bar)
+        img.paste(bar, (a+add_x, 280+add_y, b+add_x, 300+add_y), bar)
         draw.ellipse((431 + end_pos - 20, 285 - 20, 431 + end_pos + 20, 285 + 20), fill=fcolor)
 
         buf = BytesIO()
