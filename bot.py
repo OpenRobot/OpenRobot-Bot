@@ -1730,7 +1730,8 @@ async def spotify(
                             cover_buff = BytesIO(await resp.read())
 
                         buf = await spotify_img(title=spotify.title, artists=spotify.artists, cover_buff=cover_buff,
-                                                duration=spotify.duration.seconds, start=spotify.start.timestamp())
+                                                duration=spotify.duration.seconds, start=spotify.start.timestamp(),
+                                                beta=ctx.beta)
 
                     url = await bot.publish_cdn(
                         buf,
@@ -1794,7 +1795,8 @@ async def spotify(
                             cover_buff = BytesIO(await resp.read())
 
                         buf = await spotify_img(title=spotify.title, artists=spotify.artists, cover_buff=cover_buff,
-                                                duration=spotify.duration.seconds, start=spotify.start.timestamp())
+                                                duration=spotify.duration.seconds, start=spotify.start.timestamp(),
+                                                beta=ctx.beta)
 
                     url = await bot.publish_cdn(
                         buf,
@@ -1928,7 +1930,8 @@ async def spotify(
                         cover_buff = BytesIO(await resp.read())
 
                     buf = await spotify_img(title=spotify.title, artists=spotify.artists, cover_buff=cover_buff,
-                                            duration=spotify.duration.seconds, start=spotify.start.timestamp())
+                                            duration=spotify.duration.seconds, start=spotify.start.timestamp(),
+                                            beta=ctx.beta)
 
                 url = await bot.publish_cdn(
                     buf,
@@ -2052,7 +2055,7 @@ async def spotify(
                 cover_buff = BytesIO(await resp.read())
 
             buf = await spotify_img(title=spotify.title, artists=spotify.artists, cover_buff=cover_buff,
-                                    duration=spotify.duration.seconds, start=spotify.start.timestamp())
+                                    duration=spotify.duration.seconds, start=spotify.start.timestamp(), beta=ctx.beta)
 
         url = await bot.publish_cdn(
             buf,

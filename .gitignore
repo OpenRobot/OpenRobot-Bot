@@ -3,6 +3,9 @@
 # Proxy on screenshot command
 cogs/utils/driver/proxy.py
 
+# Spotify demo/preview files:
+cogs/utils/spotify/*.png
+
 install-requires.sh
 
 # PyCharm stuff
