@@ -140,8 +140,17 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
 
         end_pos = int(((dt.datetime.now() - dt.datetime.fromtimestamp(start)).seconds / duration) * 450)
 
+        a, b = 431, 881
+
+        while b-a > end_pos:
+            a += 1
+            b -= 1
+
+        if a+b != end_pos:
+            a += 1
+
         bar = Image.new('RGBA', (end_pos, 15), fcolor)
-        img.paste(bar, (431, 285, 881, 300), bar)
+        img.paste(bar, (a, 285, b, 300), bar)
         draw.ellipse((431 + end_pos - 20, 285 - 20, 431 + end_pos + 20, 285 + 20), fill=fcolor)
 
         buf = BytesIO()
