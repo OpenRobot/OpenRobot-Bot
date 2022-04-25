@@ -142,7 +142,7 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
         fbar = Image.new('RGBA', (450+add_x, 15+add_y), (255, 255, 255, 100))
         img.paste(fbar, (431, 285, 881+add_x, 300+add_y), fbar)
 
-        end_pos = int(((dt.datetime.now() - dt.datetime.fromtimestamp(start)).seconds / duration) * 450+add_x)
+        end_pos = int(((dt.datetime.now() - dt.datetime.fromtimestamp(start)).seconds / duration) * 450)
 
         print(end_pos)
 
@@ -155,7 +155,10 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
         print(a, b)
 
         if b-a != end_pos:
-            a -= 1
+            if b-a > end_pos:
+                a += 1
+            else:
+                b += 1
 
         print(a, b)
 
