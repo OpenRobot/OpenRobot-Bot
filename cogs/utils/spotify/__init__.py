@@ -89,9 +89,10 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
 
         # Cover:
 
-        size = (1400, 750)
+        size = (1400, 1000)
+        add_x, add_y = (1000-size[0], 350-size[1])
 
-        cover = cover.resize((251, 251))
+        cover = cover.resize((251+add_x, 251+add_y))
         img = Image.new('RGBA', size, (0, 0, 0, 0))
         draw = ImageDraw.Draw(img)
         draw.rounded_rectangle((0, 0, *size), 30, color)
@@ -101,47 +102,47 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
         mask_draw.rounded_rectangle((0, 0, *cover.size), 20, 'white')
         mask = mask.convert('L')
 
-        img.paste(cover, (49, 49, 300, 300), mask)
+        img.paste(cover, (49, 49, 300+add_x, 300+add_y), mask)
 
         # Title:
-        text_box = Image.new('RGBA', (981-310, 163-104), color)
+        text_box = Image.new('RGBA', (981-310+add_x, 163-104+add_y), color)
         text_box_draw = ImageDraw.Draw(text_box)
         tbwidth, tbheight = text_box.size
         text_box_draw.text((tbwidth // 2, tbheight // 2), title, fcolor, anchor='mm', font=sfont_title)
 
-        img.paste(text_box, (310, 104, 981, 163))
+        img.paste(text_box, (310, 104, 981+add_x, 163+add_y))
 
         # Artist:
-        text_box = Image.new('RGBA', (981-310, 213-175), color)
+        text_box = Image.new('RGBA', (981-310+add_x, 213-175+add_y), color)
         text_box_draw = ImageDraw.Draw(text_box)
         tbwidth, tbheight = text_box.size
         text_box_draw.text((tbwidth // 2, tbheight // 2), artists_text, fcolor, anchor='mm', font=sfont_auth)
 
-        img.paste(text_box, (310, 175, 981, 213))
+        img.paste(text_box, (310, 175, 981+add_x, 213+add_y))
 
         # Duration Start:
-        text_box = Image.new('RGBA', (404-339, 300-285), color)
+        text_box = Image.new('RGBA', (404-339+add_x, 300-285+add_y), color)
         text_box_draw = ImageDraw.Draw(text_box)
         tbwidth, tbheight = text_box.size
         text_box_draw.text((tbwidth // 2, tbheight // 2), f"{on_minutes:02}:{on_seconds:02}", fcolor, anchor='mm',
                            font=sfont)
 
-        img.paste(text_box, (339, 285, 404, 300))
+        img.paste(text_box, (339, 285, 404+add_x, 300+add_y))
 
         # Duration End:
-        text_box = Image.new('RGBA', (967-903, 300-285), color)
+        text_box = Image.new('RGBA', (967-903+add_x, 300-285+add_y), color)
         text_box_draw = ImageDraw.Draw(text_box)
         tbwidth, tbheight = text_box.size
         text_box_draw.text((tbwidth // 2, tbheight // 2), f"{end_minutes:02}:{end_seconds:02}", fcolor, anchor='mm',
                            font=sfont)
 
-        img.paste(text_box, (903, 285, 967, 300))
+        img.paste(text_box, (903, 285, 967+add_x, 300+add_y))
 
         # Duration Bar:
-        fbar = Image.new('RGBA', (450, 15), (255, 255, 255, 100))
-        img.paste(fbar, (431, 285, 881, 300), fbar)
+        fbar = Image.new('RGBA', (450+add_x, 15+add_y), (255, 255, 255, 100))
+        img.paste(fbar, (431, 285, 881+add_x, 300+add_y), fbar)
 
-        end_pos = int(((dt.datetime.now() - dt.datetime.fromtimestamp(start)).seconds / duration) * 450)
+        end_pos = int(((dt.datetime.now() - dt.datetime.fromtimestamp(start)).seconds / duration) * 450+add_x)
 
         print(end_pos)
 
@@ -161,7 +162,7 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
 
         print(a, b)
 
-        bar = Image.new('RGBA', (end_pos, 15), fcolor)
+        bar = Image.new('RGBA', (end_pos, 20), fcolor)
         img.paste(bar, (a, 285, b, 300), bar)
         draw.ellipse((431 + end_pos - 20, 285 - 20, 431 + end_pos + 20, 285 + 20), fill=fcolor)
 
