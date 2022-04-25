@@ -140,8 +140,6 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
 
         end_pos = int(((dt.datetime.now() - dt.datetime.fromtimestamp(start)).seconds / duration) * 450)
 
-        print(end_pos)
-
         bar = Image.new('RGBA', (end_pos, 15), fcolor)
         img.paste(bar, (431, 285, 881, 300), bar)
         draw.ellipse((431 + end_pos - 20, 285 - 20, 431 + end_pos + 20, 285 + 20), fill=fcolor)
