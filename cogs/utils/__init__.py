@@ -1,4 +1,4 @@
-    # Module imports
+# Module imports
 from . import (
     cog,
     flg,
@@ -23,6 +23,7 @@ from . import (
     rdanny,
     humanize,
     regex,
+    spotify,
 )
 
 # Base imports
@@ -49,3 +50,4 @@ from .shell import *
 from .rdanny import *
 from .humanize import *
 from .regex import *
+from .spotify import *

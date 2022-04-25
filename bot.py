@@ -55,6 +55,8 @@ from cogs.utils import (
     naturalnumber,
 )
 
+from cogs.utils.spotify import spotify as spotify_img
+
 description = """
 I am OpenRobot. I provide help and utilities for OpenRobot stuff such as our API (Hosted at <https://api.openrobot.xyz>).
 
@@ -687,7 +689,7 @@ Upload: {round(data['upload'] / 1000000, 2)} Mbps ({round(data['upload'] / 10000
 Ping: {round(data['ping'], 2)} ms
 
 Bytes Sent: {round(data['bytes_sent'], 5)}
-Bytes Recieved: {round(data['bytes_received'], 5)}
+Bytes Received: {round(data['bytes_received'], 5)}
 ```Result URL: {'https://' + '.'.join(s.results.share().replace('http://', '').split('.')[:-1])}
             """,
                 inline=False,
@@ -876,7 +878,7 @@ async def claimable_tags(ctx: commands.Context):
         if ctx.debug:
             await ctx.send(discord.File(json.dumps(tags.data, indent=4), filename='tags.json'))
 
-        claimable_tags: set[rdanny.TagItem] = set()  # typehints are for linters cause seems like they dont recognize
+        claimable_tags: set[rdanny.TagItem] = set()  # typehints are for linters cause seems like they don't recognize
         # them.
 
         for tag in tags:
@@ -1232,7 +1234,7 @@ async def screenshot(
             )
 
             return await ctx.send(
-                "This website seems to be NSFW/Innapropriate. I am sorry, but I may not be able to send the "
+                "This website seems to be NSFW/Inappropriate. I am sorry, but I may not be able to send the "
                 "screenshot result in this channel. "
             )
 
@@ -1517,6 +1519,8 @@ async def spotify(
 
     Flags:
     - `--sync`: Enables the Auto Spotify Sync feature (Automatically edits the message).
+    - `--quick`: This disables the `Possible Members Listening`. This is used for debug purposes only.
+    - `--api`: Uses [Jeyy API](https://api.jeyy.xyz) instead of local PIL image manipulation. This is used for debug purposes only.
     """
 
     member = member or ctx.author
@@ -1524,6 +1528,8 @@ async def spotify(
     flags = [x.lower() for x in flags]
 
     sync = "--sync" in flags
+    quick = "--quick" in flags
+    use_api = "--api" in flags
 
     class LyricButton(discord.ui.Button):
         def __init__(self, query: str):
@@ -1610,6 +1616,9 @@ async def spotify(
                 await interaction.followup.send(embed=embed, ephemeral=True)
 
     def get_possible_members_in_same_session(member, spotify: discord.Spotify):
+        if quick:
+            return []
+
         l = []
 
         member_checked = set()
@@ -1703,23 +1712,31 @@ async def spotify(
                     if ctx.debug:
                         await ctx.send("1")
 
-                    params = {
-                        "title": spotify.title,
-                        "cover_url": spotify.album_cover_url,
-                        "duration_seconds": spotify.duration.seconds,
-                        "start_timestamp": spotify.start.timestamp(),
-                        "artists": spotify.artists,
-                    }
+                    if use_api:
+                        params = {
+                            "title": spotify.title,
+                            "cover_url": spotify.album_cover_url,
+                            "duration_seconds": spotify.duration.seconds,
+                            "start_timestamp": spotify.start.timestamp(),
+                            "artists": spotify.artists,
+                        }
 
-                    async with bot.session.get(
-                            "https://api.jeyy.xyz/discord/spotify", params=params
-                    ) as response:
-                        buf = BytesIO(await response.read())
+                        async with bot.session.get(
+                                "https://api.jeyy.xyz/discord/spotify", params=params
+                        ) as response:
+                            buf = BytesIO(await response.read())
+                    else:
+                        async with bot.session.get(spotify.album_cover_url) as resp:
+                            cover_buff = BytesIO(await resp.read())
+
+                        buf = await spotify_img(title=spotify.title, artists=spotify.artists, cover_buff=cover_buff,
+                                                duration=spotify.duration.seconds, start=spotify.start.timestamp())
 
                     url = await bot.publish_cdn(
                         buf,
                         f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png',
-                    )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
+                    )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns
+                    # to a Access Denied XML page (GCP) :rooBulli:
 
                     embed = msg.embeds[0]
 
@@ -1727,16 +1744,17 @@ async def spotify(
 
                     embed.description = "\n".join(embed.description.split("\n")[:-1])
 
-                    members_listening = get_possible_members_in_same_session(
-                        member, spotify
-                    )
-                    embed.description += "\n> **Possible Members Listening:** "
+                    if not quick:
+                        members_listening = get_possible_members_in_same_session(
+                            member, spotify
+                        )
+                        embed.description += "\n> **Possible Members Listening:** "
 
-                    if not members_listening:
-                        embed.description += "None."
-                    else:
-                        for member in members_listening:
-                            embed.description += f"\n> - {member.mention} - `{member}`"
+                        if not members_listening:
+                            embed.description += "None."
+                        else:
+                            for member in members_listening:
+                                embed.description += f"\n> - {member.mention} - `{member}`"
 
                     # if is_new:
                     try:
@@ -1758,23 +1776,31 @@ async def spotify(
                     if ctx.debug:
                         await ctx.send("2")
 
-                    params = {
-                        "title": spotify.title,
-                        "cover_url": spotify.album_cover_url,
-                        "duration_seconds": spotify.duration.seconds,
-                        "start_timestamp": spotify.start.timestamp(),
-                        "artists": spotify.artists,
-                    }
+                    if use_api:
+                        params = {
+                            "title": spotify.title,
+                            "cover_url": spotify.album_cover_url,
+                            "duration_seconds": spotify.duration.seconds,
+                            "start_timestamp": spotify.start.timestamp(),
+                            "artists": spotify.artists,
+                        }
 
-                    async with bot.session.get(
-                            "https://api.jeyy.xyz/discord/spotify", params=params
-                    ) as response:
-                        buf = BytesIO(await response.read())
+                        async with bot.session.get(
+                                "https://api.jeyy.xyz/discord/spotify", params=params
+                        ) as response:
+                            buf = BytesIO(await response.read())
+                    else:
+                        async with bot.session.get(spotify.album_cover_url) as resp:
+                            cover_buff = BytesIO(await resp.read())
+
+                        buf = await spotify_img(title=spotify.title, artists=spotify.artists, cover_buff=cover_buff,
+                                                duration=spotify.duration.seconds, start=spotify.start.timestamp())
 
                     url = await bot.publish_cdn(
                         buf,
                         f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png',
-                    )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
+                    )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns
+                    # to a Access Denied XML page (GCP) :rooBulli:
 
                     embed = discord.Embed(color=spotify.colour)
 
@@ -1845,17 +1871,18 @@ async def spotify(
 > **Artists:** {artists}
                     """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-                    members_listening = get_possible_members_in_same_session(
-                        member, spotify
-                    )
+                    if not quick:
+                        members_listening = get_possible_members_in_same_session(
+                            member, spotify
+                        )
 
-                    embed.description += "> \n> **Possible Members Listening:** "
+                        embed.description += "> \n> **Possible Members Listening:** "
 
-                    if not members_listening:
-                        embed.description += "None."
-                    else:
-                        for member in members_listening:
-                            embed.description += f"\n> - {member.mention} - `{member}`"
+                        if not members_listening:
+                            embed.description += "None."
+                        else:
+                            for member in members_listening:
+                                embed.description += f"\n> - {member.mention} - `{member}`"
 
                     embed.set_thumbnail(url=spotify.album_cover_url)
 
@@ -1883,23 +1910,31 @@ async def spotify(
                 if ctx.debug:
                     await ctx.send("3")
 
-                params = {
-                    "title": spotify.title,
-                    "cover_url": spotify.album_cover_url,
-                    "duration_seconds": spotify.duration.seconds,
-                    "start_timestamp": spotify.start.timestamp(),
-                    "artists": spotify.artists,
-                }
+                if use_api:
+                    params = {
+                        "title": spotify.title,
+                        "cover_url": spotify.album_cover_url,
+                        "duration_seconds": spotify.duration.seconds,
+                        "start_timestamp": spotify.start.timestamp(),
+                        "artists": spotify.artists,
+                    }
 
-                async with bot.session.get(
-                        "https://api.jeyy.xyz/discord/spotify", params=params
-                ) as response:
-                    buf = BytesIO(await response.read())
+                    async with bot.session.get(
+                            "https://api.jeyy.xyz/discord/spotify", params=params
+                    ) as response:
+                        buf = BytesIO(await response.read())
+                else:
+                    async with bot.session.get(spotify.album_cover_url) as resp:
+                        cover_buff = BytesIO(await resp.read())
+
+                    buf = await spotify_img(title=spotify.title, artists=spotify.artists, cover_buff=cover_buff,
+                                            duration=spotify.duration.seconds, start=spotify.start.timestamp())
 
                 url = await bot.publish_cdn(
                     buf,
                     f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png',
-                )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
+                )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to
+                # a Access Denied XML page (GCP) :rooBulli:
 
                 embed = discord.Embed(color=spotify.colour)
 
@@ -1970,17 +2005,18 @@ async def spotify(
 > **Artists:** {artists}
                 """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-                members_listening = get_possible_members_in_same_session(
-                    member, spotify
-                )
+                if not quick:
+                    members_listening = get_possible_members_in_same_session(
+                        member, spotify
+                    )
 
-                embed.description += "> \n> **Possible Members Listening:** "
+                    embed.description += "> \n> **Possible Members Listening:** "
 
-                if not members_listening:
-                    embed.description += "None."
-                else:
-                    for member in members_listening:
-                        embed.description += f"\n> - {member.mention} - `{member}`"
+                    if not members_listening:
+                        embed.description += "None."
+                    else:
+                        for member in members_listening:
+                            embed.description += f"\n> - {member.mention} - `{member}`"
 
                 embed.set_thumbnail(url=spotify.album_cover_url)
 
@@ -1998,23 +2034,31 @@ async def spotify(
                 f"**{member}** is not listening or connected to Spotify."
             )
 
-        params = {
-            "title": spotify.title,
-            "cover_url": spotify.album_cover_url,
-            "duration_seconds": spotify.duration.seconds,
-            "start_timestamp": spotify.start.timestamp(),
-            "artists": spotify.artists,
-        }
+        if use_api:
+            params = {
+                "title": spotify.title,
+                "cover_url": spotify.album_cover_url,
+                "duration_seconds": spotify.duration.seconds,
+                "start_timestamp": spotify.start.timestamp(),
+                "artists": spotify.artists,
+            }
 
-        async with bot.session.get(
-                "https://api.jeyy.xyz/discord/spotify", params=params
-        ) as response:
-            buf = BytesIO(await response.read())
+            async with bot.session.get(
+                    "https://api.jeyy.xyz/discord/spotify", params=params
+            ) as response:
+                buf = BytesIO(await response.read())
+        else:
+            async with bot.session.get(spotify.album_cover_url) as resp:
+                cover_buff = BytesIO(await resp.read())
+
+            buf = await spotify_img(title=spotify.title, artists=spotify.artists, cover_buff=cover_buff,
+                                    duration=spotify.duration.seconds, start=spotify.start.timestamp())
 
         url = await bot.publish_cdn(
             buf,
             f'spotify/{"".join(random.choices(string.ascii_letters + string.digits, k=random.randint(10, 32)))}.png',
-        )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access Denied XML page (GCP) :rooBulli:
+        )  # discord rooBulli and blocked me from publishing spotify images to their CDN and just returns to a Access
+        # Denied XML page (GCP) :rooBulli:
 
         embed = discord.Embed(color=spotify.colour)
 
@@ -2081,15 +2125,16 @@ async def spotify(
 > **Artists:** {artists}
         """  # > **Lyrics:** moved to {f'`{ctx.prefix}lyrics --from-spotify`/' if member == ctx.author else ''}`{ctx.prefix}lyrics {spotify.title} {spotify.artists[0]}`
 
-        members_listening = get_possible_members_in_same_session(member, spotify)
+        if not quick:
+            members_listening = get_possible_members_in_same_session(member, spotify)
 
-        embed.description += "> \n> **Possible Members Listening:** "
+            embed.description += "> \n> **Possible Members Listening:** "
 
-        if not members_listening:
-            embed.description += "None."
-        else:
-            for member in members_listening:
-                embed.description += f"\n> - {member.mention} - `{member}`"
+            if not members_listening:
+                embed.description += "None."
+            else:
+                for member in members_listening:
+                    embed.description += f"\n> - {member.mention} - `{member}`"
 
         embed.set_thumbnail(url=spotify.album_cover_url)
 
@@ -2332,7 +2377,7 @@ async def invite(
         )
         return await ctx.send(f"<{url}>")
     else:
-        return await ctx.send("Unknown Option")  # idk when this would happen, but ok.
+        return await ctx.send("Unknown Option")  # IDK when this would happen, but ok.
 
 
 bot.confirm = _confirm
