@@ -135,14 +135,14 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
         img.paste(text_box, (903, 285, 967, 300))
 
         # Duration Bar:
-        fbar = Image.new('RGBA', (450, 10), (255, 255, 255, 100))
+        fbar = Image.new('RGBA', (450, 15), (255, 255, 255, 100))
         img.paste(fbar, (431, 285, 881, 300), fbar)
 
         end_pos = int(((dt.datetime.now() - dt.datetime.fromtimestamp(start)).seconds / duration) * 450)
 
         bar = Image.new('RGBA', (end_pos, 10), fcolor)
         img.paste(bar, (431, 285, 881, 300), bar)
-        draw.ellipse((431 + end_pos - 15, 285 - 15, 431 + end_pos + 15, 285 + 15), fill=fcolor)
+        draw.ellipse((431 + end_pos - 20, 285 - 20, 431 + end_pos + 20, 285 + 20), fill=fcolor)
 
         buf = BytesIO()
         img.save(buf, 'PNG')
