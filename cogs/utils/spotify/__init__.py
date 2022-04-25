@@ -139,8 +139,8 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
         img.paste(text_box, (903, 285, 967+add_x, 300+add_y))
 
         # Duration Bar:
-        fbar = Image.new('RGBA', (450+add_x, 15+add_y), (255, 255, 255, 100))
-        img.paste(fbar, (431, 285, 881+add_x, 300+add_y), fbar)
+        fbar = Image.new('RGBA', (450, 15), (255, 255, 255, 100))
+        img.paste(fbar, (431+add_x, 285+add_y, 881+add_x, 300+add_y), fbar)
 
         end_pos = int(((dt.datetime.now() - dt.datetime.fromtimestamp(start)).seconds / duration) * 450)
 
@@ -163,7 +163,7 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
         print(a, b)
 
         bar = Image.new('RGBA', (end_pos, 20), fcolor)
-        img.paste(bar, (a+add_x, 280+add_y, b+add_x, 300+add_y), bar)
+        img.paste(bar, (a, 280, b, 300), bar)
         draw.ellipse((431 + end_pos - 20, 285 - 20, 431 + end_pos + 20, 285 + 20), fill=fcolor)
 
         buf = BytesIO()
