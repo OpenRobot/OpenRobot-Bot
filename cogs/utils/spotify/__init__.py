@@ -149,7 +149,10 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
             b -= 1
 
         if a+b != end_pos:
-            a += 1
+            if a+b > end_pos:
+                b -= 1
+            else:
+                a += 1
 
         print(a, b)
 
