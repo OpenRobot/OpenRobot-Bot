@@ -72,8 +72,8 @@ def _spotify(title, artists, cover_buff, duration, start, round_cover=50):
     img = Image.new('RGBA', (1392, 368), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     draw.rounded_rectangle((0, 0, 1392, 368), 50, color)
-    shadow = Image.new('RGBA', (256, 256), (25, 25, 25, 240))
-    img.paste(shadow, (60, 60), shadow)
+    #shadow = Image.new('RGBA', (256, 256), (25, 25, 25, 240))
+    #img.paste(shadow, (60, 60), shadow)
     img.paste(cover, (56, 56), cover)
     artists_text = ', '.join(artists)
 
