@@ -62,12 +62,12 @@ def _spotify(title, artists, cover_buff, duration, start, round_cover=50):
     sfont_title = ImageFont.truetype('./cogs/utils/spotify/SourceHanSans-Bold.ttc', 60)
     sfont_auth = ImageFont.truetype('./cogs/utils/spotify/SourceHanSans-Bold.ttc', 50)
 
-    old_cover = Image.open(cover_buff).convert('RGBA').resize((256, 256))
+    cover = Image.open(cover_buff).convert('RGBA').resize((256, 256))
     color = ColorThief(cover_buff).get_color(quality=1)
     gray = np.mean((0.2989 * color[0], 0.5870 * color[1], 0.1140 * color[2]))
     fcolor = 'white' if gray < 65 else 'black'
 
-    cover = add_corners(old_cover, round_cover)
+    #cover = add_corners(cover, round_cover)
 
     img = Image.new('RGBA', (1392, 368), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
