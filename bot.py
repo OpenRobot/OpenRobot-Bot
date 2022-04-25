@@ -291,7 +291,7 @@ async def execute_beta(ctx: commands.Context, *command):
         return await ctx.send("A command name is a required argument to provide!")
 
     msg = copy.copy(ctx.message)
-    msg.content = f"{ctx.prefix} " + " ".join(command)
+    msg.content = f"{ctx.prefix}" + " ".join(command)
 
     ctx = await bot.get_context(msg)
 
