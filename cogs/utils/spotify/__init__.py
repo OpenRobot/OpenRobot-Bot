@@ -139,7 +139,7 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
         img.paste(text_box, (1262, 569, 1368, 645))
 
         # Duration Bar:
-        fbar = Image.new('RGBA', (450, 15), (255, 255, 255, 100))
+        fbar = Image.new('RGBA', (423, 76), (255, 255, 255, 100))
         img.paste(fbar, (839, 569, 1262, 645), fbar)
 
         end_pos = int(((dt.datetime.now() - dt.datetime.fromtimestamp(start)).seconds / duration) * 450)
