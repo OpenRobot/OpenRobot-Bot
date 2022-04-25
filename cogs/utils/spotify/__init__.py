@@ -89,7 +89,7 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
 
         # Cover:
 
-        size = (1000, 500)
+        size = (1400, 750)
 
         cover = cover.resize((251, 251))
         img = Image.new('RGBA', size, (0, 0, 0, 0))
