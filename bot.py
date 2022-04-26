@@ -874,6 +874,9 @@ async def maps(ctx: commands.Context, *, query: str):
 
     data = data['results'][0]
 
+    if ctx.debug:
+        await ctx.send(file=discord.File(StringIO(json.dumps(data, indent=4)), filename="maps.json"))
+
     style = "dark" if dark else "main"
 
     if data['type'] == 'POI':
