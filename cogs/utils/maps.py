@@ -86,7 +86,7 @@ class Maps:
             params['zoom'] = zoom
 
         if pin is True and name:
-            params['pins'] = f'custom|la-35+50|ls12|lc000000||\'{name}\'{lon} {lat}||https://cdn.discordapp.com/attachments/822703683233644555/968554505765539870/pin.png'
+            params['pins'] = f'custom|la-35+50|ls12|lc000000||{lon} {lat}||https://cdn.discordapp.com/attachments/822703683233644555/968554505765539870/pin.png'
 
         async with self.session.get(f'https://{self.base_url}/map/static/png', params=params) as resp:
             if resp.status != 200:
