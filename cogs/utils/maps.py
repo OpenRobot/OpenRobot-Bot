@@ -86,7 +86,7 @@ class Maps:
             params['zoom'] = zoom
 
         if pin is True and name:
-            params['pin'] = f'default|coCF2A24||\'{name}\'{lon} {lat}'
+            params['pins'] = f'default|coCF2A24||\'{name}\'{lon} {lat}'
 
         async with self.session.get(f'https://{self.base_url}/map/static/png', params=params) as resp:
             if resp.status != 200:
