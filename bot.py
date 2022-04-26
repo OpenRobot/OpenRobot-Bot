@@ -916,10 +916,13 @@ async def maps(ctx: commands.Context, *, query: str):
     elif data['type'] == 'Geography':
         if data['entityType'] == 'Country':
             image = await bot.maps.render(data, name=f'{data["address"]["country"]}',
-                                          zoom=0, style=style, layer="basic")
-        else:
+                                          zoom=3, style=style, layer="basic")
+        elif data['entityType'] == 'Municipality':
             image = await bot.maps.render(data, name=f'{data["address"]["municipality"]}, {data["address"]["country"]}',
                                           zoom=5, style=style, layer="basic")
+        else:
+            image = await bot.maps.render(data, name=f'{data["address"]["municipality"]}, {data["address"]["country"]}',
+                                          zoom=10, style=style, layer="basic")
 
         embed = discord.Embed(color=bot.color)
 
