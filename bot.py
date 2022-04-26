@@ -906,9 +906,9 @@ async def maps(ctx: commands.Context, *, query: str):
         embed.description += f'\n**Address:** {data["address"]["freeformAddress"]}'
 
         embed.description += f"""
-**Longitude:** `{data["position"]["lon"]}`
 **Latitude:** `{data["position"]["lat"]}`
-**Coordinates:** `{data["position"]["lon"]}, {data["position"]["lat"]}`"""
+**Longitude:** `{data["position"]["lon"]}`
+**Coordinates:** `{data["position"]["lat"]}, {data["position"]["lon"]}`"""
 
         await msg.delete()
 
@@ -934,9 +934,9 @@ async def maps(ctx: commands.Context, *, query: str):
         embed.description = f"__**{data['address']['freeformAddress']}**__"
 
         embed.description += f"""
-**Longitude:** `{data["position"]["lon"]}`
 **Latitude:** `{data["position"]["lat"]}`
-**Coordinates:** `{data["position"]["lon"]}, {data["position"]["lat"]}`"""
+**Longitude:** `{data["position"]["lon"]}`
+**Coordinates:** `{data["position"]["lat"]}, {data["position"]["lon"]}`"""
 
         await msg.delete()
 
@@ -954,9 +954,9 @@ async def maps(ctx: commands.Context, *, query: str):
         embed.description = f"__**{data['address']['freeformAddress']}**__"
 
         embed.description += f"""
-**Longitude:** `{data["position"]["lon"]}`
 **Latitude:** `{data["position"]["lat"]}`
-**Coordinates:** `{data["position"]["lon"]}, {data["position"]["lat"]}`"""
+**Longitude:** `{data["position"]["lon"]}`
+**Coordinates:** `{data["position"]["lat"]}, {data["position"]["lon"]}`"""
 
         await msg.delete()
 
@@ -974,9 +974,9 @@ async def maps(ctx: commands.Context, *, query: str):
         embed.description = f"__**{data['address']['freeformAddress']}**__"
 
         embed.description += f"""
-**Longitude:** `{data["position"]["lon"]}`
 **Latitude:** `{data["position"]["lat"]}`
-**Coordinates:** `{data["position"]["lon"]}, {data["position"]["lat"]}`"""
+**Longitude:** `{data["position"]["lon"]}`
+**Coordinates:** `{data["position"]["lat"]}, {data["position"]["lon"]}`"""
 
         await msg.delete()
 
