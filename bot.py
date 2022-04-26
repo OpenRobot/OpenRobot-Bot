@@ -836,6 +836,146 @@ async def activity_error(ctx: commands.Context, error: Exception):
         await ctx.send("Please provide a channel.")
 
 
+@bot.command(cls=Command, name='maps', aliases=['map'])
+@commands.max_concurrency(1, commands.BucketType.user)
+@commands.cooldown(1, 15, commands.BucketType.user)
+async def maps(ctx: commands.Context, *, query: str):
+    """
+    Search for a query location provided, then renders it in a image.
+
+    Flags:
+    - `--dark`: Makes the image in Dark Mode.
+    """
+
+    if ctx.interaction is not None:
+        await ctx.interaction.response.defer()
+
+        class FakeMessage:
+            async def delete(self):
+                pass
+
+        msg = FakeMessage()
+    else:
+        msg = await ctx.reply(f"Searching for location with query {query}...")
+
+    dark = "--dark" in query
+
+    if dark:
+        query = query.replace("--dark", "")
+
+    query = query.strip()
+
+    data = await bot.maps.search(query)
+
+    if not data or not data['results']:
+        ctx.command.reset_cooldown(ctx)
+        await msg.delete()
+        return await ctx.reply(f"Location with query `{query}` cannot be found.")
+
+    data = data['results'][0]
+
+    style = "dark" if dark else "main"
+
+    if data['type'] == 'POI':
+        image = await bot.maps.render(data, name=data['poi']['name'], zoom=None, style=style, layer="hybrid")
+
+        embed = discord.Embed(color=bot.color)
+
+        embed.set_image(url='attachment://map.png')
+
+        if data['poi'].get('url'):
+            name_embed = f"[{data['poi']['name']}](https://{data['poi']['url']}/)"
+        else:
+            name_embed = f"{data['poi']['name']}"
+
+        if data['poi'].get('categories'):
+            categories = f' - {", ".join([x.lower().title() for x in data["poi"]["categories"]])}'
+        else:
+            categories = ''
+
+        embed.description = f"__**{name_embed}**__{categories}"
+
+        if data['poi'].get('phone'):
+            embed.description += f'\n\n**Phone:** {data["poi"]["phone"]}'
+        else:
+            embed.description += '\n'
+
+        embed.description += f'\n**Address:** {data["poi"]["address"]["freeformAddress"]}'
+
+        embed.description += f"""
+**Longitude:** `{data["position"]["lon"]}`
+**Latitude:** `{data["position"]["lat"]}`
+**Coordinates:** `{data["position"]["lon"]}, {data["position"]["lat"]}`"""
+
+        await msg.delete()
+
+        return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
+    elif data['type'] == 'Geography':
+        image = await bot.maps.render(data, name=f'{data["address"]["municipality"]}, {data["address"]["country"]}',
+                                      zoom=None, style=style, layer="hybrid")
+
+        embed = discord.Embed(color=bot.color)
+
+        embed.set_image(url='attachment://map.png')
+
+        embed.set_author(name=f"{data['address']['municipality']}, {data['address']['country']}")
+
+        embed.description = f"__**{data['address']['freeformAddress']}**__"
+
+        embed.description += f"""
+**Longitude:** `{data["position"]["lon"]}`
+**Latitude:** `{data["position"]["lat"]}`
+**Coordinates:** `{data["position"]["lon"]}, {data["position"]["lat"]}`"""
+
+        await msg.delete()
+
+        return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
+    elif data['type'] == 'Street':
+        image = await bot.maps.render(data, name=f"{data['address']['streetName']}, {data['address']['municipality']}",
+                                      zoom=None, style=style, layer="hybrid")
+
+        embed = discord.Embed(color=bot.color)
+
+        embed.set_image(url='attachment://map.png')
+
+        embed.set_author(name=f"{data['address']['streetName']}, {data['address']['municipality']}, {data['address']['country']}")
+
+        embed.description = f"__**{data['address']['freeformAddress']}**__"
+
+        embed.description += f"""
+**Longitude:** `{data["position"]["lon"]}`
+**Latitude:** `{data["position"]["lat"]}`
+**Coordinates:** `{data["position"]["lon"]}, {data["position"]["lat"]}`"""
+
+        await msg.delete()
+
+        return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
+    elif data['type'] == 'Cross Street':
+        image = await bot.maps.render(data, name=f"{data['address']['streetName']}, {data['address']['municipality']}",
+                                      zoom=None, style=style, layer="hybrid")
+
+        embed = discord.Embed(color=bot.color)
+
+        embed.set_image(url='attachment://map.png')
+
+        embed.set_author(name=f"{data['address']['streetName']}, {data['address']['municipality']}, {data['address']['country']}")
+
+        embed.description = f"__**{data['address']['freeformAddress']}**__"
+
+        embed.description += f"""
+**Longitude:** `{data["position"]["lon"]}`
+**Latitude:** `{data["position"]["lat"]}`
+**Coordinates:** `{data["position"]["lon"]}, {data["position"]["lat"]}`"""
+
+        await msg.delete()
+
+        return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
+    else:
+        await msg.delete()
+        print(f"Maps: Unknown type:\n{json.dumps(data, indent=4)}")
+
+
+
 @bot.command(cls=Command, name='claimable-tags', aliases=['claimabletags', 'claimable_tags'])
 @checks.rdanny_in_guild()
 @commands.max_concurrency(1, commands.BucketType.guild)

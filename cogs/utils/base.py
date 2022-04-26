@@ -13,6 +13,7 @@ from .error import Error
 from .driver import Driver
 from .context import Context
 from .rethinkdb import RethinkDB
+from .maps import Maps
 
 from discord.ext import commands, ipc
 from openrobot.api_wrapper import AsyncClient
@@ -63,6 +64,9 @@ class Bot(commands.Bot):
         self.spotify_redis: aioredis.Redis = None
         self.tb_pool: asyncpg.Pool = None
         self.rethinkdb: RethinkDB = RethinkDB()
+
+        # Maps
+        self.maps = Maps(config.MAPS_KEY, self, self.session)
 
     async def get_context(
         self, message: discord.Message, *, cls: Context = Context

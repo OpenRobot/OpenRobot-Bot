@@ -24,6 +24,7 @@ from . import (
     humanize,
     regex,
     spotify,
+    maps,
 )
 
 # Base imports
@@ -51,3 +52,4 @@ from .rdanny import *
 from .humanize import *
 from .regex import *
 from .spotify import *
+from .maps import *
