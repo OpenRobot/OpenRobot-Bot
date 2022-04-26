@@ -65,7 +65,7 @@ class Maps:
         if zoom is None:
             # Calculate logic zoom
 
-            for zoom_lvl, max in self._zoom_levels:
+            for zoom_lvl, max in self._zoom_levels.items():
                 if max['max-lat'] >= lat > self._zoom_levels[zoom_lvl + 1]['max-lat'] and lon <= max['max-lon'] and lon > self._zoom_levels[zoom_lvl + 1]['max-lon']:
                     zoom = zoom_lvl
                     break
