@@ -915,7 +915,7 @@ async def maps(ctx: commands.Context, *, query: str):
         return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
     elif data['type'] == 'Geography':
         if data['entityType'] == 'Country':
-            image = await bot.maps.render(data, name=f'{data["address"]["municipality"]}, {data["address"]["country"]}',
+            image = await bot.maps.render(data, name=f'{data["address"]["country"]}',
                                           zoom=5, style=style, layer="basic")
         else:
             image = await bot.maps.render(data, name=f'{data["address"]["municipality"]}, {data["address"]["country"]}',
