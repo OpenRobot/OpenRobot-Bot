@@ -438,7 +438,7 @@ async def uptime(ctx: commands.Context):
             .set_footer(icon_url=ctx.author.display_avatar.url, text=f"Requested by: {ctx.author}")
     )
 
-    time_elapsed = datetime.datetime.utcnow() - bot.start_time
+    time_elapsed = discord.utils.utcnow() - bot.start_time
 
     embed.description = f"""
 **Uptime:** `{humanize.naturaldelta(time_elapsed)}`
