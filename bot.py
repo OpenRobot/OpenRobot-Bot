@@ -880,7 +880,7 @@ async def maps(ctx: commands.Context, *, query: str):
     style = "dark" if dark else "main"
 
     if data['type'] == 'POI':
-        image = await bot.maps.render(data, name=data['poi']['name'], zoom=None, style=style, layer="main")
+        image = await bot.maps.render(data, name=data['poi']['name'], zoom=None, style=style, layer="basic")
 
         embed = discord.Embed(color=bot.color)
 
@@ -915,7 +915,7 @@ async def maps(ctx: commands.Context, *, query: str):
         return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
     elif data['type'] == 'Geography':
         image = await bot.maps.render(data, name=f'{data["address"]["municipality"]}, {data["address"]["country"]}',
-                                      zoom=None, style=style, layer="main")
+                                      zoom=None, style=style, layer="basic")
 
         embed = discord.Embed(color=bot.color)
 
@@ -935,7 +935,7 @@ async def maps(ctx: commands.Context, *, query: str):
         return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
     elif data['type'] == 'Street':
         image = await bot.maps.render(data, name=f"{data['address']['streetName']}, {data['address']['municipality']}",
-                                      zoom=None, style=style, layer="main")
+                                      zoom=None, style=style, layer="basic")
 
         embed = discord.Embed(color=bot.color)
 
@@ -955,7 +955,7 @@ async def maps(ctx: commands.Context, *, query: str):
         return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
     elif data['type'] == 'Cross Street':
         image = await bot.maps.render(data, name=f"{data['address']['streetName']}, {data['address']['municipality']}",
-                                      zoom=None, style=style, layer="main")
+                                      zoom=None, style=style, layer="basic")
 
         embed = discord.Embed(color=bot.color)
 
