@@ -66,7 +66,7 @@ class Maps:
             # Calculate logic zoom
 
             for zoom_lvl, max in self._zoom_levels.items():
-                if zoom_lvl > len(self._zoom_levels) - 1:
+                if zoom_lvl >= len(self._zoom_levels) - 1:
                     zoom = zoom_lvl
                     break
 
