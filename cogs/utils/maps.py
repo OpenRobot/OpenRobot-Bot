@@ -77,6 +77,7 @@ class Maps:
         params = {
             'layer': layer,
             'style': style,
+            'center': f'{lon},{lat}',
             'api-version': self.api_version,
             'subscription-key': self.key,
         }
@@ -88,6 +89,8 @@ class Maps:
             params['pin'] = f'default|coCF2A24||\'{name}\'{lon} {lat}'
 
         async with self.session.get(f'https://{self.base_url}/map/static/png', params=params) as resp:
-            return f'{resp.status}, {await resp.json()}'
+            if resp.status != 200:
+                return f'{resp.status}, {await resp.json()}'
+
             if resp.status == 200:
                 return BytesIO(await resp.read())
