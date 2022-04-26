@@ -903,7 +903,7 @@ async def maps(ctx: commands.Context, *, query: str):
         else:
             embed.description += '\n'
 
-        embed.description += f'\n**Address:** {data["poi"]["address"]["freeformAddress"]}'
+        embed.description += f'\n**Address:** {data["address"]["freeformAddress"]}'
 
         embed.description += f"""
 **Longitude:** `{data["position"]["lon"]}`
