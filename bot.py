@@ -882,7 +882,7 @@ async def maps(ctx: commands.Context, *, query: str):
     if data['type'] == 'POI':
         image = await bot.maps.render(data, name=data['poi']['name'], zoom=12, style=style, layer="basic")
 
-        embed = discord.Embed(color=bot.color)
+        embed = discord.Embed(color=bot.color, title='POI')
 
         embed.set_image(url='attachment://map.png')
 
@@ -893,6 +893,7 @@ async def maps(ctx: commands.Context, *, query: str):
 
         if data['poi'].get('categories'):
             categories = f' - {", ".join([x.lower().title() for x in data["poi"]["categories"]])}'
+            embed.title += f'({", ".join(["`" + x.lower().title() + "`" for x in data["poi"]["categories"]])})'
         else:
             categories = ''
 
@@ -921,15 +922,18 @@ async def maps(ctx: commands.Context, *, query: str):
             image = await bot.maps.render(data, name=f'{data["address"]["municipality"]}, {data["address"]["country"]}',
                                           zoom=5, style=style, layer="basic")
         else:
-            image = await bot.maps.render(data, name=f'{data["address"]["municipality"]}, {data["address"]["country"]}',
+            image = await bot.maps.render(data, name=f'{data["address"]["freeformAddress"]}',
                                           zoom=10, style=style, layer="basic")
 
-        embed = discord.Embed(color=bot.color)
+        embed = discord.Embed(color=bot.color, title="City" if data['entityType'] == 'Municipality' else data['entityType'])
 
         embed.set_image(url='attachment://map.png')
 
         if data['entityType'] != 'Country':
-            embed.set_author(name=f"{data['address']['municipality']}, {data['address']['country']}")
+            if data['address'].get('municipality'):
+                embed.set_author(name=f"{data['address']['municipality']}, {data['address']['country']}")
+            else:
+                embed.set_author(name=data['address']['freeformAddress'])
 
         embed.description = f"__**{data['address']['freeformAddress']}**__"
 
@@ -942,14 +946,16 @@ async def maps(ctx: commands.Context, *, query: str):
 
         return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
     elif data['type'] == 'Street':
-        image = await bot.maps.render(data, name=f"{data['address']['streetName']}, {data['address']['municipality']}",
-                                      zoom=14, style=style, layer="basic")
+        name = f"{data['address']['streetName']}, {data['address']['municipality']}" if data['address'].get('municipality') else data['address']['freeformAddress']
 
-        embed = discord.Embed(color=bot.color)
+        image = await bot.maps.render(data, name=name, zoom=14, style=style, layer="basic")
+
+        embed = discord.Embed(color=bot.color, title='Street')
 
         embed.set_image(url='attachment://map.png')
 
-        embed.set_author(name=f"{data['address']['streetName']}, {data['address']['municipality']}, {data['address']['country']}")
+        if data['address'].get('municipality'):
+            embed.set_author(name=f"{data['address']['streetName']}, {data['address']['municipality']}, {data['address']['country']}")
 
         embed.description = f"__**{data['address']['freeformAddress']}**__"
 
