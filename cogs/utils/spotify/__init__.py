@@ -168,7 +168,7 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
                      fill=fcolor)
 
         buf = BytesIO()
-        img.save(buf, 'PNG')
+
         buf.seek(0)
     else:
         cover = cover.resize((256, 256))

@@ -492,7 +492,9 @@ AI: 5 times 6 is 30"""
                 folders = []
 
                 async with self.bot.session.get(
-                    f"https://api.github.com/repos/{author}/{repo}/contents/"
+                    f"https://api.github.com/repos/{author}/{repo}/contents/", headers={
+                            'Authorization': f'token {self.bot.config.CODE_REVIEW_GITHUB_TOKEN}'
+                    }
                 ) as resp:
                     js = await resp.json()
 
@@ -515,7 +517,9 @@ AI: 5 times 6 is 30"""
 
                 for folder in folders:
                     async with self.bot.session.get(
-                        f'https://api.github.com/repos/{author}/{repo}/contents/{folder["path"]}'
+                        f'https://api.github.com/repos/{author}/{repo}/contents/{folder["path"]}', headers={
+                            'Authorization': f'token {self.bot.config.CODE_REVIEW_GITHUB_TOKEN}'
+                        }
                     ) as resp:
                         js = await resp.json()
 
