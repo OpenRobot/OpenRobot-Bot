@@ -417,8 +417,6 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
 
                     self.view.result = result
 
-                    await interaction.message.delete()
-
                     self.view.stop()
 
                 @staticmethod
@@ -611,8 +609,6 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
                         result = results[index]
 
                         self.view.result = result
-
-                        await interaction.message.delete()
 
                         self.view.stop()
 
