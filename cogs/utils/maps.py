@@ -53,11 +53,17 @@ class Maps:
             if resp.status == 200:
                 return await resp.json()
 
-    async def render(self, data: dict, *, layer: Literal["basic", "hybrid", "labels"] = "basic",
+    async def render(self, data: dict = None, *, layer: Literal["basic", "hybrid", "labels"] = "basic",
                      style: Literal["dark", "main"] = "main",
                      zoom: Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] = MISSING,
-                     pin: bool = True) -> BytesIO:
-        lat, lon = data["position"]["lat"], data["position"]["lon"]
+                     pin: bool = True, lat: float = None, lon: float = None) -> BytesIO:
+        if not data and not lon and not lat:
+            raise ValueError("You must provide either data or lat and lon")
+
+        if lat is None or lon is None and (lat or lon):
+            raise ValueError('You must provide both latitude and longitude.')
+        else:
+            lat, lon = data["position"]["lat"], data["position"]["lon"]
 
         if zoom is None:
             # Calculate logic zoom
@@ -82,7 +88,7 @@ class Maps:
         if zoom is not MISSING:
             params['zoom'] = zoom
 
-        if pin is True and name:
+        if pin is True:
             params['pins'] = f'custom|la-35+50|ls12|lc000000||{lon} {lat}||https://cdn.discordapp.com/attachments/822703683233644555/968554505765539870/pin.png'
 
         async with self.session.get(f'https://{self.base_url}/map/static/png', params=params) as resp:
