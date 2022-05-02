@@ -494,7 +494,7 @@ class Maps(Cog):
     maps_concurrency = commands.MaxConcurrency(1, per=commands.BucketType.user, wait=False)
     maps_cooldown = commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.user)
 
-    #@command('maps', message_command=False)
+    @command('maps-render', message_command=False)
     async def slash_maps(self, ctx,
                          query: str = commands.Option(description='The location to render the image of the map.'),
                          dark: bool = commands.Option(False, description='Makes the image in dark mode')):
