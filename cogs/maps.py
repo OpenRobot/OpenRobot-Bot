@@ -491,9 +491,9 @@ class Maps(Cog):
 
         await ctx.reply(embed=embed, file=file)
 
-    @command('maps', message_command=False)
-    @commands.max_concurrency(1, commands.BucketType.user)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    # @command('maps', message_command=False)
+    # @commands.max_concurrency(1, commands.BucketType.user)
+    # @commands.cooldown(1, 5, commands.BucketType.user)
     async def slash_maps(self, ctx,
                          query: str = commands.Option(description='The location to render the image of the map.'),
                          dark: bool = commands.Option(False, description='Makes the image in dark mode')):
@@ -530,9 +530,9 @@ class Maps(Cog):
 
         await ctx.send(embed=embed, file=file)
 
-    @command('maps-search', message_command=False)
-    @commands.max_concurrency(1, commands.BucketType.user)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    # @command('maps-search', message_command=False)
+    # @commands.max_concurrency(1, commands.BucketType.user)
+    # @commands.cooldown(1, 5, commands.BucketType.user)
     async def slash_maps_search(self, ctx,
                                 query: str = commands.Option(
                                     description='The location to render the image of the map.'),
