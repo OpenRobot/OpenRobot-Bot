@@ -403,7 +403,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
                             if category:
                                 address = f'{category[0].lower().title()} | {address}'
 
-                        if address > 100:
+                        if len(address) > 100:
                             address = address[:100-4] + " ..."
 
                         self.add_option(label=name, description=address, value=str(index))
