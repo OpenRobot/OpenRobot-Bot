@@ -53,14 +53,11 @@ class Maps:
             if resp.status == 200:
                 return await resp.json()
 
-    async def render(self, data: dict, *,
-                     name: str = None,
-                     layer: Literal["basic", "hybrid", "labels"] = "basic",
+    async def render(self, data: dict, *, layer: Literal["basic", "hybrid", "labels"] = "basic",
                      style: Literal["dark", "main"] = "main",
                      zoom: Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] = MISSING,
                      pin: bool = True) -> BytesIO:
         lat, lon = data["position"]["lat"], data["position"]["lon"]
-        name = name or data["poi"]["name"]
 
         if zoom is None:
             # Calculate logic zoom
