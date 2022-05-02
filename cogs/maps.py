@@ -491,9 +491,10 @@ class Maps(Cog):
 
         await ctx.reply(embed=embed, file=file)
 
-    # @command('maps', message_command=False)
-    # @commands.max_concurrency(1, commands.BucketType.user)
-    # @commands.cooldown(1, 5, commands.BucketType.user)
+    maps_concurrency = commands.MaxConcurrency(1, per=commands.BucketType.user, wait=False)
+    maps_cooldown = commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.user)
+
+    @command('maps', message_command=False)
     async def slash_maps(self, ctx,
                          query: str = commands.Option(description='The location to render the image of the map.'),
                          dark: bool = commands.Option(False, description='Makes the image in dark mode')):
@@ -501,38 +502,50 @@ class Maps(Cog):
         Searches for a location using the query provided, then renders it in a image.
         """
 
-        if self.cache_process_running:
-            return await ctx.send("Maintenance for Maps is currently running. Please try again later.")
+        await self.maps_concurrency.acquire(ctx.message)
 
-        msg = await ctx.send(f"Searching for location with query {query}...")
+        bucket = self.maps_cooldown.get_bucket(ctx.message)
+        retry_after = bucket.update_rate_limit()
 
-        data = await self.search(query)
+        if retry_after:
+            raise commands.CommandOnCooldown(bucket, retry_after, self.maps_cooldown.type)
 
-        await msg.delete()
+        try:
+            if self.cache_process_running:
+                return await ctx.send("Maintenance for Maps is currently running. Please try again later.")
 
-        if not data or not data['results']:
-            ctx.command.reset_cooldown(ctx)
-            return await ctx.send(f"Location with query `{query}` cannot be found.")
+            msg = await ctx.send(f"Searching for location with query {query}...")
 
-        data = data['results'][0]
+            data = await self.search(query)
 
-        if ctx.debug:
-            await ctx.send(file=discord.File(StringIO(json.dumps(data, indent=4)), filename="maps.json"))
+            await msg.delete()
 
-        render = await self.render(query, data, dark=dark)
+            if not data or not data['results']:
+                ctx.command.reset_cooldown(ctx)
+                return await ctx.send(f"Location with query `{query}` cannot be found.")
 
-        if render is None:
-            print(
-                f"Maps: Unknown type:\n{json.dumps(data, indent=4)}")  # Raising the error will trigger on_command_error which I don't want.
-            return await ctx.send("Unknown type. This error has been reported.")
+            data = data['results'][0]
 
-        embed, file = render
+            if ctx.debug:
+                await ctx.send(file=discord.File(StringIO(json.dumps(data, indent=4)), filename="maps.json"))
 
-        await ctx.send(embed=embed, file=file)
+            render = await self.render(query, data, dark=dark)
 
-    # @command('maps-search', message_command=False)
-    # @commands.max_concurrency(1, commands.BucketType.user)
-    # @commands.cooldown(1, 5, commands.BucketType.user)
+            if render is None:
+                print(
+                    f"Maps: Unknown type:\n{json.dumps(data, indent=4)}")  # Raising the error will trigger on_command_error which I don't want.
+                return await ctx.send("Unknown type. This error has been reported.")
+
+            embed, file = render
+
+            await ctx.send(embed=embed, file=file)
+        finally:
+            await self.maps_concurrency.release(ctx.message)
+
+    maps_search_concurrency = commands.MaxConcurrency(1, per=commands.BucketType.user, wait=False)
+    maps_search_cooldown = commands.CooldownMapping.from_cooldown(1, 10, commands.BucketType.user)
+
+    @command('maps-search', message_command=False)
     async def slash_maps_search(self, ctx,
                                 query: str = commands.Option(
                                     description='The location to render the image of the map.'),
@@ -540,138 +553,148 @@ class Maps(Cog):
         """
         Searches for a location using the query provided, then renders it in an image.
         """
+        await self.maps_search_concurrency.acquire(ctx.message)
 
-        if self.cache_process_running:
-            return await ctx.send("Maintenance for Maps is currently running. Please try again later.")
+        bucket = self.maps_search_cooldown.get_bucket(ctx.message)
+        retry_after = bucket.update_rate_limit()
 
-        msg = await ctx.send(f"Searching for location with query {query}...")
+        if retry_after:
+            raise commands.CommandOnCooldown(bucket, retry_after, self.maps_search_cooldown.type)
 
-        data = await self.search(query)
+        try:
+            if self.cache_process_running:
+                return await ctx.send("Maintenance for Maps is currently running. Please try again later.")
 
-        await msg.delete()
+            msg = await ctx.send(f"Searching for location with query {query}...")
 
-        if not data or not data['results']:
-            ctx.command.reset_cooldown(ctx)
-            return await ctx.send(f"Location with query `{query}` cannot be found.")
+            data = await self.search(query)
 
-        if len(data['results']) > 1:
-            results = filter(lambda i: i['type'] in ['POI', 'Geography', 'Street',
-                                                     'Cross Street', 'Address Range'], data['results'][:25])
+            await msg.delete()
 
-            if not results:
+            if not data or not data['results']:
                 ctx.command.reset_cooldown(ctx)
                 return await ctx.send(f"Location with query `{query}` cannot be found.")
 
-            data = None
+            if len(data['results']) > 1:
+                results = filter(lambda i: i['type'] in ['POI', 'Geography', 'Street',
+                                                         'Cross Street', 'Address Range'], data['results'][:25])
 
-            class Select(discord.ui.Select):
-                def __init__(self):
-                    super().__init__(
-                        placeholder="Select a location"
-                    )
+                if not results:
+                    ctx.command.reset_cooldown(ctx)
+                    return await ctx.send(f"Location with query `{query}` cannot be found.")
 
-                    for index, result in enumerate(results):
-                        name = self.get_name(result)
+                data = None
 
-                        address = result['address']['freeformAddress']
+                class Select(discord.ui.Select):
+                    def __init__(self):
+                        super().__init__(
+                            placeholder="Select a location"
+                        )
 
-                        if result['type'] == 'POI':
-                            category = data["poi"]["categories"]
+                        for index, result in enumerate(results):
+                            name = self.get_name(result)
 
-                            if category:
-                                address = f'{category[0].lower().title()} | {address}'
+                            address = result['address']['freeformAddress']
 
-                        self.add_option(label=name, description=address, value=str(index))
+                            if result['type'] == 'POI':
+                                category = data["poi"]["categories"]
 
-                async def callback(self, interaction: discord.Interaction):
-                    nonlocal data
+                                if category:
+                                    address = f'{category[0].lower().title()} | {address}'
 
-                    value = self.values[0]
+                            self.add_option(label=name, description=address, value=str(index))
 
-                    option = discord.utils.get(self.options, label=value)
+                    async def callback(self, interaction: discord.Interaction):
+                        nonlocal data
 
-                    if not option:
-                        if ctx.debug:
-                            return await interaction.response.send_message(f"Unknown option: {value}")
+                        value = self.values[0]
 
-                        return await interaction.response.send_message(
-                            "Invalid selection/option. Please report this error. Maybe try to pick another option.",
-                            ephemeral=True)
+                        option = discord.utils.get(self.options, label=value)
 
-                    index = int(option.value)
+                        if not option:
+                            if ctx.debug:
+                                return await interaction.response.send_message(f"Unknown option: {value}")
 
-                    result = results[index]
+                            return await interaction.response.send_message(
+                                "Invalid selection/option. Please report this error. Maybe try to pick another option.",
+                                ephemeral=True)
 
-                    self.view.result = result
+                        index = int(option.value)
 
-                    await interaction.message.delete()
+                        result = results[index]
 
-                    self.view.stop()
+                        self.view.result = result
 
-                @staticmethod
-                def get_name(result):
-                    try:
-                        if result['type'] == 'POI':
-                            return data['poi']['name']
-                        elif result['type'] == 'Geography':
-                            if data['entityType'] != 'Country':
-                                if data['address'].get('municipality'):
-                                    return f"{data['address']['municipality']}, {data['address']['country']}"
+                        await interaction.message.delete()
+
+                        self.view.stop()
+
+                    @staticmethod
+                    def get_name(result):
+                        try:
+                            if result['type'] == 'POI':
+                                return data['poi']['name']
+                            elif result['type'] == 'Geography':
+                                if data['entityType'] != 'Country':
+                                    if data['address'].get('municipality'):
+                                        return f"{data['address']['municipality']}, {data['address']['country']}"
+                                    else:
+                                        return data['address']['freeformAddress']
                                 else:
-                                    return data['address']['freeformAddress']
-                            else:
-                                return data['address']['country']
-                        elif result['type'] == 'Street' or result['type'] == 'Cross Street' or result[
-                            'type'] == 'Address Range':
-                            return data['address']['streetName']
-                    except:
-                        pass
+                                    return data['address']['country']
+                            elif result['type'] == 'Street' or result['type'] == 'Cross Street' or result[
+                                'type'] == 'Address Range':
+                                return data['address']['streetName']
+                        except:
+                            pass
 
-                    return data['address']['freeformAddress']
+                        return data['address']['freeformAddress']
 
-            class View(discord.ui.View):
-                def __init__(self, *, timeout: int = 180):
-                    super().__init__(timeout=timeout)
+                class View(discord.ui.View):
+                    def __init__(self, *, timeout: int = 180):
+                        super().__init__(timeout=timeout)
 
-                    self.add_item(Select())
+                        self.add_item(Select())
 
-                    self.result = None
+                        self.result = None
 
-                async def interaction_check(self, interaction: discord.Interaction) -> bool:
-                    if interaction.user != ctx.author and not await ctx.bot.is_owner(interaction.user):
-                        await interaction.response.send_message('This is not your interaction!', ephemeral=True)
-                        return False
+                    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                        if interaction.user != ctx.author and not await ctx.bot.is_owner(interaction.user):
+                            await interaction.response.send_message('This is not your interaction!', ephemeral=True)
+                            return False
 
-                    return True
+                        return True
 
-            view = View()
+                view = View()
 
-            msg = await ctx.send('Here are your search results:', view=view)
+                msg = await ctx.send('Here are your search results:', view=view)
 
-            timed_out = await view.wait()
+                timed_out = await view.wait()
 
-            if timed_out:
-                return await msg.edit(content="You didn't respond in time. Try again later.", view=None)
+                if timed_out:
+                    return await msg.edit(content="You didn't respond in time. Try again later.", view=None)
+                else:
+                    await msg.delete()
+
+                data = view.result
             else:
-                await msg.delete()
+                data = data['results'][0]
 
-            data = view.result
-        else:
-            data = data['results'][0]
+            if ctx.debug:
+                await ctx.send(file=discord.File(StringIO(json.dumps(data, indent=4)), filename="maps.json"))
 
-        if ctx.debug:
-            await ctx.send(file=discord.File(StringIO(json.dumps(data, indent=4)), filename="maps.json"))
+            render = await self.render(query, data, dark=dark)
 
-        render = await self.render(query, data, dark=dark)
+            if render is None:
+                print(
+                    f"Maps: Unknown type:\n{json.dumps(data, indent=4)}")  # Raising the error will trigger on_command_error which I don't want.
+                return await ctx.send("Unknown type. This error has been reported.")
 
-        if render is None:
-            print(
-                f"Maps: Unknown type:\n{json.dumps(data, indent=4)}")  # Raising the error will trigger on_command_error which I don't want.
-            return await ctx.send("Unknown type. This error has been reported.")
+            embed, file = render
 
-        embed, file = render
-
-        return await ctx.send(embed=embed, file=file)
+            return await ctx.send(embed=embed, file=file)
+        finally:
+            await self.maps_search_concurrency.release(ctx.message)
 
     # Maps Cache stuff:
     @maps.group('cache', cls=Group, invoke_without_command=True, hidden=True, slash_command=False)
