@@ -964,7 +964,7 @@ async def maps(ctx: commands.Context, *, query: str):
         timed_out = await view.wait()
 
         if timed_out:
-            return await msg.edit("You didn't respond in time. Try again later.")
+            return await msg.edit(content="You didn't respond in time. Try again later.")
 
         data = view.result
     else:
