@@ -848,13 +848,7 @@ async def maps(ctx: commands.Context, *, query: str):
     """
 
     if ctx.interaction is not None:
-        await ctx.interaction.response.defer()
-
-        class FakeMessage:
-            async def delete(self):
-                pass
-
-        msg = FakeMessage()
+        msg = await ctx.send(f'Searching for location with query {query}...')
     else:
         msg = await ctx.reply(f"Searching for location with query {query}...")
 
@@ -872,7 +866,110 @@ async def maps(ctx: commands.Context, *, query: str):
         await msg.delete()
         return await ctx.reply(f"Location with query `{query}` cannot be found.")
 
-    data = data['results'][0]
+    if len(data['results']) > 1:
+        results = filter(lambda i: i['type'] in ['POI', 'Geography', 'Street',
+                                                 'Cross Street', 'Address Range'], data['results'][:25])
+
+        if not results:
+            ctx.command.reset_cooldown(ctx)
+            await msg.delete()
+            return await ctx.reply(f"Location with query `{query}` cannot be found.")
+
+        data = None
+
+        class Select(discord.ui.Select):
+            def __init__(self):
+                super().__init__(
+                    placeholder="Select a location"
+                )
+
+                for index, result in enumerate(results):
+                    name = self.get_name(result)
+
+                    address = result['address']['freeformAddress']
+
+                    if result['type'] == 'POI':
+                        category = data["poi"]["categories"]
+
+                        if category:
+                            address = f'{category[0].lower().title()} | {address}'
+
+                    self.add_option(label=name, description=address, value=str(index))
+
+            async def callback(self, interaction: discord.Interaction):
+                nonlocal data
+
+                value = self.values[0]
+
+                option = discord.utils.get(self.options, label=value)
+
+                if not option:
+                    if ctx.debug:
+                        return await interaction.response.send_message(f"Unknown option: {value}")
+
+                    return await interaction.response.send_message(
+                        "Invalid selection/option. Please report this error. Maybe try to pick another option.",
+                        ephemeral=True)
+
+                index = int(option.value)
+
+                result = results[index]
+
+                self.view.result = result
+
+                await interaction.message.delete()
+
+                self.view.stop()
+
+            @staticmethod
+            def get_name(result):
+                try:
+                    if result['type'] == 'POI':
+                        return data['poi']['name']
+                    elif result['type'] == 'Geography':
+                        if data['entityType'] != 'Country':
+                            if data['address'].get('municipality'):
+                                return f"{data['address']['municipality']}, {data['address']['country']}"
+                            else:
+                                return data['address']['freeformAddress']
+                        else:
+                            return data['address']['country']
+                    elif result['type'] == 'Street' or result['type'] == 'Cross Street' or result['type'] == 'Address Range':
+                        return data['address']['streetName']
+                except:
+                    pass
+
+                return data['address']['freeformAddress']
+
+        class View(discord.ui.View):
+            def __init__(self, *, timeout: int = 180):
+                super().__init__(timeout=timeout)
+
+                self.add_item(Select())
+
+                self.result = None
+
+            async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                if interaction.user != ctx.author and not await bot.is_owner(interaction.user):
+                    await interaction.response.send_message('This is not your interaction!', ephemeral=True)
+                    return False
+
+                return True
+
+        view = View()
+
+        await msg.delete()
+        msg = await ctx.send('Here are your search results:', view=view)
+
+        timed_out = await view.wait()
+
+        if timed_out:
+            return await msg.edit("You didn't respond in time. Try again later.")
+
+        data = view.result
+    else:
+        await msg.delete()
+        data = data['results'][0]
 
     if ctx.debug:
         await ctx.send(file=discord.File(StringIO(json.dumps(data, indent=4)), filename="maps.json"))
@@ -914,8 +1011,6 @@ async def maps(ctx: commands.Context, *, query: str):
 
         embed.set_footer(text=footer_text)
 
-        await msg.delete()
-
         return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
     elif data['type'] == 'Geography':
         if data['entityType'] == 'Country':
@@ -950,8 +1045,6 @@ async def maps(ctx: commands.Context, *, query: str):
 
         embed.set_footer(text=footer_text)
 
-        await msg.delete()
-
         return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
     elif data['type'] == 'Street':
         image = await bot.maps.render(data, zoom=14, style=style, layer="basic")
@@ -973,8 +1066,6 @@ async def maps(ctx: commands.Context, *, query: str):
 
         embed.set_footer(text=footer_text)
 
-        await msg.delete()
-
         return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
     elif data['type'] == 'Cross Street':
         image = await bot.maps.render(data, zoom=None, style=style, layer="basic")
@@ -994,8 +1085,6 @@ async def maps(ctx: commands.Context, *, query: str):
 **Coordinates:** `{data["position"]["lat"]}, {data["position"]["lon"]}`"""
 
         embed.set_footer(text=footer_text)
-
-        await msg.delete()
 
         return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
     elif data['type'] == 'Address Range':
@@ -1022,12 +1111,10 @@ async def maps(ctx: commands.Context, *, query: str):
 
         embed.set_footer(text=footer_text)
 
-        await msg.delete()
-
         return await ctx.reply(embed=embed, file=discord.File(image, filename='map.png'))
     else:
-        await msg.delete()
-        print(f"Maps: Unknown type:\n{json.dumps(data, indent=4)}")
+        print(f"Maps: Unknown type:\n{json.dumps(data, indent=4)}") # Raising the error will trigger on_command_error which I don't want.
+        await ctx.send("Unknown type. This error has been reported.")
 
 
 @bot.command(cls=Command, name='claimable-tags', aliases=['claimabletags', 'claimable_tags'])
