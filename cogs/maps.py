@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 
 import bot
-from cogs.utils import Cog
+from cogs.utils import Cog, command, group, Command, Group
 
 
 class Maps(Cog):
@@ -290,7 +290,7 @@ class Maps(Cog):
 
         return embed, discord.File(image, filename='map.png')
 
-    @commands.group(invoke_without_command=True, slash_command=False, aliases=['map'])
+    @group(invoke_without_command=True, slash_command=False, aliases=['map'])
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def maps(self, ctx, *, query):
@@ -340,7 +340,7 @@ class Maps(Cog):
         else:
             await ctx.send_help(ctx.command)
 
-    @maps.command('search')
+    @maps.command('search', cls=Command, slash_command=False)
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def maps_search(self, ctx, *, query):
@@ -491,7 +491,7 @@ class Maps(Cog):
 
         await ctx.reply(embed=embed, file=file)
 
-    @commands.command('maps', message_command=False)
+    @command('maps', message_command=False)
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def slash_maps(self, ctx,
@@ -530,7 +530,7 @@ class Maps(Cog):
 
         await ctx.send(embed=embed, file=file)
 
-    @commands.command('maps-search', message_command=False)
+    @command('maps-search', message_command=False)
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def slash_maps_search(self, ctx,
@@ -674,7 +674,7 @@ class Maps(Cog):
         return await ctx.send(embed=embed, file=file)
 
     # Maps Cache stuff:
-    @maps.group('cache', invoke_without_command=True, hidden=True)
+    @maps.group('cache', cls=Group, invoke_without_command=True, hidden=True, slash_command=False)
     @commands.is_owner()
     async def maps_cache(self, ctx):
         """
@@ -683,7 +683,8 @@ class Maps(Cog):
 
         return await ctx.send_help(ctx.command)
 
-    @maps_cache.command('file', aliases=['set-file', 'setfile', 'set_file'], hidden=True)
+    @maps_cache.command('file', cls=Command, aliases=['set-file', 'setfile', 'set_file'], hidden=True,
+                        slash_command=False)
     @commands.is_owner()
     async def maps_cache_file(self, ctx, *, folder: str):
         """
@@ -703,7 +704,7 @@ class Maps(Cog):
 
         await ctx.send(f"Cache file set from `{folder}` to `{folder}`.")
 
-    @maps_cache.command('restore', aliases=['replace'], hidden=True)
+    @maps_cache.command('restore', cls=Command, aliases=['replace'], hidden=True, slash_command=False)
     @commands.is_owner()
     async def maps_cache_restore(self, ctx):
         """
@@ -758,7 +759,7 @@ Restored (After):
 
         await ctx.send("Cache restored.", embed=embed)
 
-    @maps_cache.command('save', aliases=['keep', 'backup'], hidden=True)
+    @maps_cache.command('save', cls=Command, aliases=['keep', 'backup'], hidden=True, slash_command=False)
     @commands.is_owner()
     async def maps_cache_save(self, ctx):
         """
@@ -787,9 +788,10 @@ Restored (After):
 
         await ctx.send(f"Cache saved to disk.", embed=embed)
 
-    @maps_cache.command('purge', aliases=['clear', 'delete', 'del', 'remove', 'rm'], hidden=True)
+    @maps_cache.command('purge', cls=Command, aliases=['clear', 'delete', 'del', 'remove', 'rm'], hidden=True,
+                        slash_command=False)
     @commands.is_owner()
-    async def maps_cache_purge(self, ctx, mode = 'all'):
+    async def maps_cache_purge(self, ctx, mode='all'):
         """
         Purges the cache of maps. Owner only.
 
@@ -827,10 +829,12 @@ Restored (After):
         if mode == 'all':
             (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache()
         elif mode == 'local':
-            (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache(local=True, folder=False)
+            (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache(local=True,
+                                                                                                         folder=False)
         elif mode == 'persistent':
             try:
-                (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache(local=False, folder=True)
+                (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache(
+                    local=False, folder=True)
             except FileNotFoundError:
                 return await ctx.send("Persistent cache not found (doesn't exist).")
 
@@ -849,6 +853,7 @@ Restored (After):
 **Images:** `{len(image):,} images purged`"""
 
         await ctx.send("Cache purged.", embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Maps(bot))
