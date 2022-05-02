@@ -545,7 +545,7 @@ class Maps(Cog):
     maps_search_concurrency = commands.MaxConcurrency(1, per=commands.BucketType.user, wait=False)
     maps_search_cooldown = commands.CooldownMapping.from_cooldown(1, 10, commands.BucketType.user)
 
-    @command('maps-search', message_command=False)
+    #@command('maps-search', message_command=False)
     async def slash_maps_search(self, ctx,
                                 query: str = commands.Option(
                                     description='The location to render the image of the map.'),
@@ -553,6 +553,7 @@ class Maps(Cog):
         """
         Searches for a location using the query provided, then renders it in an image.
         """
+
         await self.maps_search_concurrency.acquire(ctx.message)
 
         bucket = self.maps_search_cooldown.get_bucket(ctx.message)
