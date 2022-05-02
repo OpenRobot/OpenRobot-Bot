@@ -406,28 +406,12 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
                         if len(address) > 100:
                             address = address[:100-4] + " ..."
 
-                        self.add_option(label=name, description=address, value=str(index))
+                        self.add_option(label=name, description=address, value=result)
 
                 async def callback(self, interaction: discord.Interaction):
                     nonlocal data
 
-                    value = self.values[0]
-
-                    option = discord.utils.get(self.options, label=value)
-
-                    if not option:
-                        if ctx.debug:
-                            await interaction.response.send_message(f"Unknown option: {value} {type(value)}")
-                        else:
-                            await interaction.response.send_message(
-                                "Invalid selection/option. Please report this error.",
-                                ephemeral=True)
-
-                        return self.view.stop()
-
-                    index = int(option.value)
-
-                    result = results[index]
+                    result = self.values[0]
 
                     self.view.result = result
 
