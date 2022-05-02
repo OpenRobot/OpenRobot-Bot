@@ -50,7 +50,7 @@ class View(discord.ui.View):
 
 
 class Error(Cog):
-    IGNORED_ERRORS = (commands.NotOwner, commands.CommandNotFound)
+    IGNORED_ERRORS = (commands.NotOwner, commands.CommandNotFound, commands.NotOwner)
 
     async def initiate_tb_pool(self):
         await self.bot.wait_until_ready()  # Db is initialted when the bot is ready, so....
@@ -62,6 +62,7 @@ class Error(Cog):
     async def generate_missing_required_argument(
         ctx: commands.Context, error: commands.MissingRequiredArgument
     ):
+        # I'm just saying, this is a shit system.
         command = ctx.command
         param_name = error.param.name
 
@@ -83,7 +84,7 @@ class Error(Cog):
 
         signature += (
             "\n"
-            + "\u200b " * len(f"{ctx.prefix}{command.qualified_name} ")
+            + "\u200b " * len(f"{ctx.prefix}{ctx.invoked_with} ")
             + "\u200b " * spaces
             + "^" * end
         )
