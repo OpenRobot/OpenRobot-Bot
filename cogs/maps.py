@@ -10,7 +10,11 @@ import bot
 from cogs.utils import Cog, command, group, Command, Group
 
 
-class Maps(Cog):
+class Maps(Cog, emoji='<:maps:970725022538805258>'):
+    """
+    Gets info on specific Maps/Location.
+    """
+
     MAPS_CACHE = {}
     MAPS_SEARCH_CACHE = {}
 
