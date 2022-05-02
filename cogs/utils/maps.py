@@ -59,9 +59,6 @@ class Maps:
                      pin: bool = True, lat: float = None, lon: float = None) -> BytesIO:
         if not data and not lon and not lat:
             raise ValueError("You must provide either data or lat and lon")
-
-        if lat is None or lon is None and (lat or lon):
-            raise ValueError('You must provide both latitude and longitude.')
         else:
             lat, lon = data["position"]["lat"], data["position"]["lon"]
 
