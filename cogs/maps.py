@@ -406,12 +406,14 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
                         if len(address) > 100:
                             address = address[:100-4] + " ..."
 
-                        self.add_option(label=name, description=address, value=result)
+                        self.add_option(label=name, description=address, value=str(index))
 
                 async def callback(self, interaction: discord.Interaction):
                     nonlocal data
 
-                    result = self.values[0]
+                    index = int(self.values[0])
+
+                    result = results[index]
 
                     self.view.result = result
 
