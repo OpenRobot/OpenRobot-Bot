@@ -377,8 +377,8 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
             return await ctx.reply(f"Location with query `{query}` cannot be found.")
 
         if len(data['results']) > 1:
-            results = filter(lambda i: i['type'] in ['POI', 'Geography', 'Street',
-                                                     'Cross Street', 'Address Range'], data['results'][:25])
+            results = list(filter(lambda i: i['type'] in ['POI', 'Geography', 'Street',
+                                                     'Cross Street', 'Address Range'], data['results'][:25]))
 
             if not results:
                 ctx.command.reset_cooldown(ctx)
@@ -572,12 +572,12 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
                 return await ctx.send(f"Location with query `{query}` cannot be found.")
 
             if len(data['results']) > 1:
-                results = filter(lambda i: i['type'] in ['POI', 'Geography', 'Street',
-                                                         'Cross Street', 'Address Range'], data['results'][:25])
+                results = list(filter(lambda i: i['type'] in ['POI', 'Geography', 'Street',
+                                                              'Cross Street', 'Address Range'], data['results'][:25]))
 
                 if not results:
                     ctx.command.reset_cooldown(ctx)
-                    return await ctx.send(f"Location with query `{query}` cannot be found.")
+                    return await ctx.reply(f"Location with query `{query}` cannot be found.")
 
                 data = None
 
@@ -593,29 +593,20 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
                             address = result['address']['freeformAddress']
 
                             if result['type'] == 'POI':
-                                category = data["poi"]["categories"]
+                                category = result["poi"]["categories"]
 
                                 if category:
                                     address = f'{category[0].lower().title()} | {address}'
+
+                            if len(address) > 100:
+                                address = address[:100 - 4] + " ..."
 
                             self.add_option(label=name, description=address, value=str(index))
 
                     async def callback(self, interaction: discord.Interaction):
                         nonlocal data
 
-                        value = self.values[0]
-
-                        option = discord.utils.get(self.options, label=value)
-
-                        if not option:
-                            if ctx.debug:
-                                return await interaction.response.send_message(f"Unknown option: {value}")
-
-                            return await interaction.response.send_message(
-                                "Invalid selection/option. Please report this error. Maybe try to pick another option.",
-                                ephemeral=True)
-
-                        index = int(option.value)
+                        index = int(self.values[0])
 
                         result = results[index]
 
@@ -629,22 +620,22 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
                     def get_name(result):
                         try:
                             if result['type'] == 'POI':
-                                return data['poi']['name']
+                                return result['poi']['name']
                             elif result['type'] == 'Geography':
-                                if data['entityType'] != 'Country':
-                                    if data['address'].get('municipality'):
-                                        return f"{data['address']['municipality']}, {data['address']['country']}"
+                                if result['entityType'] != 'Country':
+                                    if result['address'].get('municipality'):
+                                        return f"{result['address']['municipality']}, {result['address']['country']}"
                                     else:
-                                        return data['address']['freeformAddress']
+                                        return result['address']['freeformAddress']
                                 else:
-                                    return data['address']['country']
+                                    return result['address']['country']
                             elif result['type'] == 'Street' or result['type'] == 'Cross Street' or result[
                                 'type'] == 'Address Range':
-                                return data['address']['streetName']
+                                return result['address']['streetName']
                         except:
                             pass
 
-                        return data['address']['freeformAddress']
+                        return result['address']['freeformAddress']
 
                 class View(discord.ui.View):
                     def __init__(self, *, timeout: int = 180):
