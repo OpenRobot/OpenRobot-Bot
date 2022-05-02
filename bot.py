@@ -838,7 +838,7 @@ async def activity_error(ctx: commands.Context, error: Exception):
 
 @bot.command(cls=Command, name='maps', aliases=['map'])
 @commands.max_concurrency(1, commands.BucketType.user)
-@commands.cooldown(1, 15, commands.BucketType.user)
+@commands.cooldown(1, 5, commands.BucketType.user)
 async def maps(ctx: commands.Context, *, query: str):
     """
     Search for a query location provided, then renders it in a image.
@@ -925,8 +925,13 @@ async def maps(ctx: commands.Context, *, query: str):
         else:
             image = await bot.maps.render(data, zoom=10, style=style, layer="basic")
 
-        embed = discord.Embed(color=bot.color,
-                              title="City" if data['entityType'] == 'Municipality' else data['entityType'])
+        type = data['entityType']
+        if type == 'Municipality':
+            type = "City"
+        elif type == 'MunicipalitySubdivision':
+            type = "Town"
+
+        embed = discord.Embed(color=bot.color, title=type)
 
         embed.set_image(url='attachment://map.png')
 
