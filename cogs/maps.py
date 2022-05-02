@@ -413,17 +413,17 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
 
                     value = self.values[0]
 
-                    # option = discord.utils.get(self.options, label=value)
+                    option = discord.utils.get(self.options, label=value)
 
                     if not option:
-                        self.view.stop()
-
                         if ctx.debug:
-                            return await interaction.response.send_message(f"Unknown option: {value}")
+                            await interaction.response.send_message(f"Unknown option: {value} {type(value)}")
+                        else:
+                            await interaction.response.send_message(
+                                "Invalid selection/option. Please report this error.",
+                                ephemeral=True)
 
-                        return await interaction.response.send_message(
-                            "Invalid selection/option. Please report this error.",
-                            ephemeral=True)
+                        return self.view.stop()
 
                     index = int(option.value)
 
