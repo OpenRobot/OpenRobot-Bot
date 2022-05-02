@@ -398,7 +398,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
                         address = result['address']['freeformAddress']
 
                         if result['type'] == 'POI':
-                            category = data["poi"]["categories"]
+                            category = result["poi"]["categories"]
 
                             if category:
                                 address = f'{category[0].lower().title()} | {address}'
@@ -434,22 +434,22 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
                 def get_name(result):
                     try:
                         if result['type'] == 'POI':
-                            return data['poi']['name']
+                            return result['poi']['name']
                         elif result['type'] == 'Geography':
-                            if data['entityType'] != 'Country':
-                                if data['address'].get('municipality'):
-                                    return f"{data['address']['municipality']}, {data['address']['country']}"
+                            if result['entityType'] != 'Country':
+                                if result['address'].get('municipality'):
+                                    return f"{result['address']['municipality']}, {result['address']['country']}"
                                 else:
-                                    return data['address']['freeformAddress']
+                                    return result['address']['freeformAddress']
                             else:
-                                return data['address']['country']
+                                return result['address']['country']
                         elif result['type'] == 'Street' or result['type'] == 'Cross Street' or result[
                             'type'] == 'Address Range':
-                            return data['address']['streetName']
+                            return result['address']['streetName']
                     except:
                         pass
 
-                    return data['address']['freeformAddress']
+                    return result['address']['freeformAddress']
 
             class View(discord.ui.View):
                 def __init__(self, *, timeout: int = 180):
