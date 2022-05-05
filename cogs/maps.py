@@ -700,14 +700,15 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
             return await ctx.send(
                 "There is a cache process currently running. Please wait for it to finish to avoid errors.")
 
-        self.cache_process_running = True
+        try:
+            self.cache_process_running = True
 
-        original = self.MAPS_CACHE_FOLDER
-        self.MAPS_CACHE_FOLDER = folder
+            original = self.MAPS_CACHE_FOLDER
+            self.MAPS_CACHE_FOLDER = folder
 
-        self.cache_process_running = False
-
-        await ctx.send(f"Cache file set from `{folder}` to `{folder}`.")
+            await ctx.send(f"Cache file set from `{folder}` to `{folder}`.")
+        finally:
+            self.cache_process_running = False
 
     @maps_cache.command('restore', cls=Command, aliases=['replace'], hidden=True, slash_command=False)
     @commands.is_owner()
@@ -720,40 +721,39 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
             return await ctx.send(
                 "There is a cache process currently running. Please wait for it to finish to avoid errors.")
 
-        self.cache_process_running = True
+        try:
+            self.cache_process_running = True
 
-        msg = await ctx.send(f"Restoring cache from disk...")
+            msg = await ctx.send(f"Restoring cache from disk...")
 
-        if not self.persistent_present():
-            return await msg.edit(content="Persistent cache not found. Nothing to restore.")
+            if not self.persistent_present():
+                return await msg.edit(content="Persistent cache not found. Nothing to restore.")
 
-        embed = discord.Embed(title="\U000026a0 WARNING \U000026a0", color=discord.Colour.red())
-        embed.description = (
-            f"This will remove all of the current cache in favour of replacing it with the persistent cache.\n\n"
-            f"Do you wish to continue?"
-        )
+            embed = discord.Embed(title="\U000026a0 WARNING \U000026a0", color=discord.Colour.red())
+            embed.description = (
+                f"This will remove all of the current cache in favour of replacing it with the persistent cache.\n\n"
+                f"Do you wish to continue?"
+            )
 
-        view, value, timeout = await self.bot.confirm(ctx, embed=embed, edit=msg)
+            view, value, timeout = await self.bot.confirm(ctx, embed=embed, edit=msg)
 
-        await view.msg.delete()
+            await view.msg.delete()
 
-        if timeout:
-            return await ctx.send("You didn't respond in time. Try again later.")
+            if timeout:
+                return await ctx.send("You didn't respond in time. Try again later.")
 
-        if not value:
-            return await ctx.send("Cancelled.")
+            if not value:
+                return await ctx.send("Cancelled.")
 
-        await ctx.send("Restoring cache...")
+            await ctx.send("Restoring cache...")
 
-        original_cache = self.MAPS_CACHE
-        original_search = self.MAPS_SEARCH_CACHE
+            original_cache = self.MAPS_CACHE
+            original_search = self.MAPS_SEARCH_CACHE
 
-        self.restore_cache()
+            self.restore_cache()
 
-        self.cache_process_running = False
-
-        embed = discord.Embed(title="Statistics:", color=self.bot.color)
-        embed.description = f"""
+            embed = discord.Embed(title="Statistics:", color=self.bot.color)
+            embed.description = f"""
 Original (Before):
     - Maps Cache (`Maps.MAPS_CACHE`): `{len(original_cache)}`
     - Maps Search Cache (`Maps.MAPS_SEARCH_CACHE`): `{len(original_search)}`
@@ -762,7 +762,9 @@ Restored (After):
     - Maps Cache (`Maps.MAPS_CACHE`): `{len(self.MAPS_CACHE)}`
     - Maps Search Cache (`Maps.MAPS_SEARCH_CACHE`): `{len(self.MAPS_SEARCH_CACHE)}`"""
 
-        await ctx.send("Cache restored.", embed=embed)
+            await ctx.send("Cache restored.", embed=embed)
+        finally:
+            self.cache_process_running = False
 
     @maps_cache.command('save', cls=Command, aliases=['keep', 'backup'], hidden=True, slash_command=False)
     @commands.is_owner()
@@ -775,23 +777,24 @@ Restored (After):
             return await ctx.send(
                 "There is a cache process currently running. Please wait for it to finish to avoid errors.")
 
-        self.cache_process_running = True
+        try:
+            self.cache_process_running = True
 
-        await ctx.send("Saving cache to disk...")
+            await ctx.send("Saving cache to disk...")
 
-        self.save_cache()
-        map_cache = len(self.MAPS_CACHE)
-        map_search = len(self.MAPS_SEARCH_CACHE)
+            self.save_cache()
+            map_cache = len(self.MAPS_CACHE)
+            map_search = len(self.MAPS_SEARCH_CACHE)
 
-        self.cache_process_running = False
-
-        embed = discord.Embed(title="Statistics:", color=self.bot.color)
-        embed.description = f"""
+            embed = discord.Embed(title="Statistics:", color=self.bot.color)
+            embed.description = f"""
 **Maps Cache (`Maps.MAPS_CACHE`):** {map_cache}
 **Maps Search Cache (`Maps.MAPS_SEARCH_CACHE`):** {map_search}
-        """
+            """
 
-        await ctx.send(f"Cache saved to disk.", embed=embed)
+            await ctx.send(f"Cache saved to disk.", embed=embed)
+        finally:
+            self.cache_process_running = False
 
     @maps_cache.command('purge', cls=Command, aliases=['clear', 'delete', 'del', 'remove', 'rm'], hidden=True,
                         slash_command=False)
@@ -807,46 +810,45 @@ Restored (After):
             return await ctx.send(
                 "There is a cache process currently running. Please wait for it to finish to avoid errors.")
 
-        self.cache_process_running = True
+        try:
+            self.cache_process_running = True
 
-        if mode.lower() not in ['all', 'local', 'persistent']:
-            return await ctx.send(f"Invalid mode `{mode}`.")
+            if mode.lower() not in ['all', 'local', 'persistent']:
+                return await ctx.send(f"Invalid mode `{mode}`.")
 
-        embed = discord.Embed(title="\U000026a0 WARNING \U000026a0", color=discord.Colour.red())
-        embed.description = (
-            f"Are you sure you want to purge {'**ALL** cache' if mode == 'all' else f'{mode.title()} cache'} of Maps?\n"
-            f"This will delete all the cached searches, images, and data.\n\n"
-            f"**This action cannot be undone.**"
-        )
+            embed = discord.Embed(title="\U000026a0 WARNING \U000026a0", color=discord.Colour.red())
+            embed.description = (
+                f"Are you sure you want to purge {'**ALL** cache' if mode == 'all' else f'{mode.title()} cache'} of Maps?\n"
+                f"This will delete all the cached searches, images, and data.\n\n"
+                f"**This action cannot be undone.**"
+            )
 
-        view, value, timeout = await self.bot.confirm(ctx, embed=embed, reply=True)
+            view, value, timeout = await self.bot.confirm(ctx, embed=embed, reply=True)
 
-        await view.msg.delete()
+            await view.msg.delete()
 
-        if timeout:
-            return await ctx.send("You didn't respond in time. Try again later.")
+            if timeout:
+                return await ctx.send("You didn't respond in time. Try again later.")
 
-        if not value:
-            return await ctx.send("Cancelled.")
+            if not value:
+                return await ctx.send("Cancelled.")
 
-        await ctx.send("Okay then. Purging cache...")
+            await ctx.send("Okay then. Purging cache...")
 
-        if mode == 'all':
-            (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache()
-        elif mode == 'local':
-            (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache(local=True,
-                                                                                                         folder=False)
-        elif mode == 'persistent':
-            try:
-                (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache(
-                    local=False, folder=True)
-            except FileNotFoundError:
-                return await ctx.send("Persistent cache not found (doesn't exist).")
+            if mode == 'all':
+                (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache()
+            elif mode == 'local':
+                (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache(local=True,
+                                                                                                             folder=False)
+            elif mode == 'persistent':
+                try:
+                    (local_cache, local_search), (persistent_cache, persistent_search), image = self.purge_cache(
+                        local=False, folder=True)
+                except FileNotFoundError:
+                    return await ctx.send("Persistent cache not found (doesn't exist).")
 
-        self.cache_process_running = False
-
-        embed = discord.Embed(title="Statistics:", color=self.bot.color)
-        embed.description = f"""
+            embed = discord.Embed(title="Statistics:", color=self.bot.color)
+            embed.description = f"""
 **Local:**
     - Local Cache (`Maps.MAPS_CACHE`): `{len(local_cache):,} objects purged`
     - Local Search Cache (`Maps.MAPS_SEARCH_CACHE`): `{len(local_search):,} objects purged`
@@ -857,7 +859,9 @@ Restored (After):
     
 **Images:** `{len(image):,} images purged`"""
 
-        await ctx.send("Cache purged.", embed=embed)
+            await ctx.send("Cache purged.", embed=embed)
+        finally:
+            self.cache_process_running = False
 
 
 def setup(bot):
