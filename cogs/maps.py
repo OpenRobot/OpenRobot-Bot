@@ -36,7 +36,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
     @staticmethod
     def _remove_dir_contents(path):
         for i in os.listdir(path):
-            os.remove(i)
+            os.remove(f'{path}/{i}')
 
     def purge_cache(self, local: bool = True, folder: bool = None) -> tuple[tuple[dict, dict], tuple[dict, dict], list]:
         local_stats = ({}, {})
