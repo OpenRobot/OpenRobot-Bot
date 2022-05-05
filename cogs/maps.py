@@ -816,6 +816,9 @@ Restored (After):
             if mode.lower() not in ['all', 'local', 'persistent']:
                 return await ctx.send(f"Invalid mode `{mode}`.")
 
+            if not self.MAPS_SEARCH_CACHE and not self.MAPS_CACHE:
+                return await ctx.send("Cache is empty. Not purging.")
+
             embed = discord.Embed(title="\U000026a0 WARNING \U000026a0", color=discord.Colour.red())
             embed.description = (
                 f"Are you sure you want to purge {'**ALL** cache' if mode == 'all' else f'{mode.title()} cache'} of Maps?\n"
