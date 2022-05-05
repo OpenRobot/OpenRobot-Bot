@@ -735,7 +735,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
                 f"Do you wish to continue?"
             )
 
-            view, value, timeout = await self.bot.confirm(ctx, embed=embed, edit=msg)
+            view, value, timeout = await self.bot.confirm(ctx, embed=embed, edit=msg, new=True)
 
             await view.msg.delete()
 
@@ -823,7 +823,7 @@ Restored (After):
                 f"**This action cannot be undone.**"
             )
 
-            view, value, timeout = await self.bot.confirm(ctx, embed=embed, reply=True)
+            view, value, timeout = await self.bot.confirm(ctx, embed=embed, reply=True, new=True)
 
             await view.msg.delete()
 
