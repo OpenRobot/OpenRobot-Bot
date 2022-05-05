@@ -88,7 +88,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
             data = cache['data']
             dark = cache['dark']
 
-            with open(f"{self.MAPS_CACHE_FOLDER}/{id_counter}.png", "w") as f:
+            with open(f"{self.MAPS_CACHE_FOLDER}/{id_counter}.png", "wb") as f:
                 f.write(image.getvalue())
 
             maps_cache[query] = {
