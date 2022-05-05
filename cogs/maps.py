@@ -73,7 +73,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
 
     def save_cache(self):
         if os.path.exists(self.MAPS_CACHE_FOLDER):
-            self.purge_cache()
+            self.purge_cache(local=False, folder=True)
 
         os.mkdir(self.MAPS_CACHE_FOLDER)
 
@@ -131,7 +131,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
 
             self.MAPS_CACHE[query] = maps_cache
 
-        self.purge_cache()
+        self.purge_cache(local=False, folder=True)
 
     async def search(self, query: str) -> dict:
         if query.lower() in self.MAPS_SEARCH_CACHE:
