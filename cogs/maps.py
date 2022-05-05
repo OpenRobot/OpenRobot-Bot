@@ -6,7 +6,6 @@ from io import StringIO, BytesIO
 import discord
 from discord.ext import commands
 
-import bot
 from cogs.utils import Cog, command, group, Command, Group
 
 
@@ -151,7 +150,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
             cache = self.MAPS_CACHE[query.lower()]
 
             if cache['dark'] is dark:
-                return cache['embed'], discord.File(cache['file'], filename='map.png')
+                return cache['embed'], discord.File(cache['image'], filename='map.png')
 
         style = "dark" if dark else "main"
         footer_text = "Source: Microsoft Atlas (Azure Maps)"
