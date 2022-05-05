@@ -2336,6 +2336,8 @@ async def _confirm(ctx, channel=None, *args, **kwargs):
 
     kwargs["view"] = view = View()
 
+    new = kwargs.pop('new', False)
+
     if edit_msg := kwargs.pop('edit', None):
         view.msg = await edit_msg.edit(*args, **kwargs)
     elif kwargs.pop('reply', False):
@@ -2344,7 +2346,7 @@ async def _confirm(ctx, channel=None, *args, **kwargs):
         view.msg = await channel.send(*args, **kwargs)
     wait = await view.wait()
 
-    if kwargs.pop('new', False):
+    if new:
         return view, view.value, wait
     else:
         return view.value
