@@ -23,15 +23,15 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
     def __init__(self, bot: commands.Bot):
         super().__init__(bot)
 
-        try:
-            self.restore_cache()
-        except:
-            pass
+        # try:
+        #     self.restore_cache()
+        # except:
+        #     pass
 
         self.cache_process_running = False
 
-    def cog_unload(self):
-        self.save_cache()
+    # def cog_unload(self):
+    #     self.save_cache()
 
     @staticmethod
     def _remove_dir_contents(path):
