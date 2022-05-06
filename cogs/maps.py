@@ -89,7 +89,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
             dark = cache['dark']
 
             with open(f"{self.MAPS_CACHE_FOLDER}/{id_counter}.png", "wb") as f:
-                f.write(image.getvalue())
+                f.write(image)
 
             maps_cache[query] = {
                 'image': f"{self.MAPS_CACHE_FOLDER}/{id_counter}.png",
@@ -122,7 +122,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
             maps_cache = {}
 
             with open(cache['image'], 'rb') as f:
-                maps_cache['image'] = BytesIO(f.read())
+                maps_cache['image'] = f.read()
 
             maps_cache['embed'] = discord.Embed.from_dict(cache['embed'])
 
@@ -150,7 +150,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
             cache = self.MAPS_CACHE[query.lower()]
 
             if cache['dark'] is dark:
-                return cache['embed'], discord.File(cache['image'], filename='map.png')
+                return cache['embed'], discord.File(BytesIO(cache['image']), filename='map.png')
 
         style = "dark" if dark else "main"
         footer_text = "Source: Microsoft Atlas (Azure Maps)"
@@ -289,7 +289,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
         if not isinstance(image, BytesIO):
             raise Exception(image)
 
-        self.MAPS_CACHE[query.lower()] = {'image': image, 'embed': embed, 'data': data, 'dark': dark}
+        self.MAPS_CACHE[query.lower()] = {'image': image.getvalue(), 'embed': embed, 'data': data, 'dark': dark}
 
         return embed, discord.File(image, filename='map.png')
 
