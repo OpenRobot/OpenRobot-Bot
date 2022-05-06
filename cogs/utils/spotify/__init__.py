@@ -80,7 +80,7 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
 
     if beta:
         cover = cover.resize((256, 256))
-        cover = add_corners(cover, 5)
+        cover = add_corners(cover, 10)
         img = Image.new('RGBA', (1392, 368), (0, 0, 0, 0))
         draw = ImageDraw.Draw(img)
         draw.rounded_rectangle((0, 0, 1392, 368), 50, color)
