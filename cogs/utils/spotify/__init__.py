@@ -34,8 +34,9 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 from ..executor import executor
 
 
-# This was inspired by Jeyy API/Bot (https://github.com/JeyyGit/Jeyy-Bot/blob/main/utils/imaging.py). This code was copied but modified/added some new things.
-def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
+# This was inspired by Jeyy API/Bot (https://github.com/JeyyGit/Jeyy-Bot/blob/main/utils/imaging.py).
+# This code was copied but modified/added some new things.
+def _spotify(title, artists, cover_buff, duration, start, *, beta=False):
     def add_corners(im, rad):
         circle = Image.new('L', (rad * 2, rad * 2), 0)
         draw = ImageDraw.Draw(circle)
@@ -78,14 +79,13 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
     end_minutes, end_seconds = divmod(duration, 60)
     on_minutes, on_seconds = divmod((dt.datetime.now() - dt.datetime.fromtimestamp(start)).seconds, 60)
 
-
     cover = cover.resize((256, 256))
     cover = add_corners(cover, 15)
     img = Image.new('RGBA', (1392, 368), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     draw.rounded_rectangle((0, 0, 1392, 368), 50, color)
-    #shadow = Image.new('RGBA', (256, 256), (25, 25, 25, 240))
-    #img.paste(shadow, (60, 60), shadow)
+    # shadow = Image.new('RGBA', (256, 256), (25, 25, 25, 240))
+    # img.paste(shadow, (60, 60), shadow)
     img.paste(cover, (56, 56), cover)
 
     # draw.text((368, 65), title if len(title) <= 23 else title[:23] + '...', fcolor, font=sfontbold)
@@ -111,5 +111,5 @@ def _spotify(title, artists, cover_buff, duration, start, *, beta = False):
 
 
 @executor()
-def spotify(title, artists, cover_buff, duration, start, *, beta = False):
+def spotify(title, artists, cover_buff, duration, start, *, beta=False):
     return _spotify(title, artists, cover_buff, duration, start, beta=beta)

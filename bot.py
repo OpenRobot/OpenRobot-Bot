@@ -388,7 +388,7 @@ async def ping(ctx: commands.Context):
     if redis_ping and psql_ping:
         embed.add_field(
             name=f'Average Database Latency:',
-            value=do_ping_string(round((redis_ping + psql_ping) / 2, 2)),
+            value=do_ping_string(round((redis_ping * 1000 + psql_ping * 1000) / 2, 2)),
         )
 
     embed.add_field(
