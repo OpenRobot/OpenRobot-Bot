@@ -394,28 +394,28 @@ async def ping(ctx: commands.Context):
     embed.add_field(
         name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:',
         value=do_ping_string(round(await bot.ping.api.openrobot() * 1000, 2)),
-        # inline=False,
-    )
-
-    embed.add_field(
-        name=f'{bot.ping.EMOJIS["jeyy-api"]} Jeyy API Latency:',
-        value=do_ping_string(round(await bot.ping.api.jeyy() * 1000, 2)),
+        inline=False,
     )
 
     # embed.add_field(
-    #     name=f'{bot.ping.EMOJIS["dagpi"]} Dagpi API Latency:',
-    #     value=do_ping_string(round(await bot.ping.api.dagpi() * 1000, 2)),
+    #     name=f'{bot.ping.EMOJIS["jeyy-api"]} Jeyy API Latency:',
+    #     value=do_ping_string(round(await bot.ping.api.jeyy() * 1000, 2)),
     # )
-
+    #
+    # # embed.add_field(
+    # #     name=f'{bot.ping.EMOJIS["dagpi"]} Dagpi API Latency:',
+    # #     value=do_ping_string(round(await bot.ping.api.dagpi() * 1000, 2)),
+    # # )
+    #
+    # # embed.add_field(
+    # #     name=f'{bot.ping.EMOJIS["waifu-im"]} Waifu.im API Latency:',
+    # #     value=do_ping_string(round(await bot.ping.api.waifu_im() * 1000, 2)),
+    # # )
+    #
     # embed.add_field(
-    #     name=f'{bot.ping.EMOJIS["waifu-im"]} Waifu.im API Latency:',
-    #     value=do_ping_string(round(await bot.ping.api.waifu_im() * 1000, 2)),
+    #     name=f'{bot.ping.EMOJIS["repi"]} OpenRobot REPI API Latency:',
+    #     value=do_ping_string(round(await bot.ping.api.repi() * 1000, 2)),
     # )
-
-    embed.add_field(
-        name=f'{bot.ping.EMOJIS["repi"]} OpenRobot REPI API Latency:',
-        value=do_ping_string(round(await bot.ping.api.repi() * 1000, 2)),
-    )
 
     # await msg.delete()
     await msg.edit(
