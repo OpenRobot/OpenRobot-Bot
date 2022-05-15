@@ -70,6 +70,7 @@ LineCount = namedtuple("LineCount", ["files", "lines", "classes", "functions", "
 
 class Bot(BaseBot):
     CDN_BUCKET = "openrobot-cdn"
+    CDN_BUCKET_URL = "cdn.openrobot.xyz"
     ICDN_URL = "icdn.openrobot.xyz"
 
     @staticmethod
@@ -165,7 +166,7 @@ class Bot(BaseBot):
             pass
 
         if not raw:
-            return "https://" + self.CDN_BUCKET + "/" + filename
+            return "https://" + self.CDN_BUCKET_URL + "/" + filename
         else:
             return response
 
