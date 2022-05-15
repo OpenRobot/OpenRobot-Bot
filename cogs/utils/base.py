@@ -44,7 +44,7 @@ class Bot(commands.Bot):
             discord_activity.DiscordActivity(config.TOKEN)
         )
         self.driver = Driver
-        self.cdn = boto3.client("s3", **config.AWS_CRIDENTIALS)
+        self.cdn = boto3.client("s3", **config.R2_CRIDENTIALS)
 
         self.process = psutil.Process()
 

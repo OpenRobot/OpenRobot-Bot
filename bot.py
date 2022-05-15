@@ -69,7 +69,7 @@ LineCount = namedtuple("LineCount", ["files", "lines", "classes", "functions", "
 
 
 class Bot(BaseBot):
-    CDN_BUCKET = "cdn.openrobot.xyz"
+    CDN_BUCKET = "openrobot-cdn"
     ICDN_URL = "icdn.openrobot.xyz"
 
     @staticmethod
@@ -376,6 +376,7 @@ async def ping(ctx: commands.Context):
             value=do_ping_string(round(psql_ping * 1000, 2)),
         )
 
+    redis_ping = None
     if bot.redis:
         redis_ping = await bot.ping.database.redis()
 
