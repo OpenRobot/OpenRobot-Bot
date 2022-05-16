@@ -302,6 +302,8 @@ async def execute_beta(ctx: commands.Context, *command):
 
 
 @bot.command(aliases=["latency"], cls=Command, example="ping")
+@commands.cooldown(1, 10, commands.BucketType.channel)
+@commands.max_concurrency(1, commands.BucketType.channel)
 async def ping(ctx: commands.Context):
     """
     Gets the latency of the bot, databases and more.
@@ -322,83 +324,163 @@ async def ping(ctx: commands.Context):
 
         return s
 
-    msg = await ctx.send("Calculating Latency...")
+    # msg = await ctx.send("Calculating Latency...")
+
+    TASK_STATS = [False] * 8
+    TASK_LATENCY = [None] * 6
+
+    async def ping_task(m, embed, index, func):
+        try:
+            _latency = await discord.utils.maybe_coroutine(func)
+        except:
+            _latency = None
+
+        if not hasattr(embed, '_fields'):
+            embed._fields = []
+
+        if not _latency:
+            embed._fields[index]['value'] = "Unavailable"
+        else:
+            _latency *= 1000
+
+            latency = round(_latency, 2)
+
+            TASK_LATENCY.insert(index, _latency)
+
+            embed._fields[index]['value'] = do_ping_string(latency)
+
+        await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+
+        TASK_STATS[index] = True
 
     embed = (
         discord.Embed(color=bot.color, timestamp=ctx.message.created_at)
             .set_author(name="Latency/Ping Info:", icon_url=ctx.author.display_avatar.url)
             .set_footer(icon_url=ctx.author.display_avatar.url, text=f"Requested by: {ctx.author}")
+
+            .add_field(name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:', value="Calculating...") # 0
+            .add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value="Calculating...") # 1
+            .add_field(name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', value="Calculating...") # 2
+            .add_field(name=f'Average Discord Latency:', value="Calculating...", inline=False) # 3
+            .add_field(name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:', value="Calculating...") # 4
+            .add_field(name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:', value="Calculating...") # 5
+            .add_field(name=f'Average Database Latency:', value="Calculating...") # 6
+            .add_field(name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:', value="Calculating...", inline=False) # 7
     )
 
-    web_ping = await bot.ping.discord_web_ping() * 1000
-    typing_ping = await bot.ping.typing_latency() * 1000
-    bot_latency = bot.ping.bot_latency() * 1000
+    msg = await ctx.send("Calculating Latency...", embed=embed)
 
-    embed.add_field(
-        name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:',
-        value=do_ping_string(round(bot_latency, 2)),
-    )
-    embed.add_field(
-        name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:',
-        value=do_ping_string(round(typing_ping, 2)),
-    )
-    embed.add_field(
-        name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:',
-        value=do_ping_string(round(web_ping, 2)),
-    )
+    async def remove_content_on_finish(m):
+        while not all(TASK_STATS):
+            pass
 
-    embed.add_field(
-        name="Average Discord Latency:",
-        value=do_ping_string(round((web_ping + typing_ping + bot_latency) / 3, 2)),
-        inline=False,
-    )
+        await asyncio.sleep(1.5)
 
-    if bot.pool is not None:
-        postgresql_ping = await bot.ping.database.postgresql()
-    else:
-        postgresql_ping = None
+        await m.edit(content=None, allowed_mentions=discord.AllowedMentions.none())
 
-    if bot.spotify_pool is not None:
-        postgresql_spotify_ping = await bot.ping.database.postgresql(spotify=True)
-    else:
-        postgresql_spotify_ping = None
+    bot.loop.create_task(remove_content_on_finish(msg))
 
-    psql_ping = None
-    if postgresql_ping is not None or postgresql_ping is not None:
-        if postgresql_ping is not None and postgresql_spotify_ping is not None:
-            psql_ping = list(sorted([postgresql_ping, postgresql_spotify_ping]))[0]
-        elif postgresql_spotify_ping is None:
-            psql_ping = postgresql_ping
-        elif postgresql_ping is None:
-            psql_ping = postgresql_spotify_ping
+    # web_ping = await bot.ping.discord_web_ping() * 1000
+    # typing_ping = await bot.ping.typing_latency() * 1000
+    # bot_latency = bot.ping.bot_latency() * 1000
+    #
+    # embed.add_field(
+    #     name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:',
+    #     value=do_ping_string(round(bot_latency, 2)),
+    # )
+    # embed.add_field(
+    #     name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:',
+    #     value=do_ping_string(round(typing_ping, 2)),
+    # )
+    # embed.add_field(
+    #     name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:',
+    #     value=do_ping_string(round(web_ping, 2)),
+    # )
+    #
+    # embed.add_field(
+    #     name="Average Discord Latency:",
+    #     value=do_ping_string(round((web_ping + typing_ping + bot_latency) / 3, 2)),
+    #     inline=False,
+    # )
 
-        embed.add_field(
-            name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:',
-            value=do_ping_string(round(psql_ping * 1000, 2)),
-        )
+    discord_task_params = [
+        (0, f'{bot.ping.EMOJIS["bot"]} Bot Latency:', bot.ping.bot_latency),
+        (1, f'{bot.ping.EMOJIS["typing"]} Typing Latency:', bot.ping.typing_latency),
+        (2, f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', bot.ping.discord_web_ping),
+    ]
 
-    redis_ping = None
-    if bot.redis:
-        redis_ping = await bot.ping.database.redis()
+    # Reason why we don't use enumerate here is because enumerate doesn't continue with the Embed's index.
+    for index, name, func in discord_task_params:
+        bot.loop.create_task(ping_task(msg, embed, index, func))
 
-        if redis_ping:
-            embed.add_field(
-                name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:',
-                value=do_ping_string(round(redis_ping * 1000, 2)),
-            )
+    async def calculate_average_discord_latency(m, embed, index):
+        while not all([False if x is None else True for x in TASK_LATENCY[:3]]):
+            pass
 
-    if redis_ping and psql_ping:
-        embed.insert_field_at(
-            6,
-            name=f'Average Database Latency:',
-            value=do_ping_string(round((redis_ping * 1000 + psql_ping * 1000) / 2, 2)),
-        )
+        _latency = sum(TASK_LATENCY[:3]) / 3
+        latency = round(_latency, 2)
 
-    embed.add_field(
-        name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:',
-        value=do_ping_string(round(await bot.ping.api.openrobot() * 1000, 2)),
-        inline=False,
-    )
+        embed._fields[index]['value'] = do_ping_string(latency)
+
+        await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+
+        TASK_STATS[index] = True
+
+    bot.loop.create_task(calculate_average_discord_latency(msg, embed, 3))
+
+    # if bot.pool is not None:
+    #     postgresql_ping = await bot.ping.database.postgresql()
+    # else:
+    #     postgresql_ping = None
+    #
+    # if postgresql_ping is not None:
+    #     embed.add_field(
+    #         name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:',
+    #         value=do_ping_string(round(postgresql_ping * 1000, 2)),
+    #     )
+
+    bot.loop.create_task(ping_task(msg, embed, 4, bot.ping.database.postgresql))
+
+    # redis_ping = None
+    # if bot.redis:
+    #     redis_ping = await bot.ping.database.redis()
+    #
+    #     embed.add_field(
+    #         name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:',
+    #         value=do_ping_string(round(redis_ping * 1000, 2)),
+    #     )
+
+    bot.loop.create_task(ping_task(msg, embed, 5, bot.ping.database.redis))
+
+    # if redis_ping and postgresql_ping:
+    #     embed.insert_field_at(
+    #         6,
+    #         name=f'Average Database Latency:',
+    #         value=do_ping_string(round((redis_ping * 1000 + postgresql_ping * 1000) / 2, 2)),
+    #     )
+
+    async def calculate_average_database_latency(m, embed, index):
+        while not all([False if x is None else True for x in TASK_LATENCY[3:5]]):
+            pass
+
+        _latency = sum(TASK_LATENCY[3:5]) / 3
+        latency = round(_latency, 2)
+
+        embed._fields[index]['value'] = do_ping_string(latency)
+
+        await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+
+        TASK_STATS[index] = True
+
+    bot.loop.create_task(calculate_average_database_latency(msg, embed, 6))
+
+    # embed.add_field(
+    #     name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:',
+    #     value=do_ping_string(round(await bot.ping.api.openrobot() * 1000, 2)),
+    #     inline=False,
+    # )
+
+    bot.loop.create_task(ping_task(msg, embed, 7, bot.ping.api.openrobot))
 
     # embed.add_field(
     #     name=f'{bot.ping.EMOJIS["jeyy-api"]} Jeyy API Latency:',
@@ -421,9 +503,9 @@ async def ping(ctx: commands.Context):
     # )
 
     # await msg.delete()
-    await msg.edit(
-        embed=embed, content=None, allowed_mentions=discord.AllowedMentions.none()
-    )
+    # await msg.edit(
+    #     embed=embed, content=None, allowed_mentions=discord.AllowedMentions.none()
+    # )
 
 
 @bot.command("uptime", aliases=["up"])
@@ -837,6 +919,7 @@ async def activity_error(ctx: commands.Context, error: Exception):
         await ctx.send("Invalid activity.")
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Please provide a channel.")
+
 
 @bot.command(cls=Command, name='claimable-tags', aliases=['claimabletags', 'claimable_tags'])
 @checks.rdanny_in_guild()
