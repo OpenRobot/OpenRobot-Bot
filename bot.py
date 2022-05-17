@@ -330,41 +330,28 @@ async def ping(ctx: commands.Context):
     TASK_LATENCY = [None] * 7
 
     async def ping_task(m, embed, index, func):
-        print(index, 1)
         try:
             _latency = await discord.utils.maybe_coroutine(func)
         except:
             _latency = None
 
-        print(index, 2)
-
         # if not hasattr(embed, '_fields'):
         #     embed._fields = []
 
         if not _latency:
-            print(index, 3)
             embed._fields[index]['value'] = "Unavailable"
         else:
-            print(index, 4)
             _latency *= 1000
 
             latency = round(_latency, 2)
 
             TASK_LATENCY.insert(index, _latency)
 
-            print(index, 5)
-
             embed._fields[index]['value'] = do_ping_string(latency)
-
-            print(index, 6)
 
         await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
 
-        print(index, 7)
-
         TASK_STATS[index] = True
-
-        print(index, 8)
 
     embed = (
         discord.Embed(color=bot.color, timestamp=ctx.message.created_at)
@@ -385,12 +372,20 @@ async def ping(ctx: commands.Context):
     msg = await ctx.send("Calculating Latency...", embed=embed)
 
     async def remove_content_on_finish(m):
+        print("remove", 1)
+
         while not all(TASK_STATS):
             await asyncio.sleep(1)
 
+        print("remove", 2)
+
         await asyncio.sleep(1.5)
 
+        print("remove", 3)
+
         await m.edit(content=None, allowed_mentions=discord.AllowedMentions.none())
+
+        print("remove", 4)
 
     bot.create_task(remove_content_on_finish(msg))
 
@@ -428,17 +423,28 @@ async def ping(ctx: commands.Context):
         bot.create_task(ping_task(msg, embed, index, func))
 
     async def calculate_average_discord_latency(m, embed, index):
+        print("discord", 1)
         while not all([False if x is None else True for x in TASK_LATENCY[:3]]):
             await asyncio.sleep(1)
+
+        print("discord", 2)
 
         _latency = sum(TASK_LATENCY[:3]) / 3
         latency = round(_latency, 2)
 
+        print("discord", 3, _latency, latency)
+
         embed._fields[index]['value'] = do_ping_string(latency)
+
+        print("discord", 4)
 
         await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
 
+        print("discord", 5)
+
         TASK_STATS[index] = True
+
+        print("discord", 6)
 
     bot.create_task(calculate_average_discord_latency(msg, embed, 3))
 
@@ -474,17 +480,29 @@ async def ping(ctx: commands.Context):
     #     )
 
     async def calculate_average_database_latency(m, embed, index):
+        print("database", 1)
+
         while not all([False if x is None else True for x in TASK_LATENCY[3:5]]):
             await asyncio.sleep(1)
+
+        print("database", 2)
 
         _latency = sum(TASK_LATENCY[3:5]) / 3
         latency = round(_latency, 2)
 
+        print("database", 3, _latency, latency)
+
         embed._fields[index]['value'] = do_ping_string(latency)
+
+        print("database", 4)
 
         await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
 
+        print("database", 5)
+
         TASK_STATS[index] = True
+
+        print("database", 6)
 
     bot.create_task(calculate_average_database_latency(msg, embed, 6))
 
