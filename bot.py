@@ -353,20 +353,23 @@ async def ping(ctx: commands.Context):
 
         TASK_STATS[index] = True
 
+        print(TASK_STATS)
+        print(TASK_LATENCY)
+
     embed = (
         discord.Embed(color=bot.color, timestamp=ctx.message.created_at)
             .set_author(name="Latency/Ping Info:", icon_url=ctx.author.display_avatar.url)
             .set_footer(icon_url=ctx.author.display_avatar.url, text=f"Requested by: {ctx.author}")
 
-            .add_field(name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:', value="Calculating...") # 0
-            .add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value="Calculating...") # 1
-            .add_field(name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', value="Calculating...") # 2
-            .add_field(name=f'Average Discord Latency:', value="Calculating...", inline=False) # 3
-            .add_field(name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:', value="Calculating...") # 4
-            .add_field(name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:', value="Calculating...") # 5
-            .add_field(name=f'Average Database Latency:', value="Calculating...") # 6
-            .add_field(name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:', value="Calculating...") # 7
-            .add_field(name=f'{bot.ping.EMOJIS["r2"]} CDN (Cloudflare R2) Latency:', value="Calculating...") # 8
+            .add_field(name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:', value="```fix\nCalculating...```") # 0
+            .add_field(name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:', value="```fix\nCalculating...```") # 1
+            .add_field(name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', value="```fix\nCalculating...```") # 2
+            .add_field(name=f'Average Discord Latency:', value="```fix\nCalculating...```", inline=False) # 3
+            .add_field(name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:', value="```fix\nCalculating...```") # 4
+            .add_field(name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:', value="```fix\nCalculating...```") # 5
+            .add_field(name=f'Average Database Latency:', value="```fix\nCalculating...```") # 6
+            .add_field(name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:', value="```fix\nCalculating...```") # 7
+            .add_field(name=f'{bot.ping.EMOJIS["r2"]} CDN (Cloudflare R2) Latency:', value="```fix\nCalculating...```") # 8
     )
 
     msg = await ctx.send("Calculating Latency...", embed=embed)
