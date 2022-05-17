@@ -345,7 +345,7 @@ async def ping(ctx: commands.Context):
 
             latency = round(_latency, 2)
 
-            TASK_LATENCY[index] = _latency
+            TASK_LATENCY[index_latency] = _latency
 
             embed._fields[index]['value'] = do_ping_string(latency)
 
