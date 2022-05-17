@@ -348,8 +348,37 @@ async def ping(ctx: commands.Context):
 
         TASK_STATS[index] = True
 
-        print(TASK_STATS)
-        print(TASK_LATENCY)
+    async def calculate_average_discord_latency(m, embed, index):
+        while not all([False if x is None else True for x in TASK_LATENCY[:3]]):
+            await asyncio.sleep(.3)
+
+        _latency = sum(TASK_LATENCY[:3]) / 3
+        latency = round(_latency, 2)
+
+        embed._fields[index]['value'] = do_ping_string(latency)
+
+        await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+
+        TASK_STATS[index] = True
+
+    async def remove_content_on_finish(m):
+        while not all(TASK_STATS):
+            await asyncio.sleep(.3)
+
+        await m.edit(content=None, allowed_mentions=discord.AllowedMentions.none())
+
+    async def calculate_average_database_latency(m, embed, index):
+        while not all([False if x is None else True for x in TASK_LATENCY[3:5]]):
+            await asyncio.sleep(.3)
+
+        _latency = sum(TASK_LATENCY[3:5]) / 3
+        latency = round(_latency, 2)
+
+        embed._fields[index]['value'] = do_ping_string(latency)
+
+        await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+
+        TASK_STATS[index] = True
 
     embed = (
         discord.Embed(color=bot.color, timestamp=ctx.message.created_at)
@@ -369,59 +398,26 @@ async def ping(ctx: commands.Context):
 
     msg = await ctx.send("Calculating Latency...", embed=embed)
 
-    async def remove_content_on_finish(m):
-        while not all(TASK_STATS):
-            await asyncio.sleep(.3)
-
-        await m.edit(content=None, allowed_mentions=discord.AllowedMentions.none())
-
-    bot.create_task(remove_content_on_finish(msg))
-
+    # Reason why we don't use enumerate here is because enumerate doesn't continue with the Embed's index.
     discord_task_params = [
-        (0, 0, f'{bot.ping.EMOJIS["bot"]} Bot Latency:', bot.ping.bot_latency),
-        (1, 1, f'{bot.ping.EMOJIS["typing"]} Typing Latency:', bot.ping.typing_latency),
-        (2, 2, f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', bot.ping.discord_web_ping),
+        (0, 0, bot.ping.bot_latency),
+        (1, 1, bot.ping.typing_latency),
+        (2, 2, bot.ping.discord_web_ping),
+        (4, 3, bot.ping.database.postgresql),
+        (5, 4, bot.ping.database.redis),
+        (7, 5, bot.ping.api.openrobot),
+        (8, 6, bot.ping.r2_ping),
     ]
 
-    # Reason why we don't use enumerate here is because enumerate doesn't continue with the Embed's index.
-    for index, index_latency, name, func in discord_task_params:
-        bot.create_task(ping_task(msg, embed, index, index_latency, func))
+    tasks = [
+        *[ping_task(msg, embed, index, index_latency, func) for index, index_latency, func in discord_task_params],
+        remove_content_on_finish(msg),
+        calculate_average_discord_latency(msg, embed, 3),
+        calculate_average_database_latency(msg, embed, 6),
+        remove_content_on_finish(msg),
+    ]
 
-    async def calculate_average_discord_latency(m, embed, index):
-        while not all([False if x is None else True for x in TASK_LATENCY[:3]]):
-            await asyncio.sleep(.3)
-
-        _latency = sum(TASK_LATENCY[:3]) / 3
-        latency = round(_latency, 2)
-
-        embed._fields[index]['value'] = do_ping_string(latency)
-
-        await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
-
-        TASK_STATS[index] = True
-
-    bot.create_task(calculate_average_discord_latency(msg, embed, 3))
-
-    bot.create_task(ping_task(msg, embed, 4, 3, bot.ping.database.postgresql))
-    bot.create_task(ping_task(msg, embed, 5, 4, bot.ping.database.redis))
-
-    async def calculate_average_database_latency(m, embed, index):
-        while not all([False if x is None else True for x in TASK_LATENCY[3:5]]):
-            await asyncio.sleep(.3)
-
-        _latency = sum(TASK_LATENCY[3:5]) / 3
-        latency = round(_latency, 2)
-
-        embed._fields[index]['value'] = do_ping_string(latency)
-
-        await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
-
-        TASK_STATS[index] = True
-
-    bot.create_task(calculate_average_database_latency(msg, embed, 6))
-
-    bot.create_task(ping_task(msg, embed, 7, 5, bot.ping.api.openrobot))
-    bot.create_task(ping_task(msg, embed, 8, 6, bot.ping.r2_ping))
+    await asyncio.gather(*tasks)
 
 
 @bot.command("uptime", aliases=["up"])
