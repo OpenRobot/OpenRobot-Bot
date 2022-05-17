@@ -330,28 +330,41 @@ async def ping(ctx: commands.Context):
     TASK_LATENCY = [None] * 7
 
     async def ping_task(m, embed, index, func):
+        print(index, 1)
         try:
             _latency = await discord.utils.maybe_coroutine(func)
         except:
             _latency = None
 
-        if not hasattr(embed, '_fields'):
-            embed._fields = []
+        print(index, 2)
+
+        # if not hasattr(embed, '_fields'):
+        #     embed._fields = []
 
         if not _latency:
+            print(index, 3)
             embed._fields[index]['value'] = "Unavailable"
         else:
+            print(index, 4)
             _latency *= 1000
 
             latency = round(_latency, 2)
 
             TASK_LATENCY.insert(index, _latency)
 
+            print(index, 5)
+
             embed._fields[index]['value'] = do_ping_string(latency)
+
+            print(index, 6)
 
         await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
 
+        print(index, 7)
+
         TASK_STATS[index] = True
+
+        print(index, 8)
 
     embed = (
         discord.Embed(color=bot.color, timestamp=ctx.message.created_at)
