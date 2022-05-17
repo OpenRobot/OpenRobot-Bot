@@ -329,7 +329,7 @@ async def ping(ctx: commands.Context):
     TASK_STATS = [False] * 9
     TASK_LATENCY = [None] * 7
 
-    async def ping_task(m, embed, index, func):
+    async def ping_task(m, embed, index, index_latency, func):
         try:
             _latency = await discord.utils.maybe_coroutine(func)
         except:
@@ -416,14 +416,14 @@ async def ping(ctx: commands.Context):
     # )
 
     discord_task_params = [
-        (0, f'{bot.ping.EMOJIS["bot"]} Bot Latency:', bot.ping.bot_latency),
-        (1, f'{bot.ping.EMOJIS["typing"]} Typing Latency:', bot.ping.typing_latency),
-        (2, f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', bot.ping.discord_web_ping),
+        (0, 0, f'{bot.ping.EMOJIS["bot"]} Bot Latency:', bot.ping.bot_latency),
+        (1, 1, f'{bot.ping.EMOJIS["typing"]} Typing Latency:', bot.ping.typing_latency),
+        (2, 2, f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:', bot.ping.discord_web_ping),
     ]
 
     # Reason why we don't use enumerate here is because enumerate doesn't continue with the Embed's index.
-    for index, name, func in discord_task_params:
-        bot.create_task(ping_task(msg, embed, index, func))
+    for index, index_latency, name, func in discord_task_params:
+        bot.create_task(ping_task(msg, embed, index, index_latency, func))
 
     async def calculate_average_discord_latency(m, embed, index):
         print("discord", 1)
@@ -462,7 +462,7 @@ async def ping(ctx: commands.Context):
     #         value=do_ping_string(round(postgresql_ping * 1000, 2)),
     #     )
 
-    bot.create_task(ping_task(msg, embed, 4, bot.ping.database.postgresql))
+    bot.create_task(ping_task(msg, embed, 4, 3, bot.ping.database.postgresql))
 
     # redis_ping = None
     # if bot.redis:
@@ -473,7 +473,7 @@ async def ping(ctx: commands.Context):
     #         value=do_ping_string(round(redis_ping * 1000, 2)),
     #     )
 
-    bot.create_task(ping_task(msg, embed, 5, bot.ping.database.redis))
+    bot.create_task(ping_task(msg, embed, 5, 4, bot.ping.database.redis))
 
     # if redis_ping and postgresql_ping:
     #     embed.insert_field_at(
@@ -515,9 +515,9 @@ async def ping(ctx: commands.Context):
     #     inline=False,
     # )
 
-    bot.create_task(ping_task(msg, embed, 7, bot.ping.api.openrobot))
+    bot.create_task(ping_task(msg, embed, 7, 5, bot.ping.api.openrobot))
 
-    bot.create_task(ping_task(msg, embed, 8, bot.ping.r2_ping))
+    bot.create_task(ping_task(msg, embed, 8, 6, bot.ping.r2_ping))
 
     # embed.add_field(
     #     name=f'{bot.ping.EMOJIS["jeyy-api"]} Jeyy API Latency:',
