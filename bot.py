@@ -393,24 +393,24 @@ async def ping(ctx: commands.Context):
             .add_field(name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:', value="```fix\nCalculating...```") # 5
             .add_field(name=f'Average Database Latency:', value="```fix\nCalculating...```") # 6
             .add_field(name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:', value="```fix\nCalculating...```") # 7
-            .add_field(name=f'{bot.ping.EMOJIS["r2"]} CDN (Cloudflare R2) Latency:', value="```fix\nCalculating...```") # 8
+            .add_field(name=f'{bot.ping.EMOJIS["r2"]} CDN/Storage (Cloudflare R2) Latency:', value="```fix\nCalculating...```") # 8
     )
 
     msg = await ctx.send("Calculating Latency...", embed=embed)
 
     # Reason why we don't use enumerate here is because enumerate doesn't continue with the Embed's index.
-    discord_task_params = [
-        (0, 0, bot.ping.bot_latency),
-        (1, 1, bot.ping.typing_latency),
-        (2, 2, bot.ping.discord_web_ping),
-        (4, 3, bot.ping.database.postgresql),
-        (5, 4, bot.ping.database.redis),
-        (7, 5, bot.ping.api.openrobot),
-        (8, 6, bot.ping.r2_ping),
+    task_params = [
+        (0, bot.ping.bot_latency),
+        (1, bot.ping.typing_latency),
+        (2, bot.ping.discord_web_ping),
+        (4, bot.ping.database.postgresql),
+        (5, bot.ping.database.redis),
+        (7, bot.ping.api.openrobot),
+        (8, bot.ping.r2_ping),
     ]
 
     tasks = [
-        *[ping_task(msg, embed, index, index_latency, func) for index, index_latency, func in discord_task_params],
+        *[ping_task(msg, embed, index, index_latency, func) for index_latency, (index, func) in enumerate(task_params)],
         remove_content_on_finish(msg),
         calculate_average_discord_latency(msg, embed, 3),
         calculate_average_database_latency(msg, embed, 6),
