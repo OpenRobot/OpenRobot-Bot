@@ -324,8 +324,6 @@ async def ping(ctx: commands.Context):
 
         return s
 
-    # msg = await ctx.send("Calculating Latency...")
-
     TASK_STATS = [False] * 9
     TASK_LATENCY = [None] * 7
 
@@ -334,9 +332,6 @@ async def ping(ctx: commands.Context):
             _latency = await discord.utils.maybe_coroutine(func)
         except:
             _latency = None
-
-        # if not hasattr(embed, '_fields'):
-        #     embed._fields = []
 
         if not _latency:
             embed._fields[index]['value'] = "Unavailable"
@@ -375,45 +370,12 @@ async def ping(ctx: commands.Context):
     msg = await ctx.send("Calculating Latency...", embed=embed)
 
     async def remove_content_on_finish(m):
-        print("remove", 1)
-
         while not all(TASK_STATS):
-            await asyncio.sleep(1)
-
-        print("remove", 2)
-
-        await asyncio.sleep(1.5)
-
-        print("remove", 3)
+            await asyncio.sleep(.3)
 
         await m.edit(content=None, allowed_mentions=discord.AllowedMentions.none())
 
-        print("remove", 4)
-
     bot.create_task(remove_content_on_finish(msg))
-
-    # web_ping = await bot.ping.discord_web_ping() * 1000
-    # typing_ping = await bot.ping.typing_latency() * 1000
-    # bot_latency = bot.ping.bot_latency() * 1000
-    #
-    # embed.add_field(
-    #     name=f'{bot.ping.EMOJIS["bot"]} Bot Latency:',
-    #     value=do_ping_string(round(bot_latency, 2)),
-    # )
-    # embed.add_field(
-    #     name=f'{bot.ping.EMOJIS["typing"]} Typing Latency:',
-    #     value=do_ping_string(round(typing_ping, 2)),
-    # )
-    # embed.add_field(
-    #     name=f'{bot.ping.EMOJIS["discord"]} Discord Web Latency:',
-    #     value=do_ping_string(round(web_ping, 2)),
-    # )
-    #
-    # embed.add_field(
-    #     name="Average Discord Latency:",
-    #     value=do_ping_string(round((web_ping + typing_ping + bot_latency) / 3, 2)),
-    #     inline=False,
-    # )
 
     discord_task_params = [
         (0, 0, f'{bot.ping.EMOJIS["bot"]} Bot Latency:', bot.ping.bot_latency),
@@ -426,123 +388,40 @@ async def ping(ctx: commands.Context):
         bot.create_task(ping_task(msg, embed, index, index_latency, func))
 
     async def calculate_average_discord_latency(m, embed, index):
-        print("discord", 1)
         while not all([False if x is None else True for x in TASK_LATENCY[:3]]):
-            await asyncio.sleep(1)
-
-        print("discord", 2)
+            await asyncio.sleep(.3)
 
         _latency = sum(TASK_LATENCY[:3]) / 3
         latency = round(_latency, 2)
 
-        print("discord", 3, _latency, latency)
-
         embed._fields[index]['value'] = do_ping_string(latency)
-
-        print("discord", 4)
 
         await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
 
-        print("discord", 5)
-
         TASK_STATS[index] = True
-
-        print("discord", 6)
 
     bot.create_task(calculate_average_discord_latency(msg, embed, 3))
 
-    # if bot.pool is not None:
-    #     postgresql_ping = await bot.ping.database.postgresql()
-    # else:
-    #     postgresql_ping = None
-    #
-    # if postgresql_ping is not None:
-    #     embed.add_field(
-    #         name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:',
-    #         value=do_ping_string(round(postgresql_ping * 1000, 2)),
-    #     )
-
     bot.create_task(ping_task(msg, embed, 4, 3, bot.ping.database.postgresql))
-
-    # redis_ping = None
-    # if bot.redis:
-    #     redis_ping = await bot.ping.database.redis()
-    #
-    #     embed.add_field(
-    #         name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:',
-    #         value=do_ping_string(round(redis_ping * 1000, 2)),
-    #     )
-
     bot.create_task(ping_task(msg, embed, 5, 4, bot.ping.database.redis))
 
-    # if redis_ping and postgresql_ping:
-    #     embed.insert_field_at(
-    #         6,
-    #         name=f'Average Database Latency:',
-    #         value=do_ping_string(round((redis_ping * 1000 + postgresql_ping * 1000) / 2, 2)),
-    #     )
-
     async def calculate_average_database_latency(m, embed, index):
-        print("database", 1)
-
         while not all([False if x is None else True for x in TASK_LATENCY[3:5]]):
-            await asyncio.sleep(1)
-
-        print("database", 2)
+            await asyncio.sleep(.3)
 
         _latency = sum(TASK_LATENCY[3:5]) / 3
         latency = round(_latency, 2)
 
-        print("database", 3, _latency, latency)
-
         embed._fields[index]['value'] = do_ping_string(latency)
-
-        print("database", 4)
 
         await m.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
 
-        print("database", 5)
-
         TASK_STATS[index] = True
-
-        print("database", 6)
 
     bot.create_task(calculate_average_database_latency(msg, embed, 6))
 
-    # embed.add_field(
-    #     name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:',
-    #     value=do_ping_string(round(await bot.ping.api.openrobot() * 1000, 2)),
-    #     inline=False,
-    # )
-
     bot.create_task(ping_task(msg, embed, 7, 5, bot.ping.api.openrobot))
-
     bot.create_task(ping_task(msg, embed, 8, 6, bot.ping.r2_ping))
-
-    # embed.add_field(
-    #     name=f'{bot.ping.EMOJIS["jeyy-api"]} Jeyy API Latency:',
-    #     value=do_ping_string(round(await bot.ping.api.jeyy() * 1000, 2)),
-    # )
-    #
-    # # embed.add_field(
-    # #     name=f'{bot.ping.EMOJIS["dagpi"]} Dagpi API Latency:',
-    # #     value=do_ping_string(round(await bot.ping.api.dagpi() * 1000, 2)),
-    # # )
-    #
-    # # embed.add_field(
-    # #     name=f'{bot.ping.EMOJIS["waifu-im"]} Waifu.im API Latency:',
-    # #     value=do_ping_string(round(await bot.ping.api.waifu_im() * 1000, 2)),
-    # # )
-    #
-    # embed.add_field(
-    #     name=f'{bot.ping.EMOJIS["repi"]} OpenRobot REPI API Latency:',
-    #     value=do_ping_string(round(await bot.ping.api.repi() * 1000, 2)),
-    # )
-
-    # await msg.delete()
-    # await msg.edit(
-    #     embed=embed, content=None, allowed_mentions=discord.AllowedMentions.none()
-    # )
 
 
 @bot.command("uptime", aliases=["up"])
