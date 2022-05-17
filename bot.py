@@ -386,7 +386,7 @@ async def ping(ctx: commands.Context):
 
     async def remove_content_on_finish(m):
         while not all(TASK_STATS):
-            pass
+            await asyncio.sleep(1)
 
         await asyncio.sleep(1.5)
 
@@ -429,7 +429,7 @@ async def ping(ctx: commands.Context):
 
     async def calculate_average_discord_latency(m, embed, index):
         while not all([False if x is None else True for x in TASK_LATENCY[:3]]):
-            pass
+            await asyncio.sleep(1)
 
         _latency = sum(TASK_LATENCY[:3]) / 3
         latency = round(_latency, 2)
@@ -475,7 +475,7 @@ async def ping(ctx: commands.Context):
 
     async def calculate_average_database_latency(m, embed, index):
         while not all([False if x is None else True for x in TASK_LATENCY[3:5]]):
-            pass
+            await asyncio.sleep(1)
 
         _latency = sum(TASK_LATENCY[3:5]) / 3
         latency = round(_latency, 2)
