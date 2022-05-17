@@ -106,6 +106,16 @@ class Bot(commands.Bot):
         """Called upon an error being raised within an IPC route"""
         print(endpoint, "raised", error)
 
+    @staticmethod
+    def _exception_catching_callback(task):
+        if task.exception():
+            task.print_stack()
+
+    def create_task(self, coro, *, name=None):
+        task = self.loop.create_task(coro, name=name)
+        task.add_done_callback(self._exception_catching_callback)
+        return task
+
     def _color(self):
         return self.__color
 

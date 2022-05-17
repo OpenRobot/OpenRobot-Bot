@@ -326,8 +326,8 @@ async def ping(ctx: commands.Context):
 
     # msg = await ctx.send("Calculating Latency...")
 
-    TASK_STATS = [False] * 8
-    TASK_LATENCY = [None] * 6
+    TASK_STATS = [False] * 9
+    TASK_LATENCY = [None] * 7
 
     async def ping_task(m, embed, index, func):
         try:
@@ -365,7 +365,8 @@ async def ping(ctx: commands.Context):
             .add_field(name=f'{bot.ping.EMOJIS["postgresql"]} PostgreSQL Latency:', value="Calculating...") # 4
             .add_field(name=f'{bot.ping.EMOJIS["redis"]} Redis Latency:', value="Calculating...") # 5
             .add_field(name=f'Average Database Latency:', value="Calculating...") # 6
-            .add_field(name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:', value="Calculating...", inline=False) # 7
+            .add_field(name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:', value="Calculating...") # 7
+            .add_field(name=f'{bot.ping.EMOJIS["r2"]} CDN (Cloudflare R2) Latency:', value="Calculating...") # 8
     )
 
     msg = await ctx.send("Calculating Latency...", embed=embed)
@@ -378,7 +379,7 @@ async def ping(ctx: commands.Context):
 
         await m.edit(content=None, allowed_mentions=discord.AllowedMentions.none())
 
-    bot.loop.create_task(remove_content_on_finish(msg))
+    bot.create_task(remove_content_on_finish(msg))
 
     # web_ping = await bot.ping.discord_web_ping() * 1000
     # typing_ping = await bot.ping.typing_latency() * 1000
@@ -411,7 +412,7 @@ async def ping(ctx: commands.Context):
 
     # Reason why we don't use enumerate here is because enumerate doesn't continue with the Embed's index.
     for index, name, func in discord_task_params:
-        bot.loop.create_task(ping_task(msg, embed, index, func))
+        bot.create_task(ping_task(msg, embed, index, func))
 
     async def calculate_average_discord_latency(m, embed, index):
         while not all([False if x is None else True for x in TASK_LATENCY[:3]]):
@@ -426,7 +427,7 @@ async def ping(ctx: commands.Context):
 
         TASK_STATS[index] = True
 
-    bot.loop.create_task(calculate_average_discord_latency(msg, embed, 3))
+    bot.create_task(calculate_average_discord_latency(msg, embed, 3))
 
     # if bot.pool is not None:
     #     postgresql_ping = await bot.ping.database.postgresql()
@@ -439,7 +440,7 @@ async def ping(ctx: commands.Context):
     #         value=do_ping_string(round(postgresql_ping * 1000, 2)),
     #     )
 
-    bot.loop.create_task(ping_task(msg, embed, 4, bot.ping.database.postgresql))
+    bot.create_task(ping_task(msg, embed, 4, bot.ping.database.postgresql))
 
     # redis_ping = None
     # if bot.redis:
@@ -450,7 +451,7 @@ async def ping(ctx: commands.Context):
     #         value=do_ping_string(round(redis_ping * 1000, 2)),
     #     )
 
-    bot.loop.create_task(ping_task(msg, embed, 5, bot.ping.database.redis))
+    bot.create_task(ping_task(msg, embed, 5, bot.ping.database.redis))
 
     # if redis_ping and postgresql_ping:
     #     embed.insert_field_at(
@@ -472,7 +473,7 @@ async def ping(ctx: commands.Context):
 
         TASK_STATS[index] = True
 
-    bot.loop.create_task(calculate_average_database_latency(msg, embed, 6))
+    bot.create_task(calculate_average_database_latency(msg, embed, 6))
 
     # embed.add_field(
     #     name=f'{bot.ping.EMOJIS["openrobot-api"]} OpenRobot API Latency:',
@@ -480,7 +481,9 @@ async def ping(ctx: commands.Context):
     #     inline=False,
     # )
 
-    bot.loop.create_task(ping_task(msg, embed, 7, bot.ping.api.openrobot))
+    bot.create_task(ping_task(msg, embed, 7, bot.ping.api.openrobot))
+
+    bot.create_task(ping_task(msg, embed, 8, bot.ping.r2_ping))
 
     # embed.add_field(
     #     name=f'{bot.ping.EMOJIS["jeyy-api"]} Jeyy API Latency:',
@@ -1223,7 +1226,7 @@ async def lyrics(
                     stop_process = True
                     await msg.delete()
 
-            bot.loop.create_task(do_stop())
+            bot.create_task(do_stop())
 
             if stop_process:
                 return
@@ -1625,7 +1628,7 @@ async def spotify(
             self.query = query
             self.response = None
 
-            bot.loop.create_task(self.get_lyrics())
+            bot.create_task(self.get_lyrics())
 
         async def get_lyrics(self):
             if self.embeds:
@@ -2623,18 +2626,18 @@ def start(**kwargs):
         )
 
     def start_tasks():
-        bot.loop.create_task(parse_flags(**kwargs))
-        bot.loop.create_task(do_on_ready())
-        bot.loop.create_task(do_restart_message())
-        bot.loop.create_task(send_online_msg())
+        bot.create_task(parse_flags(**kwargs))
+        bot.create_task(do_on_ready())
+        bot.create_task(do_restart_message())
+        bot.create_task(send_online_msg())
 
         try:
-            bot.loop.create_task(bot.cogs["Music"].renew())
+            bot.create_task(bot.cogs["Music"].renew())
         except KeyError:  # Cog isnt loaded
             pass
 
         try:
-            bot.loop.create_task(bot.cogs["Error"].initiate_tb_pool())
+            bot.create_task(bot.cogs["Error"].initiate_tb_pool())
         except KeyError:  # Cog isnt loaded
             pass
 

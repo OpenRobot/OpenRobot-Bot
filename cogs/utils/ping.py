@@ -148,10 +148,13 @@ class Ping:
         "waifu-im": "<:waifuim:922500126969319476>",
         "dagpi": "<:dagpi:922499421772599346>",
         "repi": "<:repi:938813831390584873>",
+        "r2": "<:r2white:976076378854260749>"
     }
 
     URLS = {
         "discord": "https://discordapp.com/",
+        "r2": "https://2d10f17ec6d128afd9d4c0cc9483de8b.r2.cloudflarestorage.com/openrobot-cdn/",
+        "r2-worker": "https://cdn.openrobot.xyz/"
     }
 
     def __init__(self, bot: commands.Bot):
@@ -205,3 +208,23 @@ class Ping:
                 return (end - start) * 1000
             case _:
                 return end - start
+
+    async def r2_ping(self, format: str = "seconds") -> int | float:
+        url = self.URLS['r2']
+        url2 = self.URLS['r2-worker']
+
+        start1 = time.perf_counter()
+        async with self.bot.session.get(url) as resp:
+            end1 = time.perf_counter()
+
+        start2 = time.perf_counter()
+        async with self.bot.session.get(url2) as resp:
+            end2 = time.perf_counter()
+
+        latency = ((end1 - start1) + (end2 - start2)) / 2
+
+        match format.lower():
+            case "ms" | "milliseconds" | "millisecond":
+                return latency * 1000
+            case _:
+                return latency
