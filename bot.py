@@ -73,6 +73,10 @@ class Bot(BaseBot):
     CDN_BUCKET_URL = "cdn.openrobot.xyz"
     ICDN_URL = "icdn.openrobot.xyz"
 
+    BOT_FLAGS = {}
+
+    EXTS = []
+
     @staticmethod
     def line_count(directory: str = "./") -> LineCount:
         p = pathlib.Path(directory)
@@ -98,6 +102,167 @@ class Bot(BaseBot):
             files=fc, lines=ls, classes=cl, functions=fn, coroutines=cr, comments=cm
         )
 
+    @staticmethod
+    def set_flags(flags):
+        Bot.BOT_FLAGS = flags
+
+    async def _perform_flags(self):
+        self.pool = None
+        self.redis = None
+        self.spotify_redis = None
+        self.rethinkdb = None
+
+        flags = Bot.BOT_FLAGS
+
+        if flags.get('db'):
+            self.pool = await asyncpg.create_pool(config.DATABASE)
+            # bot.spotify_pool = await asyncpg.create_pool(config.SPOTIFY_DATABASE)
+            self.redis = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS)
+            self.spotify_redis = aioredis.Redis(
+                **config.REDIS_DATABASE_CRIDENTIALS, db=1
+            )
+            # bot.tb_pool = await asyncpg.create_pool(config.TRACEBACK_DATABASE)
+
+            # bot.cache = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=2)
+
+            try:
+                bot.rethinkdb.connect(**config.RETHINKDB_CRIDENTIALS).repl()
+            except:
+                pass
+
+        if flags.get("cogs") is False:
+            Bot.EXTS.clear()
+        elif flags.get("cogs") is not None and "cogs" not in flags:
+            l = list(
+                filter(lambda i: i[0].startswith("without-") and i[1], flags.items())
+            )
+
+            for i in l:
+                try:
+                    Bot.EXTS.remove(i)
+                except KeyError:
+                    try:
+                        Bot.EXTS.remove("cogs." + i)
+                    except:
+                        pass
+
+        if flags.get("colour") and self.color is None:
+            try:
+                self.color = await commands.ColourConverter().convert(
+                    None, flags.get("colour")
+                )  # ctx argument isn't used, so we'll just pass in None.
+            except:
+                pass
+
+        if flags.get("color") and self.color is None:
+            try:
+                bot.color = await commands.ColourConverter().convert(
+                    None, flags.get("color")
+                )  # ctx argument isn't used, so we'll just pass in None.
+            except:
+                pass
+
+        self.color = self.color or discord.Colour(0x38B6FF)
+
+    async def _load_music(self):
+        await self.wait_until_ready()
+
+        # self.owner = bot.get_user(699839134709317642)
+
+        try:
+            await bot.cogs["Music"].initiate_node()
+        except KeyError:  # Cog isn't loaded
+            pass
+
+    async def _do_restart_message(self):
+        await self.wait_until_ready()
+
+        utcnow = discord.utils.utcnow()
+
+        with open("restart.json", "r") as f:
+            js: dict = json.load(f)
+
+        with open("restart.json", "w") as f:
+            json.dump({}, f, indent=4)
+
+        if ("channel_id" in js) and ("message_id" in js) and ("restarted_at" in js):
+            restarted_at = datetime.datetime.fromtimestamp(
+                js["restarted_at"], tz=datetime.timezone.utc
+            )
+            restart_duration = utcnow - restarted_at
+
+            chan = bot.get_channel(js["channel_id"])
+
+            if chan:
+                msg = chan.get_partial_message(js["message_id"])
+
+                try:
+                    await msg.edit(
+                        embed=discord.Embed(
+                            description=f"Back in `{restart_duration.seconds} seconds`.",
+                            color=bot.color,
+                        )
+                    )
+                except:
+                    pass
+
+    async def _send_online_msg(self):
+        await self.wait_until_ready()
+
+        utcnow = discord.utils.utcnow()
+
+        webhook = discord.Webhook.from_url(config.UPTIME_WEBHOOK, session=bot.session)
+        await webhook.send(
+            embed=discord.Embed(
+                description=f'<:status_online:596576749790429200> OpenRobot is going online and up!\n\nAt: {discord.utils.format_dt(utcnow, "F")}',
+                color=bot.color,
+                timestamp=utcnow,
+            )
+        )
+
+    def _start_tasks(self):
+        self.create_task(self._load_music())
+        self.create_task(self._do_restart_message())
+        self.create_task(self._send_online_msg())
+
+        try:
+            self.create_task(self.cogs["Music"].renew())
+        except KeyError:  # Cog isnt loaded
+            pass
+
+        try:
+            self.create_task(self.cogs["Error"].initiate_tb_pool())
+        except KeyError:  # Cog isnt loaded
+            pass
+
+        self.christmas = ChristmasEvent(bot)
+        self.christmas.start()
+
+        self.ipc.start()
+
+    def shutdown(self):
+        utcnow = discord.utils.utcnow()
+
+        webhook = discord.SyncWebhook.from_url(config.UPTIME_WEBHOOK)
+        webhook.send(
+            embed=discord.Embed(
+                description=f'<:status_offline:596576752013279242> OpenRobot is going offline and shutting down!\n\nAt: {discord.utils.format_dt(utcnow, "F")}',
+                color=bot.color,
+                timestamp=utcnow,
+            )
+        )
+
+    async def setup_hook(self):
+        await self._perform_flags()
+
+        for ext in Bot.EXTS:
+            try:
+                await bot.load_extension(ext)
+            except:
+                pass
+
+        self._start_tasks()
+
     @executor()
     def screenshot(self, url: str, *, delay: int = None, ad_block: bool = False, use_proxy: bool = False):
         if delay is not None:
@@ -115,30 +280,30 @@ class Bot(BaseBot):
 
         return buffer
 
-    async def publishCdn(
-            self, fp: BytesIO, filename: str = "uwu.png", from_aiohttp=True, file_type=None
-    ):
-        fileType = file_type or f"{filename.split('.')[-1:]}"
-
-        if from_aiohttp:
-            original = fp.close
-            fp.close = lambda: None
-
-        data = aiohttp.FormData()
-        data.add_field("file", fp)
-
-        url = f"https://cdn.ayomerdeka.com/upload?Authorization={config.CDN_TOKEN}&File-Type={fileType}"
-
-        try:
-            async with self.session.post(url, data=data) as resps:
-                if resps.status == 200:
-                    d = await resps.json()
-                    return d["url"]
-                else:
-                    return None
-        finally:
-            if from_aiohttp:
-                fp.close = original
+    # async def publishCdn(
+    #         self, fp: BytesIO, filename: str = "uwu.png", from_aiohttp=True, file_type=None
+    # ):
+    #     fileType = file_type or f"{filename.split('.')[-1:]}"
+    #
+    #     if from_aiohttp:
+    #         original = fp.close
+    #         fp.close = lambda: None
+    #
+    #     data = aiohttp.FormData()
+    #     data.add_field("file", fp)
+    #
+    #     url = f"https://cdn.ayomerdeka.com/upload?Authorization={config.CDN_TOKEN}&File-Type={fileType}"
+    #
+    #     try:
+    #         async with self.session.post(url, data=data) as resps:
+    #             if resps.status == 200:
+    #                 d = await resps.json()
+    #                 return d["url"]
+    #             else:
+    #                 return None
+    #     finally:
+    #         if from_aiohttp:
+    #             fp.close = original
 
     @executor()  # CDN may be blocking, so lets just use an executor just in case
     def publish_s3_cdn(
@@ -2392,7 +2557,7 @@ async def invite(
 
 bot.confirm = _confirm
 
-bot.exts = [
+bot.EXTS = [
     # 'jishaku',
     "cogs.api",
     "cogs.error",
@@ -2409,164 +2574,10 @@ bot.exts = [
 ]
 
 
-def start(**kwargs):
-    async def parse_flags(**kwargs):
-        if kwargs.get("db") is False:
-            bot.pool = None
-            bot.redis = None
-            bot.spotify_redis = None
-            bot.rethinkdb = None
-        else:
-            bot.pool = await asyncpg.create_pool(config.DATABASE)
-            # bot.spotify_pool = await asyncpg.create_pool(config.SPOTIFY_DATABASE)
-            bot.redis = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS)
-            bot.spotify_redis = aioredis.Redis(
-                **config.REDIS_DATABASE_CRIDENTIALS, db=1
-            )
-            # bot.tb_pool = await asyncpg.create_pool(config.TRACEBACK_DATABASE)
-
-            # bot.cache = aioredis.Redis(**config.REDIS_DATABASE_CRIDENTIALS, db=2)
-
-            try:
-                bot.rethinkdb.connect(**config.RETHINKDB_CRIDENTIALS).repl()
-            except:
-                pass
-
-        if kwargs.get("cogs") is not None and "cogs" not in kwargs:
-            l = list(
-                filter(lambda i: i[0].startswith("without-") and i[1], kwargs.items())
-            )
-
-            for i in l:
-                try:
-                    bot.exts.remove(i)
-                except KeyError:
-                    try:
-                        bot.exts.remove("cogs." + i)
-                    except:
-                        pass
-
-            for ext in bot.exts:
-                try:
-                    bot.load_extension(ext)
-                except:
-                    pass
-        elif kwargs.get("cogs") is True:
-            for ext in bot.exts:
-                try:
-                    bot.load_extension(ext)
-                except:
-                    pass
-        else:
-            pass
-
-        if kwargs.get("colour") and bot.color is None:
-            try:
-                bot.color = await commands.ColourConverter().convert(
-                    None, kwargs.get("colour")
-                )  # ctx argument isn't used, so we'll just pass in None.
-            except:
-                pass
-
-        if kwargs.get("color") and bot.color is None:
-            try:
-                bot.color = await commands.ColourConverter().convert(
-                    None, kwargs.get("color")
-                )  # ctx argument isn't used, so we'll just pass in None.
-            except:
-                pass
-
-        bot.color = bot.color or discord.Colour(0x38B6FF)
-
-    async def do_on_ready():
-        await bot.wait_until_ready()
-
-        bot.owner = bot.get_user(699839134709317642)
-
-        try:
-            await bot.cogs["Music"].initiate_node()
-        except KeyError:  # Cog isnt loaded
-            pass
-
-    async def do_restart_message():
-        await bot.wait_until_ready()
-
-        utcnow = discord.utils.utcnow()
-
-        with open("restart.json", "r") as f:
-            js: dict = json.load(f)
-
-        with open("restart.json", "w") as f:
-            json.dump({}, f, indent=4)
-
-        if ("channel_id" in js) and ("message_id" in js) and ("restarted_at" in js):
-            restarted_at = datetime.datetime.fromtimestamp(
-                js["restarted_at"], tz=datetime.timezone.utc
-            )
-            restart_duration = utcnow - restarted_at
-
-            chan = bot.get_channel(js["channel_id"])
-
-            if chan:
-                msg = chan.get_partial_message(js["message_id"])
-
-                try:
-                    await msg.edit(
-                        embed=discord.Embed(
-                            description=f"Back in `{restart_duration.seconds} seconds`.",
-                            color=bot.color,
-                        )
-                    )
-                except:
-                    pass
-
-    async def send_online_msg():
-        await bot.wait_until_ready()
-
-        utcnow = discord.utils.utcnow()
-
-        webhook = discord.Webhook.from_url(config.UPTIME_WEBHOOK, session=bot.session)
-        await webhook.send(
-            embed=discord.Embed(
-                description=f'<:status_online:596576749790429200> OpenRobot is going online and up!\n\nAt: {discord.utils.format_dt(utcnow, "F")}',
-                color=bot.color,
-                timestamp=utcnow,
-            )
-        )
-
-    def start_tasks():
-        bot.create_task(parse_flags(**kwargs))
-        bot.create_task(do_on_ready())
-        bot.create_task(do_restart_message())
-        bot.create_task(send_online_msg())
-
-        try:
-            bot.create_task(bot.cogs["Music"].renew())
-        except KeyError:  # Cog isnt loaded
-            pass
-
-        try:
-            bot.create_task(bot.cogs["Error"].initiate_tb_pool())
-        except KeyError:  # Cog isnt loaded
-            pass
-
-        bot.christmas = ChristmasEvent(bot)
-        bot.christmas.start()
-
-        bot.ipc.start()
-
-    start_tasks()
+def start(**flags):
+    Bot.set_flags(flags)
 
     try:
         bot.run(config.TOKEN)
     finally:
-        utcnow = discord.utils.utcnow()
-
-        webhook = discord.SyncWebhook.from_url(config.UPTIME_WEBHOOK)
-        webhook.send(
-            embed=discord.Embed(
-                description=f'<:status_offline:596576752013279242> OpenRobot is going offline and shutting down!\n\nAt: {discord.utils.format_dt(utcnow, "F")}',
-                color=bot.color,
-                timestamp=utcnow,
-            )
-        )
+        bot.shutdown()

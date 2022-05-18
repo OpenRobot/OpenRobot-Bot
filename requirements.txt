@@ -1,9 +1,8 @@
-git+https://github.com/iDevision/enhanced-discord.py
-git+https://github.com/proguy914629bot/discord-ext-menus
+git+https://github.com/Rapptz/discord.py
+git+https://github.com/Rapptz/discord-ext-menus
 git+https://github.com/OpenRobot-Packages/API-Wrapper
 git+https://github.com/OpenRobot-Packages/Python-Discord-Activities
 git+https://github.com/Gorialis/jishaku
-git+https://github.com/ShineyDev/prettify.py
 git+https://github.com/sivel/speedtest-cli
 git+https://github.com/ShineyDev/prettify.py@v1.0.0
 git+https://github.com/Ext-Creators/discord-ext-ipc

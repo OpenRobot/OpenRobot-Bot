@@ -2,7 +2,7 @@ import typing
 from discord.ext import commands
 
 
-class Command(commands.Command):
+class _Command(commands.Command):
     def __init__(self, *args, **kwargs):
         self.kwargs: dict[str, typing.Any] = kwargs
 
@@ -19,21 +19,16 @@ class Command(commands.Command):
         return s
 
 
-class Group(commands.Group):
-    def __init__(self, *args, **kwargs):
-        self.kwargs: dict[str, typing.Any] = kwargs
+class _Group(commands.Group, _Command):
+    pass
 
-        super().__init__(*args, **kwargs)
 
-        self.example: str = kwargs.get("example", self._get_original_example())
+class Command(commands.HybridCommand, _Command):
+    pass
 
-    def _get_original_example(self):
-        s = self.qualified_name
 
-        if usage := self.usage:
-            s += f" {usage}"
-
-        return s
+class Group(commands.HybridGroup, _Group):
+    pass
 
 
 def command(*args, **kwargs):
