@@ -254,7 +254,7 @@ class Bot(BaseBot):
 
     async def setup_hook(self):
         try:
-            super().setup_hook()
+            await super().setup_hook()
         except:
             pass
 
