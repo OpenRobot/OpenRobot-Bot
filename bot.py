@@ -501,7 +501,8 @@ async def ping(ctx: commands.Context):
     async def ping_task(m, embed, index, index_latency, func):
         try:
             _latency = await discord.utils.maybe_coroutine(func)
-        except:
+        except Exception as e:
+            raise e
             _latency = None
 
         if not _latency:
