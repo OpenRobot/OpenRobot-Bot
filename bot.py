@@ -415,7 +415,7 @@ bot = Bot(
     slash_commands=True,
 )
 
-api = bot.api
+api = None
 
 
 def override(func):  # Plainly just for `source` command.
@@ -434,6 +434,9 @@ logger.addHandler(handler)
 @override
 async def on_ready():
     print(f"{bot.user} is ready!")
+
+    global api
+    api = bot.api
 
 
 @bot.event
