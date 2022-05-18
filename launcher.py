@@ -3,6 +3,7 @@ import os
 import jishaku
 from discord import Colour
 from bot import start
+import asyncio
 
 args = sys.argv
 
@@ -41,4 +42,4 @@ if "without-jishaku" not in kwargs:
 if "--traceback-color" in args:
     os.environ["NO_COLOR"] = "False"
 
-start(**kwargs)
+asyncio.run(start(**kwargs))

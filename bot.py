@@ -2574,10 +2574,11 @@ bot.EXTS = [
 ]
 
 
-def start(**flags):
+async def start(**flags):
     Bot.set_flags(flags)
 
-    try:
-        bot.run(config.TOKEN)
-    finally:
-        bot.shutdown()
+    async with bot:
+        try:
+            await bot.start(config.TOKEN)
+        finally:
+            bot.shutdown()
