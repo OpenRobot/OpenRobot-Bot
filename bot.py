@@ -902,101 +902,101 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 # @bot.command(
 #     aliases=["act"], cls=Command, example="activity My-VC-Channel Watch Together"
 # )
-async def activity(
-        # ctx: commands.Context,
-        # channel: typing.Optional[discord.VoiceChannel] = commands.Option(
-        #     None, description="The voice channel to start the activity. Defaults to the channel you are in."
-        # ),
-        # *,
-        # activity: typing.Literal[
-        #     "Watch Together",
-        #     "Poker Night",
-        #     "Chess",
-        #     "Sketch Heads",
-        #     "Word Snacks",
-        #     "Letter Leauge",
-        #     "Spellcast",
-        #     "Checkers",
-        #     "Fishington",
-        #     "Betrayal",
-        #     "Ocho"
-        # ] = commands.Option(None, description="The activity to start."),
-):
-    channel = channel or (ctx.author.voice.channel if ctx.author.voice else None)
-
-    if channel is None:
-        return await ctx.send("A channel is required to start the activity!")
-
-    if channel.permissions_for(ctx.me).create_instant_invite is False:
-        return await ctx.send(
-            f"I need the `Create Invite` permissions for {channel.mention} to start the activity!"
-        )
-
-    if activity is None:
-        activities = discord_activity.ActivityType._member_names_
-
-        class Select(discord.ui.Select):
-            def __init__(self):
-                super().__init__(
-                    placeholder="Select an activity",
-                    options=[
-                        discord.SelectOption(
-                            label=x.replace("_", " ").title(),
-                            description=f"Start a {x.replace('_', ' ').title()} activity.",
-                        )
-                        for x in activities
-                    ],
-                )
-
-            async def callback(self, interaction: discord.Interaction):
-                nonlocal activity
-                activity = self.values[0]
-
-                await interaction.message.delete()
-
-                self.view.stop()
-
-        class View(discord.ui.View):
-            def __init__(self):
-                super().__init__(timeout=None)
-
-                self.add_item(Select())
-
-            async def interaction_check(self, interaction: discord.Interaction) -> bool:
-                if interaction.user != ctx.author and not await bot.is_owner(
-                        ctx.author
-                ):
-                    await interaction.response.send_message(
-                        "This is not your interaction!", ephemeral=True
-                    )
-
-                    return False
-
-                return True
-
-        view = View()
-        await ctx.send("Please select an activity to start.", view=view)
-
-        await view.wait()
-
-    act = getattr(discord_activity.ActivityType, activity.replace(" ", "_").lower())
-
-    try:
-        started_activity = await bot.discord_activity.set_activity(channel.id, act)
-    except Exception as e:
-        if ctx.debug:
-            raise e
-
-        return await ctx.send(
-            f"Something wen't wrong. Make sure I have `Create Invite` permissions in {channel.mention}!"
-        )
-
-    await ctx.send(
-        embed=discord.Embed(
-            color=bot.color,
-            description=f"[Click here to start your `{activity}` activity]({started_activity.url})",
-        )
-    )
+# async def activity(
+#         ctx: commands.Context,
+#         channel: typing.Optional[discord.VoiceChannel] = commands.Option(
+#             None, description="The voice channel to start the activity. Defaults to the channel you are in."
+#         ),
+#         *,
+#         activity: typing.Literal[
+#             "Watch Together",
+#             "Poker Night",
+#             "Chess",
+#             "Sketch Heads",
+#             "Word Snacks",
+#             "Letter Leauge",
+#             "Spellcast",
+#             "Checkers",
+#             "Fishington",
+#             "Betrayal",
+#             "Ocho"
+#         ] = commands.Option(None, description="The activity to start."),
+# ):
+#     channel = channel or (ctx.author.voice.channel if ctx.author.voice else None)
+#
+#     if channel is None:
+#         return await ctx.send("A channel is required to start the activity!")
+#
+#     if channel.permissions_for(ctx.me).create_instant_invite is False:
+#         return await ctx.send(
+#             f"I need the `Create Invite` permissions for {channel.mention} to start the activity!"
+#         )
+#
+#     if activity is None:
+#         activities = discord_activity.ActivityType._member_names_
+#
+#         class Select(discord.ui.Select):
+#             def __init__(self):
+#                 super().__init__(
+#                     placeholder="Select an activity",
+#                     options=[
+#                         discord.SelectOption(
+#                             label=x.replace("_", " ").title(),
+#                             description=f"Start a {x.replace('_', ' ').title()} activity.",
+#                         )
+#                         for x in activities
+#                     ],
+#                 )
+#
+#             async def callback(self, interaction: discord.Interaction):
+#                 nonlocal activity
+#                 activity = self.values[0]
+#
+#                 await interaction.message.delete()
+#
+#                 self.view.stop()
+#
+#         class View(discord.ui.View):
+#             def __init__(self):
+#                 super().__init__(timeout=None)
+#
+#                 self.add_item(Select())
+#
+#             async def interaction_check(self, interaction: discord.Interaction) -> bool:
+#                 if interaction.user != ctx.author and not await bot.is_owner(
+#                         ctx.author
+#                 ):
+#                     await interaction.response.send_message(
+#                         "This is not your interaction!", ephemeral=True
+#                     )
+#
+#                     return False
+#
+#                 return True
+#
+#         view = View()
+#         await ctx.send("Please select an activity to start.", view=view)
+#
+#         await view.wait()
+#
+#     act = getattr(discord_activity.ActivityType, activity.replace(" ", "_").lower())
+#
+#     try:
+#         started_activity = await bot.discord_activity.set_activity(channel.id, act)
+#     except Exception as e:
+#         if ctx.debug:
+#             raise e
+#
+#         return await ctx.send(
+#             f"Something wen't wrong. Make sure I have `Create Invite` permissions in {channel.mention}!"
+#         )
+#
+#     await ctx.send(
+#         embed=discord.Embed(
+#             color=bot.color,
+#             description=f"[Click here to start your `{activity}` activity]({started_activity.url})",
+#         )
+#     )
 
 
 # @activity.error
