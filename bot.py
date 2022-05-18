@@ -236,10 +236,10 @@ class Bot(BaseBot):
         except KeyError:  # Cog isnt loaded
             pass
 
-        self.christmas = ChristmasEvent(bot)
-        self.christmas.start()
+        # self.christmas = ChristmasEvent(bot)
+        # self.christmas.start()
 
-        self.ipc.start()
+        #self.ipc.start()
 
     def shutdown(self):
         utcnow = discord.utils.utcnow()
