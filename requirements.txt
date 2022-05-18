@@ -7,6 +7,7 @@ git+https://github.com/sivel/speedtest-cli
 git+https://github.com/ShineyDev/prettify.py@v1.0.0
 git+https://github.com/Ext-Creators/discord-ext-ipc
 git+https://github.com/Axelware/slate
+git+https://github.com/proguy914629bot/aiospotify
 traceback-with-variables
 asyncpg>=0.24.0
 psutil>=5.8.0
@@ -23,5 +24,4 @@ black
 rethinkdb
 tabulate
 py-cpuinfo
-aiospotify
 colorthief
