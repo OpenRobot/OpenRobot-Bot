@@ -460,12 +460,12 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
 
 
 @bot.command(name="beta", cls=Command, example="beta spotify", hidden=True)
-async def execute_beta(ctx: commands.Context, *command):
+async def execute_beta(ctx: commands.Context, *, command):
     if not command:
         return await ctx.send("A command name is a required argument to provide!")
 
     msg = copy.copy(ctx.message)
-    msg.content = f"{ctx.prefix}" + " ".join(command)
+    msg.content = f"{ctx.prefix}" + command
 
     ctx = await bot.get_context(msg)
 
