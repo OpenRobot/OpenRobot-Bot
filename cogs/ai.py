@@ -11,6 +11,7 @@ import string
 import asyncio
 from io import StringIO, BytesIO
 from config import OPENAI_KEY, AWS_CRIDENTIALS
+from discord import app_commands
 from discord.ext import commands
 from cogs.utils import (
     Cog,
@@ -227,13 +228,12 @@ AI: 5 times 6 is 30"""
     )
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.cooldown(1, 250, commands.BucketType.user)  # 5 minute cooldown
+    @app_commands.describe(code="The code/link to be reviewed.")
     async def review_code(
         self,
         ctx: commands.Context,
         *,
-        code: CodeblockConverter = commands.Option(
-            None, description="The code/link to be reviewed."
-        ),
+        code: CodeblockConverter = None
     ):
         """
         Reviews a code and sends suggestions to improve it.
@@ -691,13 +691,12 @@ AI: 5 times 6 is 30"""
         aliases=["nsfwcheck", "nsfw_check", "check"],
         example="nsfw-check My-Image-URL-Or-Attachment",
     )
+    @app_commands.describe(image="The image. This can be a URL or a image attached.")
     async def nsfw_check(
         self,
         ctx: commands.Context,
         *,
-        image=commands.Option(
-            None, description="The image. This can be a URL or a image attached."
-        ),
+        image=None,
     ):
         """
         NSFW Checks an Image.
@@ -777,13 +776,12 @@ AI: 5 times 6 is 30"""
         await ctx.send(embed=embed)
 
     @command(slash_command=False, example="celebrity My-Image-URL-Or-Attachment")
+    @app_commands.describe(image="The image. This can be a URL or a image attached.")
     async def celebrity(
         self,
         ctx: commands.Context,
         *,
-        image=commands.Option(
-            None, description="The image. This can be a URL or a image attached."
-        ),
+        image=None,
     ):
         """
         Finds a celebrity in a image. Note that this is not 100% accurate and is still on beta.
@@ -994,13 +992,12 @@ AI: 5 times 6 is 30"""
             return await ctx.send("Something went wrong. Please try again.")
 
     @command(example="ocr My-Image-URL-Or-Attachment")
+    @app_commands.describe(image="The image. This can be a URL or a image attached.")
     async def ocr(
         self,
         ctx: commands.Context,
         *,
-        image=commands.Option(
-            None, description="The image. This can be a URL or a image attached."
-        ),
+        image=None,
     ):
         """
         Optical Character Recognition. Reads text from images.
@@ -1175,13 +1172,12 @@ AI: 5 times 6 is 30"""
         cls=Command,
         example="translate languages",
     )
+    @app_commands.describe(flags="Add --raw to this to get the raw response.")
     async def languages(
         self,
         ctx: commands.Context,
         *,
-        flags: str = commands.Option(
-            "", description="Add --raw to this to get the raw response."
-        ),
+        flags: str = "",
     ):
         """
         Gets a list of languages supported by the translator.

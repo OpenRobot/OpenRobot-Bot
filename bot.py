@@ -34,6 +34,7 @@ import speedtest
 import aiospotify
 import async_timeout
 
+from discord import app_commands
 from discord.ext import commands
 from humanize import naturalsize as get_size
 from openrobot import discord_activities as discord_activity
@@ -902,24 +903,24 @@ Packet Loss: {str(round(data['packetLoss'], 2)) + '%' if 'packetLoss' in data el
 #     aliases=["act"], cls=Command, example="activity My-VC-Channel Watch Together"
 # )
 async def activity(
-        ctx: commands.Context,
-        channel: typing.Optional[discord.VoiceChannel] = commands.Option(
-            None, description="The voice channel to start the activity. Defaults to the channel you are in."
-        ),
-        *,
-        activity: typing.Literal[
-            "Watch Together",
-            "Poker Night",
-            "Chess",
-            "Sketch Heads",
-            "Word Snacks",
-            "Letter Leauge",
-            "Spellcast",
-            "Checkers",
-            "Fishington",
-            "Betrayal",
-            "Ocho"
-        ] = commands.Option(None, description="The activity to start."),
+        # ctx: commands.Context,
+        # channel: typing.Optional[discord.VoiceChannel] = commands.Option(
+        #     None, description="The voice channel to start the activity. Defaults to the channel you are in."
+        # ),
+        # *,
+        # activity: typing.Literal[
+        #     "Watch Together",
+        #     "Poker Night",
+        #     "Chess",
+        #     "Sketch Heads",
+        #     "Word Snacks",
+        #     "Letter Leauge",
+        #     "Spellcast",
+        #     "Checkers",
+        #     "Fishington",
+        #     "Betrayal",
+        #     "Ocho"
+        # ] = commands.Option(None, description="The activity to start."),
 ):
     channel = channel or (ctx.author.voice.channel if ctx.author.voice else None)
 
@@ -1086,10 +1087,11 @@ async def claimable_tags(ctx: commands.Context):
 
 
 @bot.command(cls=Command, example="lyrics See You Again")
+@app_commands.describe(query='The query to search for the lyrics.')
 async def lyrics(
         ctx: commands.Context,
         *,
-        query: str = commands.Option(description="The query to search for the lyrics."),
+        query: str,
 ):
     """
     Get lyrics on a specific song/query.
@@ -1336,16 +1338,14 @@ async def lyrics(
 
 
 @bot.command(aliases=["ss"], cls=Command, example="screenshot https://google.com/")
+@app_commands.describe(url="The website URL to screenshot", delay="Waits for x seconds before taking the screenshot",
+                       flags="Flags to pass to the screenshot utility.")
 async def screenshot(
         ctx: commands.Context,
-        url: str = commands.Option(description="The website URL to screenshot."),
-        delay: typing.Optional[int] = commands.Option(
-            None, description="Waits for x seconds before taking the screenshot."
-        ),
+        url: str,
+        delay: typing.Optional[int] = None,
         *,
-        flags: str = commands.Option(
-            None, description="Flags to pass to the screenshot utility."
-        )
+        flags: str = None
 ):
     """
     Screenshots a URL.
@@ -1462,7 +1462,7 @@ async def spotify(ctx: commands.Context):
 async def spotify_login(
         ctx: commands.Context,
         *,
-        flags: str = commands.Option(None, description="Flags: [--interactive]"),
+        flags: str, # = commands.Option(None, description="Flags: [--interactive]")
 ):
     """
     Pair your spotify account to OpenRobot x Spotify.
@@ -2334,12 +2334,11 @@ bot.codeblock = codeblock
 
 
 @bot.command(aliases=["src"], cls=Command, example="source spotify")
+@app_commands.describe(command="The command name/cog/event to get the source code")
 async def source(
         ctx: commands.Context,
         *,
-        command: str = commands.Option(
-            None, description="The command name/cog/event to get the source code"
-        ),
+        command: str = None
 ):
     """
     The source code of OpenRobot. You can get a code from a specific
@@ -2524,12 +2523,11 @@ async def _confirm(ctx, channel=None, *args, **kwargs):
 
 
 @bot.command(cls=Command, example="invite")
+@app_commands.describe(option="Either Slash Commands or Message Commands (Normal)")
 async def invite(
         ctx: commands.Context,
         *,
-        option: typing.Literal["Slash Commands", "Bot Invite"] = commands.Option(
-            "Bot Invite", description="Either Slash Commands or Message Commands (Normal)"
-        ),
+        option: typing.Literal["Slash Commands", "Bot Invite"] = "Bot Invite"
 ):
     if option == "Bot Invite":
         url_with_slash = discord.utils.oauth_url(

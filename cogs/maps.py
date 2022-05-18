@@ -4,9 +4,10 @@ import glob
 from io import StringIO, BytesIO
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
-from cogs.utils import Cog, command, group, Command, Group
+from cogs.utils import Cog, command, group, Command, Group, OriginalCommand, OriginalGroup
 
 
 class Maps(Cog, emoji='<:maps:970725022538805258>'):
@@ -293,7 +294,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
 
         return embed, discord.File(image, filename='map.png')
 
-    @group(invoke_without_command=True, slash_command=False, aliases=['map'])
+    @commands.group(invoke_without_command=True, slash_command=False, aliases=['map'], cls=OriginalGroup)
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def maps(self, ctx, *, query):
@@ -343,7 +344,7 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
         else:
             await ctx.send_help(ctx.command)
 
-    @maps.command('search', cls=Command, slash_command=False)
+    @maps.command('search', cls=OriginalCommand, slash_command=False)
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def maps_search(self, ctx, *, query):
@@ -486,10 +487,10 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
     maps_concurrency = commands.MaxConcurrency(1, per=commands.BucketType.user, wait=False)
     maps_cooldown = commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.user)
 
-    @command('maps-render', message_command=False)
-    async def slash_maps(self, ctx,
-                         query: str = commands.Option(description='The location to render the image of the map.'),
-                         dark: bool = commands.Option(False, description='Makes the image in dark mode')):
+    @app_commands.command(name='maps-render')
+    @app_commands.describe(query='The location to render the image of the map.',
+                           dark='Whether to render the image in Dark Mode.')
+    async def slash_maps(self, ctx, query: str, dark: bool = False):
         """
         Searches for a location using the query provided, then renders it in a image.
         """
@@ -537,11 +538,10 @@ class Maps(Cog, emoji='<:maps:970725022538805258>'):
     maps_search_concurrency = commands.MaxConcurrency(1, per=commands.BucketType.user, wait=False)
     maps_search_cooldown = commands.CooldownMapping.from_cooldown(1, 10, commands.BucketType.user)
 
-    @command('maps-search', message_command=False)
-    async def slash_maps_search(self, ctx,
-                                query: str = commands.Option(
-                                    description='The location to render the image of the map.'),
-                                dark: bool = commands.Option(False, description='Makes the image in dark mode')):
+    @app_commands.command(name='maps-search')
+    @app_commands.describe(query='The location to render the image of the map.',
+                           dark='Whether to render the image in Dark Mode.')
+    async def slash_maps_search(self, ctx, query: str, dark: bool = False):
         """
         Searches for a location using the query provided, then renders it in an image.
         """

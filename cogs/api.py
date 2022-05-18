@@ -8,6 +8,7 @@ import json
 import datetime
 import humanize
 from secrets import token_urlsafe as generate_token
+from discord import app_commands
 from discord.ext import commands
 from cogs.utils import (
     Cog,
@@ -614,14 +615,13 @@ class API(Cog, emoji="<:OpenRobotLogo:901132699241168937>"):
         return msg
 
     @api.command("apply", cls=Command, example="api apply")
+    @app_commands.describe(reason="Enter the reason why you want to apply for the API.")
     @checks.api.has_not_applied()
     async def api_apply(
         self,
         ctx: commands.Context,
         *,
-        reason: str = commands.Option(
-            None, description="Enter the reason why you want to apply for the API."
-        ),
+        reason: str
     ):
         """
         Applies yourself for the OpenRobot API.
@@ -687,11 +687,12 @@ __**Info:**__
         "approve", aliases=["accept"], cls=Command, example="api approve @user"
     )
     @commands.is_owner()
+    @app_commands.describe(arguments="Usage: [user] [--force]")
     async def api_approve(
         self,
         ctx: commands.Context,
         *,
-        arguments: str = commands.Option(description="Usage: [user] [--force]"),
+        arguments: str,
     ):
         """
         Approve/Accept a User request to access the API. Owner-Only command.
@@ -820,15 +821,15 @@ __**Info:**__
         else:
             await ctx.send(f"Token has been sent to {user}.")
 
+    # TODO: check flags api deny
     @api.command("deny", cls=Command, example="api deny @user")
     @commands.is_owner()
+    # @app_commands.describe(flags="Usage: --user <@user> [--reason]")
     async def api_deny(
         self,
         ctx: commands.Context,
         *,
-        flags: APIDenyFlag = commands.Option(
-            description="Usage: --user <@user> [--reason]"
-        ),
+        flags: APIDenyFlag, # "Usage: --user <@user> [--reason]"
     ):
         """
         Denies a User request to access the API. Owner-Only command.
@@ -895,13 +896,12 @@ __**Info:**__
         example="api deauth @user",
     )
     @commands.is_owner()
+    @app_commands.describe(user="The user you want to deauthorize.")
     async def api_deauth(
         self,
         ctx: commands.Context,
         *,
-        user: discord.User = commands.Option(
-            description="The user you want to deauthorize."
-        ),
+        user: discord.User,
     ):
         """
         Deauthenticate a user, making the token unuseable. Owner-Only command.
@@ -943,13 +943,12 @@ __**Info:**__
         example="api reauth @user",
     )
     @commands.is_owner()
+    @app_commands.command(user="The user you want to reauthorize.")
     async def api_reauth(
         self,
         ctx: commands.Context,
         *,
-        user: discord.User = commands.Option(
-            description="The user you want to reauthorize."
-        ),
+        user: discord.User,
     ):
         """
         Reauthenticate a user. Owner-Only command.
@@ -998,11 +997,12 @@ __**Info:**__
         example="api regenerate-token",
     )
     @checks.api.has_applied()
+    @app_commands.describe(arguments="Flags: [--force]")
     async def api_regenerate_token(
         self,
         ctx: commands.Context,
         *,
-        arguments: str = commands.Option(None, description="Flags: [--force]"),
+        arguments: str = None,
     ):
         """
         Regenerates your OpenRobot API token.
@@ -1090,14 +1090,12 @@ __**Info:**__
 
     @api.group("info", invoke_without_command=True, cls=Group, example="api info")
     @checks.api.has_applied()
+    @app_commands.describe(arguments='Flags: [--ignore-guild-warning] [--yes] [--order "Newest to Oldest"/"Oldest to Newest"]')
     async def api_info(
         self,
         ctx: commands.Context,
         *,
-        arguments: str = commands.Option(
-            None,
-            description='Flags: [--ignore-guild-warning] [--yes] [--order "Newest to Oldest"/"Oldest to Newest"]',
-        ),
+        arguments: str = None,
     ):
         """
         Gets info/logs on your token. Useful for tracking, etc.
@@ -1194,11 +1192,12 @@ __**Info:**__
 
     @api_info.command("reset", cls=Command, example="api info reset")
     @checks.api.has_applied()
+    @app_commands.describe(arguments='Flags: [--yes]')
     async def api_info_reset(
         self,
         ctx: commands.Context,
         *,
-        arguments: str = commands.Option(None, description="Flags: [--yes]"),
+        arguments: str = None,
     ):
         """
         Resets your OpenRobot API logs. Note that this action cannot be undone.
@@ -1284,14 +1283,12 @@ __**Info:**__
 
     @api_ip.command("list", aliases=["show"], cls=Command, example="api ip list")
     @checks.api.has_applied()
+    @app_commands.describe(arguments='Flags: [--ignore-guild-warning] [--yes] [--order "Newest to Oldest"/"Oldest to Newest"]')
     async def api_ip_list(
         self,
         ctx,
         *,
-        arguments: str = commands.Option(
-            None,
-            description='Flags: [--ignore-guild-warning] [--yes] [--order "Newest to Oldest"/"Oldest to Newest"]',
-        ),
+        arguments: str = None,
     ):
         """
         Gets a list of the Ban IPs you banned.
@@ -1382,12 +1379,13 @@ __**Info:**__
         example="api ip ban Insert-IP Your-Reason",
     )
     @checks.api.has_applied()
+    @app_commands.describe(ip="The IP to ban", reason="The reason for the ban")
     async def api_ip_ban(
         self,
         ctx,
-        ip: str = commands.Option(description="The IP to ban."),
+        ip: str,
         *,
-        reason: str = commands.Option(None, description="The reason for the ban."),
+        reason: str = None,
     ):
         """
         IP bans a IP from using your token. This can accept either IPv4 or IPv6.
@@ -1460,8 +1458,9 @@ __**Info:**__
         example="api ip unban Insert-IP",
     )
     @checks.api.has_applied()
+    @app_commands.describe(ip="The IP Address to unban")
     async def api_ip_unban(
-        self, ctx, *, ip: str = commands.Option(description="The IP Address to unban.")
+        self, ctx, *, ip: str
     ):
         """
         IP unban a IP from using your token. This can accept either IPv4 or IPv6.
