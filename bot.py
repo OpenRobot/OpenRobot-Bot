@@ -253,6 +253,11 @@ class Bot(BaseBot):
         )
 
     async def setup_hook(self):
+        try:
+            super().setup_hook()
+        except:
+            pass
+
         await self._perform_flags()
 
         for ext in Bot.EXTS:

@@ -24,6 +24,7 @@ class Bot(commands.Bot):
     def __init__(self, *args, **options):
         super().__init__(*args, **options)
 
+    async def setup_hook(self):
         self.running_commands = {}
 
         # Some other attrs that can be used
