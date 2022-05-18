@@ -1682,7 +1682,7 @@ async def spotify_logout(ctx: commands.Context):
 
 @bot.command(aliases=["sp"], cls=Command, example="spotify @Member")
 async def spotify(
-        ctx: commands.Context, member: typing.Optional[discord.Member] = None, *flags
+        ctx: commands.Context, member: typing.Optional[discord.Member] = None, *, flags
 ):
     """
     Shows a member's currently listening track in spotify. Defaults to yourself.
@@ -1694,6 +1694,8 @@ async def spotify(
     """
 
     member = member or ctx.author
+
+    flags = flags.split(" ")
 
     flags = [x.lower() for x in flags]
 
