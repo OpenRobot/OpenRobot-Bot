@@ -261,7 +261,8 @@ class Bot(BaseBot):
         for ext in Bot.EXTS:
             try:
                 await bot.load_extension(ext)
-            except:
+            except Exception as e:
+                raise e
                 pass
 
         self._start_tasks()
