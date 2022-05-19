@@ -23,5 +23,5 @@ class Events(Cog):
     async def on_command(self, ctx: commands.Context):
         self.bot.commands_invoked += 1
 
-def setup(bot):
-    bot.add_cog(Events(bot))
+async def setup(bot):
+    await bot.add_cog(Events(bot))

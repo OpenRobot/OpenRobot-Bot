@@ -55,5 +55,5 @@ class RePI(Cog, emoji="<:repi:938813831390584873>"):
                 return await ctx.send(f"Failed to unban IP `{ip}`.")
 
 
-def setup(bot):
-    bot.add_cog(RePI(bot))
+async def setup(bot):
+    await bot.add_cog(RePI(bot))

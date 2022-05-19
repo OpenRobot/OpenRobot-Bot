@@ -250,5 +250,5 @@ class Speech(Cog, emoji="\U0001f399"):
         return await ctx.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(Speech(bot))
+async def setup(bot):
+    await bot.add_cog(Speech(bot))

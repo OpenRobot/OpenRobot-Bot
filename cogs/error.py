@@ -236,5 +236,5 @@ class Error(Cog):
         raise error
 
 
-def setup(bot):
-    bot.add_cog(Error(bot))
+async def setup(bot):
+    await bot.add_cog(Error(bot))

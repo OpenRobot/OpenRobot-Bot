@@ -410,5 +410,5 @@ Exited with code {proc.returncode}.```
                 return await ctx.send("\n".join(l))
 
 
-def setup(bot):
-    bot.add_cog(Jishaku(bot=bot))
+async def setup(bot):
+    await bot.add_cog(Jishaku(bot=bot))

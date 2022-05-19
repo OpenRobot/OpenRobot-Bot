@@ -1513,5 +1513,5 @@ __**Info:**__
         await ctx.send(f"IP unbanned {ip}.")
 
 
-def setup(bot):
-    bot.add_cog(API(bot))
+async def setup(bot):
+    await bot.add_cog(API(bot))

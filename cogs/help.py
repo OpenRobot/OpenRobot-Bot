@@ -285,5 +285,5 @@ class Help(Cog, emoji="<:help:901151299284922369>"):
         self.bot.help_command.cog = self
 
 
-def setup(bot):
-    bot.add_cog(Help(bot))
+async def setup(bot):
+    await bot.add_cog(Help(bot))

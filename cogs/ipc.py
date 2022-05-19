@@ -115,5 +115,5 @@ Method: Requested from API Website.
 
         return db["token"]
 
-def setup(bot):
-    bot.add_cog(IPCRoutes(bot))
+async def setup(bot):
+    await bot.add_cog(IPCRoutes(bot))

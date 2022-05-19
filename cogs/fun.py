@@ -916,5 +916,5 @@ If you have hit a BINGO, you may go to the original message sent by the bot in {
             await m.edit(content=f"Rolled a `{choice}`!", view=None)
 
 
-def setup(bot):
-    bot.add_cog(Fun(bot))
+async def setup(bot):
+    await bot.add_cog(Fun(bot))

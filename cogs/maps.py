@@ -867,5 +867,5 @@ Restored (After):
             self.cache_process_running = False
 
 
-def setup(bot):
-    bot.add_cog(Maps(bot))
+async def setup(bot):
+    await bot.add_cog(Maps(bot))

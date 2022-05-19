@@ -1209,5 +1209,5 @@ AI: 5 times 6 is 30"""
             )
 
 
-def setup(bot):
-    bot.add_cog(AI(bot))
+async def setup(bot):
+    await bot.add_cog(AI(bot))
