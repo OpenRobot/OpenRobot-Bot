@@ -1,0 +1,16 @@
+[
+    {
+        "name": "Bot",
+        "script": "./launcher.py",
+        "interpreter": "./venv/bin/python3",
+        "cwd": "/home/ubuntu/Bot",
+        "instances": 1
+    },
+    {
+        "name": "Bot-Legacy",
+        "script": "./launcher.py",
+        "interpreter": "./venv-legacy/bin/python3",
+        "cwd": "/home/ubuntu/Bot",
+        "instances": 1
+    }
+]
