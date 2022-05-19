@@ -457,6 +457,34 @@ async def on_message_edit(before: discord.Message, after: discord.Message):
     await bot.process_commands(after)
 
 
+@bot.command(hidden=True)
+@commands.is_owner()
+async def sync(ctx: commands.Context, guilds: commands.Greedy[discord.Object], spec: typing.Optional[typing.Literal["~", "*"]] = None):
+    if not guilds:
+        if spec == "~":
+            fmt = await ctx.bot.tree.sync(guild=ctx.guild)
+        elif spec == "*":
+            ctx.bot.tree.copy_global_to(guild=ctx.guild)
+            fmt = await ctx.bot.tree.sync(guild=ctx.guild)
+        else:
+            fmt = await ctx.bot.tree.sync()
+
+        return await ctx.send(
+            f"Synced {len(fmt)} commands {'globally' if spec is None else 'to the current guild.'}"
+        )
+
+    fmt = 0
+    for guild in guilds:
+        try:
+            await ctx.bot.tree.sync(guild=guild)
+        except discord.HTTPException:
+            pass
+        else:
+            fmt += 1
+
+    return await ctx.send(f"Synced the tree to {fmt}/{len(guilds)} guilds.")
+
+
 @bot.command(name="beta", cls=Command, example="beta spotify", hidden=True)
 async def execute_beta(ctx: commands.Context, *, command):
     if not command:
