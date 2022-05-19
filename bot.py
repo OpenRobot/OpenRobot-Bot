@@ -76,7 +76,21 @@ class Bot(BaseBot):
 
     BOT_FLAGS = {}
 
-    EXTS = []
+    EXTS = [
+        # 'jishaku',
+        "cogs.api",
+        "cogs.error",
+        # "cogs.music",
+        "cogs.help",
+        "cogs.jsk",
+        "cogs.fun",
+        "cogs.speech",
+        "cogs.ai",
+        "cogs.repi",
+        "cogs.ipc",
+        "cogs.events",
+        "cogs.maps"
+    ]
 
     @staticmethod
     def line_count(directory: str = "./") -> LineCount:
@@ -2592,21 +2606,21 @@ async def invite(
 
 bot.confirm = _confirm
 
-bot.EXTS = [
-    # 'jishaku',
-    "cogs.api",
-    "cogs.error",
-    # "cogs.music",
-    "cogs.help",
-    "cogs.jsk",
-    "cogs.fun",
-    "cogs.speech",
-    "cogs.ai",
-    "cogs.repi",
-    "cogs.ipc",
-    "cogs.events",
-    "cogs.maps"
-]
+# Bot.EXTS = [
+#     # 'jishaku',
+#     "cogs.api",
+#     "cogs.error",
+#     # "cogs.music",
+#     "cogs.help",
+#     "cogs.jsk",
+#     "cogs.fun",
+#     "cogs.speech",
+#     "cogs.ai",
+#     "cogs.repi",
+#     "cogs.ipc",
+#     "cogs.events",
+#     "cogs.maps"
+# ]
 
 
 async def start(**flags):
