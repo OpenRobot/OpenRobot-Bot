@@ -1,3 +1,5 @@
+import io
+
 import inspect
 import typing
 import discord
@@ -43,6 +45,10 @@ class AI(Cog, emoji="🤖"):
 
         self.codecommit = boto3.client("codecommit", **AWS_CRIDENTIALS)
         self.codeguru = boto3.client("codeguru-reviewer", **AWS_CRIDENTIALS)
+
+    async def get_img_bytes(self, url: str):
+        async with self.bot.session.get(url) as resp:
+            return await resp.read()
 
     @staticmethod
     def get_ai_text():
@@ -688,7 +694,7 @@ AI: 5 times 6 is 30"""
 
     @command(
         "nsfw-check",
-        aliases=["nsfwcheck", "nsfw_check", "check"],
+        aliases=["nsfwcheck", "nsfw_check", "check", "nc", "nsfw"],
         example="nsfw-check My-Image-URL-Or-Attachment",
     )
     async def nsfw_check(
@@ -701,8 +707,6 @@ AI: 5 times 6 is 30"""
     ):
         """
         NSFW Checks an Image.
-
-        Heavily inspired by [Ami#7836](https://discord.com/users/801742991185936384)'s check command
 
         Flags:
         - `--raw`: Returns the raw response sent by our (OpenRobot) API.
@@ -721,7 +725,8 @@ AI: 5 times 6 is 30"""
             or ctx.author.display_avatar.url
         )
 
-        check = await self.bot.api.nsfw_check(url)
+        img = await self.get_img_bytes(url)
+        check = await self.bot.api.nsfw_check(img)
 
         if raw:
             s = StringIO()
@@ -730,53 +735,79 @@ AI: 5 times 6 is 30"""
 
             return await ctx.send(file=discord.File(s, "response.json"))
 
-        label_str = ""
-
-        parent_name_added = []
-
-        for label in reversed(
-            check.labels
-        ):  # Childrens are always returned last in the label, so.....
-            if label.name in parent_name_added:
-                continue
-
-            label_str += f"- `{label.name}` - `{round(label.confidence, 2)}%`\n"
-
-            if label.parent_name:
-                parent_name_added.append(label.parent_name)
-
-        label_str = label_str[:-1]  # remove last newline.
-
-        safe_score = round(100 - check.score * 100, 2)
-        safe_score = int(safe_score) if safe_score % 1 == 0 else safe_score
-        unsafe_score = round(check.score * 100, 2)
-        unsafe_score = int(unsafe_score) if unsafe_score % 1 == 0 else unsafe_score
-
-        is_safe = not bool(check.labels) and safe_score > unsafe_score
-
-        newline = "\n"  # Python won't let backstrings in f-strings, so yeah.
+#         label_str = ""
+#
+#         parent_name_added = []
+#
+#         for label in reversed(
+#             check.labels
+#         ):  # Childrens are always returned last in the label, so.....
+#             if label.name in parent_name_added:
+#                 continue
+#
+#             label_str += f"- `{label.name}` - `{round(label.confidence, 2)}%`\n"
+#
+#             if label.parent_name:
+#                 parent_name_added.append(label.parent_name)
+#
+#         label_str = label_str[:-1]  # remove last newline.
+#
+#         safe_score = round(100 - check.score * 100, 2)
+#         safe_score = int(safe_score) if safe_score % 1 == 0 else safe_score
+#         unsafe_score = round(check.score * 100, 2)
+#         unsafe_score = int(unsafe_score) if unsafe_score % 1 == 0 else unsafe_score
+#
+#         is_safe = not bool(check.labels) and safe_score > unsafe_score
+#
+#         newline = "\n"  # Python won't let back-strings in f-strings, so yeah.
+#
+#         embed = discord.Embed(color=self.bot.color)
+#         embed.set_image(url=url)
+#         embed.add_field(
+#             name="<:status_dnd:596576774364856321> Unsafe Score:",
+#             value=f"`{unsafe_score}%`",
+#         )
+#         embed.add_field(
+#             name="<:status_online:596576749790429200> Safe Score:",
+#             value=f"`{safe_score}%`",
+#         )
+#         embed.description = f"""
+# **Is Safe:** {is_safe}
+# **Labels:**{newline + label_str if label_str else ' None.'}
+#         """
+#         embed.set_footer(
+#             text="Powered by OpenRobot API (https://api.openrobot.xyz/)\nInspired by Ami#7836"
+#         )
+#
+#         await ctx.send(embed=embed)
 
         embed = discord.Embed(color=self.bot.color)
         embed.set_image(url=url)
         embed.add_field(
-            name="<:status_dnd:596576774364856321> Unsafe Score:",
-            value=f"`{unsafe_score}%`",
+            name="Adult:",
+            value=f"""
+Is Adult Content: {check.adult.is_adult}
+Adult Score: {round(check.adult.score * 100, 1)}
+            """
         )
         embed.add_field(
-            name="<:status_online:596576749790429200> Safe Score:",
-            value=f"`{safe_score}%`",
+            name="Racy:",
+            value=f"""
+Is Racy Content: {check.racy.is_racy}
+Racy Score: {round(check.racy.score * 100, 1)}
+            """
         )
-        embed.description = f"""
-**Is Safe:** {is_safe}
-**Labels:**{newline + label_str if label_str else ' None.'}
-        """
-        embed.set_footer(
-            text="Powered by OpenRobot API (https://api.openrobot.xyz/)\nInspired by Ami#7836"
+        embed.add_field(
+            name="Gore:",
+            value=f"""
+Is Gore Content: {check.gore.is_gore}
+Gore Score: {round(check.gore.score * 100, 1)}
+            """
         )
 
-        await ctx.send(embed=embed)
+        return await ctx.send(embed=embed)
 
-    @command(slash_command=False, example="celebrity My-Image-URL-Or-Attachment")
+    @command(example="celebrity My-Image-URL-Or-Attachment")
     async def celebrity(
         self,
         ctx: commands.Context,
@@ -797,13 +828,15 @@ AI: 5 times 6 is 30"""
         if not url:
             return await ctx.send("No image provided.")
 
-        async with self.bot.session.get(url) as resp:
-            img_bytes = BytesIO(await resp.read())
+        img = await self.get_img_bytes(url)
+
+        data = aiohttp.FormData()
+        data.add_field('file', io.BytesIO(img))
 
         try:
-            async with self.bot.session.get(
+            async with self.bot.session.post(
                 "https://api.openrobot.xyz/api/celebrity",
-                params={"url": url},
+                data=data,
                 headers={"Authorization": self.bot.api.token},
             ) as resp:
                 js = await resp.json()
@@ -821,11 +854,11 @@ AI: 5 times 6 is 30"""
 
                 pass
 
-            if not js["detectedFaces"]:
+            if not js["celebrities"]:
                 try:
                     return await ctx.send(
                         "Celebrity cannot be found in the image provided.",
-                        file=discord.File(img_bytes, "image_celebrity.png"),
+                        file=discord.File(img, "image_celebrity.png"),
                     )
                 except Exception as e:
                     if ctx.debug:
@@ -844,9 +877,9 @@ AI: 5 times 6 is 30"""
 
             l = [
                 CelebrityProperties(
-                    url=url, cropped_url=None, name=i["Name"], raw=js, item=i
+                    url=url, cropped_url=None, name=i["name"], raw=js, item=i
                 )
-                for i in js["detectedFaces"]
+                for i in js["celebrities"]
             ]
 
             # for i in js['detectedFaces']:
@@ -860,7 +893,7 @@ AI: 5 times 6 is 30"""
             try:
                 return await ctx.send(
                     "Celebrity cannot be found in the image provided.",
-                    file=discord.File(img_bytes, "image_celebrity.png"),
+                    file=discord.File(img, "image_celebrity.png"),
                 )
             except:
                 return await ctx.send(
@@ -1018,7 +1051,8 @@ AI: 5 times 6 is 30"""
             await ctx.interaction.response.defer()
 
         try:
-            ocr_result = await self.bot.api.ocr(source=url)
+            img = await self.get_img_bytes(url)
+            ocr_result = await self.bot.api.ocr(img)
 
             try:
                 if "--raw" in image.split(" "):

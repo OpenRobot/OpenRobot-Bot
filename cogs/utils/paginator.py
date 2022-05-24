@@ -497,10 +497,6 @@ class CelebrityPaginator(ListPageSource):
         if page.cropped_url:
             embed.set_thumbnail(url=page.cropped_url)
 
-        emotion = sorted(
-            page.item["Face"]["Emotions"], key=lambda i: i["Confidence"], reverse=True
-        )
-
         urls = ""
 
         for url in page.item["URLs"]:
@@ -514,19 +510,13 @@ class CelebrityPaginator(ListPageSource):
         newline = "\n"
 
         embed.description = f"""
-Seems like this is `{page.name}`. I am `{round(page.item['Confidence'], 1)}%` sure.
+Seems like this is `{page.name}`. I am `{round(page.item['confidence'] * 100, 1)}%` sure.
 
-- **Name:** `{page.name}`
-- **Gender:** `{page.item['Gender']}`
-- **Is Smiling:** `{page.item['Face']['Smile']['Value']}`
-- **Emotion:** `{emotion[0]['Type'].lower().capitalize()}` - `Confidence: {round(emotion[0]['Confidence'], 1)}%`
-- **Pose:**
- \u200b \u200b \u200b- **Roll:** `{page.item['Face']['Pose']['Roll']}`
- \u200b \u200b \u200b- **Yaw:** `{page.item['Face']['Pose']['Yaw']}`
- \u200b \u200b \u200b- **Pitch:** `{page.item['Face']['Pose']['Pitch']}`{f'{newline}- **URLs Related to {page.name}:** {newline}{urls}' if urls else ''}
-- **Picture Quality:**
- \u200b \u200b \u200b- **Brightness:** `{round(page.item['Face']['Quality']['Brightness'], 1)}%`
- \u200b \u200b \u200b- **Sharpness:** `{round(page.item['Face']['Quality']['Sharpness'], 1)}%`
+- **Face Rectangle:**
+ \u200b \u200b \u200b- **Left:** `{page.item['face_rectangle']['left']}`
+ \u200b \u200b \u200b- **Top:** `{page.item['face_rectangle']['top']}`
+ \u200b \u200b \u200b- **Width:** `{page.item['face_rectangle']['width']}`
+ \u200b \u200b \u200b- **Height:** `{page.item['face_rectangle']['height']}`
         """
 
         embed.set_footer(text=f"Page {menu.current_page + 1}/{self.get_max_pages()}")
