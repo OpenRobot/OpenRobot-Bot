@@ -48,7 +48,7 @@ class AI(Cog, emoji="🤖"):
 
     async def get_img_bytes(self, url: str):
         async with self.bot.session.get(url) as resp:
-            return await resp.read()
+            return io.BytesIO(await resp.read())
 
     @staticmethod
     def get_ai_text():
