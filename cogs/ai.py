@@ -781,28 +781,34 @@ AI: 5 times 6 is 30"""
 #
 #         await ctx.send(embed=embed)
 
-        embed = discord.Embed(color=self.bot.color)
+        embed = discord.Embed(color=self.bot.color, title='NSFW Check')
         embed.set_image(url=url)
         embed.add_field(
-            name="Adult:",
+            name="__**Adult:**__",
             value=f"""
-Is Adult Content: {check.adult.is_adult}
-Adult Score: {round(check.adult.adult_score * 100, 1)}
-            """
+**Is Adult Content:** `{check.adult.is_adult}`
+**Adult Score:** `{round(check.adult.adult_score * 100, 1)}`
+            """,
+            inline=False
         )
         embed.add_field(
             name="Racy:",
             value=f"""
-Is Racy Content: {check.racy.is_racy}
-Racy Score: {round(check.racy.racy_score * 100, 1)}
-            """
+**Is Racy Content:** `{check.racy.is_racy}`
+**Racy Score:** `{round(check.racy.racy_score * 100, 1)}`
+            """,
+            inline=False
         )
         embed.add_field(
             name="Gore:",
             value=f"""
-Is Gore Content: {check.gore.is_gore}
-Gore Score: {round(check.gore.gore_score * 100, 1)}
-            """
+**Is Gore Content:** `{check.gore.is_gore}`
+**Gore Score:** `{round(check.gore.gore_score * 100, 1)}`
+            """,
+            inline=False
+        )
+        embed.set_footer(
+            text="Powered by OpenRobot API (https://api.openrobot.xyz/)"
         )
 
         return await ctx.send(embed=embed)
