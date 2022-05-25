@@ -1071,7 +1071,7 @@ AI: 5 times 6 is 30"""
                     embed.description += f"- {caption.text} | `Confidence: {round(caption.confidence * 100, 2)}%`\n"
 
             return await ctx.send(embed=embed)
-        except:
+        except Exception as e:
             if ctx.debug:
                 raise e
 
