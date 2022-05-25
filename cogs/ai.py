@@ -1032,6 +1032,51 @@ AI: 5 times 6 is 30"""
 
             return await ctx.send("Something went wrong. Please try again.")
 
+    @command(example="caption My-Image-URL-Or-Attachment", aliases=['description', 'captions', 'tags', 'descriptions'])
+    async def caption(
+        self,
+        ctx: commands.Context,
+        *,
+        image=commands.Option(
+            None, description="The image. This can be a URL or a image attached."
+        )
+    ):
+        """
+        Generates a caption from the image.
+
+        Flags:
+        - `--raw`: Returns the raw response sent by our (OpenRobot) API.
+        """
+
+        url = await ImageConverter(strip_remove=["--raw"]).convert(ctx, image)
+
+        if not url:
+            return await ctx.send("No image provided.")
+
+        if ctx.interaction is not None:
+            await ctx.interaction.response.defer()
+
+        try:
+            img = await self.get_img_bytes(url)
+            description = await self.bot.api.description(img)
+
+            embed = discord.Embed(color=self.bot.color, title='Caption')
+            embed.description = f"**Tags:** {', '.join(description.tags)}\n\n**Captions:**\n"
+            embed.set_image(url=url)
+
+            if not description.captions:
+                embed.description += "No captions found."
+            else:
+                for caption in description.captions:
+                    embed.description += f"- {caption.text} | `Confidence: {round(caption.confidence * 100, 2)}%`\n"
+
+            return await ctx.send(embed=embed)
+        except:
+            if ctx.debug:
+                raise e
+
+            return await ctx.send("Failed to generate caption.")
+
     @command(example="ocr My-Image-URL-Or-Attachment")
     async def ocr(
         self,
