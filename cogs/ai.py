@@ -787,21 +787,21 @@ AI: 5 times 6 is 30"""
             name="Adult:",
             value=f"""
 Is Adult Content: {check.adult.is_adult}
-Adult Score: {round(check.adult.score * 100, 1)}
+Adult Score: {round(check.adult.adult_score * 100, 1)}
             """
         )
         embed.add_field(
             name="Racy:",
             value=f"""
 Is Racy Content: {check.racy.is_racy}
-Racy Score: {round(check.racy.score * 100, 1)}
+Racy Score: {round(check.racy.racy_score * 100, 1)}
             """
         )
         embed.add_field(
             name="Gore:",
             value=f"""
 Is Gore Content: {check.gore.is_gore}
-Gore Score: {round(check.gore.score * 100, 1)}
+Gore Score: {round(check.gore.gore_score * 100, 1)}
             """
         )
 
