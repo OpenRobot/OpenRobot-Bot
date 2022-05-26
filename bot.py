@@ -53,6 +53,7 @@ from cogs.utils import (
     checks,
     rdanny,
     naturalnumber,
+    library_override,
 )
 
 from cogs.utils.spotify import spotify as spotify_img
