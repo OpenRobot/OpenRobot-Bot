@@ -2554,7 +2554,7 @@ def start(**kwargs):
         bot.christmas = ChristmasEvent(bot)
         bot.christmas.start()
 
-        bot.ipc.start()
+        #bot.ipc.start()
 
     start_tasks()
 
