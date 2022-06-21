@@ -2,4 +2,4 @@
 The source code for the OpenRobot Discord Bot
 
 # License
-MIT
+MPL (Mozilla Public License) 2.0
